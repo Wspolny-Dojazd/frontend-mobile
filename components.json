@@ -1,6 +1,6 @@
 {
   "aliases": {
-    "components": "~/components",
-    "lib": "~/lib"
+    "components": "@/src/components",
+    "lib": "@/src/lib"
   }
 }

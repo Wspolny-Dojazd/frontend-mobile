@@ -1,20 +1,22 @@
-import { View, Text, Pressable } from 'react-native';
+import { Pressable, PressableProps } from 'react-native';
 
-import { MoonStar } from '~/lib/icons/MoonStar';
-import { Sun } from '~/lib/icons/Sun';
-import { useColorScheme } from '~/lib/useColorScheme';
+import { MoonStar } from '@/src/lib/icons/MoonStar';
+import { Sun } from '@/src/lib/icons/Sun';
+import { useColorScheme } from '@/src/lib/useColorScheme';
+import { cn } from '@/src/lib/utils';
 
-export const ThemeToggle = () => {
+export const ThemeToggle = (props: PressableProps & { iconClassName?: string }) => {
   const { colorScheme, toggleColorScheme } = useColorScheme();
 
   return (
     <Pressable
-      className="rounded-md border border-gray-300 p-4 dark:border-white"
-      onPress={toggleColorScheme}>
+      onPress={toggleColorScheme}
+      {...props}
+      className={cn('rounded-md border border-gray-300 p-4 dark:border-white', props.className)}>
       {colorScheme === 'dark' ? (
-        <MoonStar className="text-white" />
+        <MoonStar className={cn('text-white', props.iconClassName)} />
       ) : (
-        <Sun className=" text-black" />
+        <Sun className={cn(' text-black', props.iconClassName)} />
       )}
     </Pressable>
   );
