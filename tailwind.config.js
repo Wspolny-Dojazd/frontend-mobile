@@ -6,7 +6,7 @@ module.exports = {
 
   presets: [require('nativewind/preset')],
   plugins: [require('tailwindcss-animate')],
-  
+
   darkMode: 'class',
   theme: {
     extend: {
@@ -64,5 +64,4 @@ module.exports = {
       },
     },
   },
-
 };

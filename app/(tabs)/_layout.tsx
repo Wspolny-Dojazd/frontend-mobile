@@ -1,13 +1,14 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
 import { useColorScheme } from 'nativewind';
+
 import { useTheme } from '~/lib/useTheme';
 
 export default function TabLayout() {
-    const theme = useTheme()
-    
+  const theme = useTheme();
+
   return (
-    <Tabs screenOptions={{ tabBarActiveTintColor: theme.primary  }}>
+    <Tabs screenOptions={{ tabBarActiveTintColor: theme.primary }}>
       <Tabs.Screen
         name="index"
         options={{

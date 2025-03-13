@@ -1,8 +1,9 @@
-import { View } from 'react-native';
-import { Text } from './ui/text';
-import { EditScreenInfo } from './EditScreenInfo';
 import { useColorScheme } from 'nativewind';
+import { View } from 'react-native';
+
+import { EditScreenInfo } from './EditScreenInfo';
 import { ThemeToggle } from './ThemeToggle';
+import { Text } from './ui/text';
 
 type ScreenContentProps = {
   title: string;
@@ -26,12 +27,10 @@ export const ScreenContent = ({ title, path, children }: ScreenContentProps) => 
         <Text className="dark:text-white">Change to {colorScheme === 'dark' ? 'light' : 'dark'}</Text>
       </Pressable> */}
 
-<ThemeToggle/>
+      <ThemeToggle />
 
-      <View className="justify-center items-center">
-        <Text>
-          Hello, World!
-        </Text>
+      <View className="items-center justify-center">
+        <Text>Hello, World!</Text>
       </View>
 
       {children}
