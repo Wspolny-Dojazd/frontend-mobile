@@ -4,17 +4,19 @@
 
 On computer you need to have Node.js installed.
 
-On phone you need to have Expo Go (SDK 51) app installed. Do not download it from the Play Store, download .apk from the [expo website](https://expo.dev/go?sdkVersion=51&platform=android&device=true)
+On phone you need to have Expo Go (SDK 51) app installed. Do not download it from the Play Store, download .apk from the [expo website](https://expo.dev/go?sdkVersion=51&platform=android&device=true). Expo with SDK 52 or greated use new architecture with React 19, which is cumbersome right now, because react-native-maps does not support it yet.
 
 ## First time setup
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/your-repo.git
-cd your-repo
+git clone https://github.com/Wspolny-Dojazd/frontend-mobile.git
+cd frontend-mobile
 
-# Install dependencies
+# First time you should install dependencies this way (to download expo)
 npm install
+# Then and next times you should install dependencies this way so expo can install dependencies its way
+npx expo install
 
 # Check with doctor that everything is ok
 npx expo-doctor
@@ -46,6 +48,10 @@ Components Library:
 Internationalization:
 
 - [i18next](https://www.i18next.com/)
+
+Maps:
+
+- [react-native-maps](https://github.com/react-native-maps/react-native-maps)
 
 ## Internationalization guide
 
