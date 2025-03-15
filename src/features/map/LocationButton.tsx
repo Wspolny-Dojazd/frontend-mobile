@@ -1,8 +1,9 @@
 import React from 'react';
 import { TouchableOpacity, ActivityIndicator } from 'react-native';
-import { LocateOff } from '@/src/lib/icons/LocateOff';
+
 import { Locate } from '@/src/lib/icons/Locate';
 import { LocateFixed } from '@/src/lib/icons/LocateFixed';
+import { LocateOff } from '@/src/lib/icons/LocateOff';
 
 interface LocationButtonProps {
   isLocating: boolean;

@@ -1,9 +1,7 @@
 import { useColorScheme } from 'nativewind';
-import { Ref } from 'react';
-import { forwardRef } from 'react';
+import { Ref, forwardRef } from 'react';
 import { Platform } from 'react-native';
-import MapView from 'react-native-maps';
-import { MapViewProps } from 'react-native-maps';
+import MapView, { MapViewProps, PROVIDER_DEFAULT, PROVIDER_GOOGLE } from 'react-native-maps';
 
 export const CustomMapView = forwardRef((props: MapViewProps, ref: Ref<MapView>) => {
   const { colorScheme } = useColorScheme();
@@ -12,7 +10,7 @@ export const CustomMapView = forwardRef((props: MapViewProps, ref: Ref<MapView>)
     <MapView
       ref={ref}
       style={{ flex: 1 }}
-      provider={Platform.OS === 'android' ? 'google' : undefined}
+      provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
       userInterfaceStyle={colorScheme === 'dark' ? 'dark' : 'light'}
       customMapStyle={Platform.OS === 'android' && colorScheme === 'dark' ? darkMapStyle : []}
       {...props}

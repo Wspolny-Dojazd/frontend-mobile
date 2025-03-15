@@ -1,11 +1,12 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
-import MapView, { Polyline, Marker } from 'react-native-maps';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { useRef, useState, useEffect } from 'react';
 import { useColorScheme } from 'nativewind';
+import { useRef, useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
+import MapView, { Polyline, Marker } from 'react-native-maps';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { CustomMapView } from '@/src/features/map/CustomMapView';
-import { useLocation } from '@/src/features/map/useLocation';
 import { LocationButton } from '@/src/features/map/LocationButton';
+import { useLocation } from '@/src/features/map/useLocation';
 
 export default function App() {
   const mapRef = useRef<MapView | null>(null);
@@ -170,7 +171,7 @@ export default function App() {
         <CustomMapView
           ref={mapRef}
           initialRegion={initialRegion}
-          showsUserLocation={true}
+          showsUserLocation
           showsMyLocationButton={false}
           onRegionChangeComplete={handleMapChange}>
           {/* Navigation path polyline */}

@@ -27,13 +27,23 @@
       },
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyCwNxxqGoSAcFmnePT3vWXbZ_uKkl2_f7I"
+          "apiKey": "AIzaSyCReM-EWuTcMJbgFPhur1TickJHm24wtM8"
         }
-      }
+      },
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"],
+      "package": "com.kestivvi.wspolnydojazd"
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "c9c6ae16-c9a6-436b-a0c2-1de88ecda6c9"
+      }
     }
   }
 }
