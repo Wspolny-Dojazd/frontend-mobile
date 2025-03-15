@@ -1,3 +1,4 @@
+import { Link } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -31,6 +32,13 @@ export default function App() {
       <Text>{t('age', { age: 20 })}</Text>
       <ThemeToggle className="mt-4 p-2" />
       <LanguageSelect className="mt-4" />
+
+      <Link href="/auth/login" className="mt-4 rounded-md border border-gray-300 p-2">
+        <Text>Login</Text>
+      </Link>
+      <Link href="/auth/register" className="mt-4 rounded-md border border-gray-300 p-2">
+        <Text>Register</Text>
+      </Link>
     </SafeAreaView>
   );
 }
