@@ -1,3 +1,4 @@
+import { Link } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -5,7 +6,6 @@ import LanguageSelect from '@/src/components/LanguageSelect';
 import { ThemeToggle } from '@/src/components/ThemeToggle';
 import { Text } from '@/src/components/ui/text';
 import { loadInlineTranslations } from '@/src/lib/loadInlineTranslations';
-import { Link } from 'expo-router';
 
 const NAMESPACE = 'app/(tabs)/index';
 const TRANSLATIONS = {

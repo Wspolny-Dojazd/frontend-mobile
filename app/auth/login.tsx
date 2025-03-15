@@ -1,8 +1,10 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Text } from '@/src/components/ui/text';
-import { TextInput } from '@/src/components/ui/textInput';
-import { Button } from '@/src/components/ui/button';
 import { useState } from 'react';
+import { View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { Button } from '@/src/components/ui/button';
+import { InputText } from '@/src/components/ui/inputText';
+import { Text } from '@/src/components/ui/text';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -10,21 +12,20 @@ export default function Login() {
 
   return (
     <SafeAreaView className="flex-1 items-center justify-center p-4">
-      <Text>Login</Text>
-      <TextInput
-        className="mb-2 w-full border p-2"
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextInput
-        className="mb-4 w-full border p-2"
-        placeholder="Password"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-      <Button title="Login" onPress={() => {}} />
+      <Text className="text-2xl font-bold">Login</Text>
+
+      <View className="mt-4 w-full gap-4">
+        <InputText placeholder="Email" value={email} onChangeText={setEmail} />
+        <InputText
+          placeholder="Password"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+        />
+        <Button onPress={() => {}}>
+          <Text>Login</Text>
+        </Button>
+      </View>
     </SafeAreaView>
   );
 }
