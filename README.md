@@ -54,46 +54,71 @@ Maps:
 
 - [react-native-maps](https://github.com/react-native-maps/react-native-maps)
 
+## Project structure
+
+- app - views and routing
+- assets - images, icons, etc.
+- src
+  - api - code related to backend api, openapi specification, auto-generated ts types for it and configuration for react-query
+  - components - reusable components created by us or copied from react-native-reusables or from other places
+  - features - if components are big, complex and used in a specific place in app (for example map components), we place it under features folder rather than components
+  - hooks - custom hooks, this means stateful functions for reusable logic
+  - contexts - React Contexts, used for state management
+  - lib - other functions and utilities
+
 ## Internationalization guide
 
 If component have text that needs to be translated, we define translations at the top of the file:
 
 ```tsx
 // ...
-import { useTranslation } from 'react-i18next';
-import { loadInlineTranslations } from '@/src/lib/loadInlineTranslations';
+import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 
-// Define namespace for translations, it is needed for i18next to work. It fulfills the purpose of some unique identifier for translations.
+// Some unique namespace for this component, we can use path for example
 const NAMESPACE = 'app/(tabs)/index';
-
-// Define translations for supported languages.
+// Define translations for this component
 const TRANSLATIONS = {
   en: {
     welcome: 'Welcome',
     greeting: 'Hello, {{name}}!',
+    age: 'You are {{age}} years old.',
+    nested: {
+      key: 'Nested key',
+    },
+    double: {
+      nested: {
+        key: 'Nested key 2',
+      },
+    },
   },
   pl: {
     welcome: 'Witaj',
     greeting: 'Cześć, {{name}}!',
+    age: 'Masz {{age}} lat.',
+    nested: {
+      key: 'Zagnieżdżony klucz',
+    },
+    double: {
+      nested: {
+        key: 'Zagnieżdżony klucz 2',
+      },
+    },
   },
 };
 
-// Load translations.
-loadInlineTranslations(NAMESPACE, TRANSLATIONS);
-
 export default function App() {
-  // Use useTranslation hook to get translations.
-  const { t } = useTranslation(NAMESPACE);
+  // Use hook to get translations for this component
+  const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
 
   return (
     <SafeAreaView className="flex-1 items-center justify-center">
-      {/* Use translations in the component. */}
       <Text>{t('welcome')}</Text>
-      {/* You can pass variables to the translation. */}
       <Text>{t('greeting', { name: 'John' })}</Text>
+      <Text>{t('age', { age: 20 })}</Text>
+      <Text>{t('nested.key')}</Text>
+      <Text>{t('double.nested.key')}</Text>
 
-      <ThemeToggle className="mt-4 p-2" />
-      <LanguageSelect className="mt-4" />
+      {/* ... */}
     </SafeAreaView>
   );
 }

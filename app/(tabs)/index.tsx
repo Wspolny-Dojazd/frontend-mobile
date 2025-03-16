@@ -1,11 +1,10 @@
 import { Link } from 'expo-router';
-import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import LanguageSelect from '@/src/components/LanguageSelect';
 import { ThemeToggle } from '@/src/components/ThemeToggle';
 import { Text } from '@/src/components/ui/text';
-import { loadInlineTranslations } from '@/src/lib/loadInlineTranslations';
+import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 
 const NAMESPACE = 'app/(tabs)/index';
 const TRANSLATIONS = {
@@ -13,23 +12,41 @@ const TRANSLATIONS = {
     welcome: 'Welcome',
     greeting: 'Hello, {{name}}!',
     age: 'You are {{age}} years old.',
+    nested: {
+      key: 'Nested key',
+    },
+    double: {
+      nested: {
+        key: 'Nested key 2',
+      },
+    },
   },
   pl: {
     welcome: 'Witaj',
     greeting: 'Cześć, {{name}}!',
     age: 'Masz {{age}} lat.',
+    nested: {
+      key: 'Zagnieżdżony klucz',
+    },
+    double: {
+      nested: {
+        key: 'Zagnieżdżony klucz 2',
+      },
+    },
   },
 };
-loadInlineTranslations(NAMESPACE, TRANSLATIONS);
 
 export default function App() {
-  const { t } = useTranslation(NAMESPACE);
+  const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
 
   return (
     <SafeAreaView className="flex-1 items-center justify-center">
       <Text>{t('welcome')}</Text>
       <Text>{t('greeting', { name: 'John' })}</Text>
       <Text>{t('age', { age: 20 })}</Text>
+      <Text>{t('nested.key')}</Text>
+      <Text>{t('double.nested.key')}</Text>
+
       <ThemeToggle className="mt-4 p-2" />
       <LanguageSelect className="mt-4" />
 

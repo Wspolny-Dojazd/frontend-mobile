@@ -8,7 +8,8 @@
     "prebuild": "expo prebuild",
     "lint": "eslint \"**/*.{js,jsx,ts,tsx}\" && prettier -c \"**/*.{js,jsx,ts,tsx,json}\"",
     "format": "eslint \"**/*.{js,jsx,ts,tsx}\" --fix && prettier \"**/*.{js,jsx,ts,tsx,json}\" --write",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "generate-api": "npx openapi-typescript ./src/api/openapi.json --output src/api/openapi.ts"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "1.23.1",
@@ -21,12 +22,14 @@
     "expo-constants": "16.0.2",
     "expo-linking": "6.3.1",
     "expo-localization": "15.0.3",
-    "expo-location": "~17.0.1",
+    "expo-location": "17.0.1",
     "expo-router": "3.5.24",
     "expo-status-bar": "1.12.1",
     "i18next": "24.2.3",
     "lucide-react-native": "0.479.0",
     "nativewind": "4.1.23",
+    "openapi-fetch": "0.13.5",
+    "openapi-react-query": "0.3.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-i18next": "15.4.1",
@@ -47,6 +50,7 @@
     "@typescript-eslint/parser": "7.18.0",
     "eslint": "8.57.1",
     "eslint-config-universe": "12.1.0",
+    "openapi-typescript": "7.6.1",
     "prettier": "3.5.3",
     "prettier-plugin-tailwindcss": "0.5.14",
     "tailwindcss": "3.4.17",

@@ -9,7 +9,7 @@ i18n
   .use(initReactI18next)
   // Initialize with configuration options.
   .init({
-    lng: Localization.getLocales()[0].languageCode ?? undefined, // set initial language
+    lng: Localization.getLocales()[0]?.languageCode ?? undefined, // set initial language
     fallbackLng: 'en', // use English if detected language is not available
     debug: false, // set to true for debugging
 

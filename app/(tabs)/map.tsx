@@ -106,10 +106,10 @@ export default function App() {
       const start = simulatedPath[0];
       const end = simulatedPath[simulatedPath.length - 1];
       const distance = calculateDistance(
-        start.latitude,
-        start.longitude,
-        end.latitude,
-        end.longitude
+        start?.latitude ?? 0,
+        start?.longitude ?? 0,
+        end?.latitude ?? 0,
+        end?.longitude ?? 0
       );
 
       // Update estimated distance and time
@@ -186,7 +186,7 @@ export default function App() {
 
           {/* Start marker */}
           <Marker
-            coordinate={getStartPoint()}
+            coordinate={getStartPoint() ?? { latitude: 0, longitude: 0 }}
             title="Start"
             description="Starting point"
             pinColor="green"
@@ -194,7 +194,7 @@ export default function App() {
 
           {/* Destination marker */}
           <Marker
-            coordinate={getEndPoint()}
+            coordinate={getEndPoint() ?? { latitude: 0, longitude: 0 }}
             title="Destination"
             description="Your destination"
             pinColor="red"
