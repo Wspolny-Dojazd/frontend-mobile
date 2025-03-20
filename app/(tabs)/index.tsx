@@ -31,7 +31,7 @@ export default function App() {
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
 
   return (
-    <SafeAreaView className="flex min-h-full flex-1 flex-col items-center justify-between px-12">
+    <SafeAreaView className="flex min-h-full flex-1 flex-col items-center justify-between px-8">
       <View className={'flex w-full flex-1 items-center justify-center'}>
         <Logo width={100} height={100} />
 

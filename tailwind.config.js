@@ -39,6 +39,9 @@ module.exports = {
         subtle: {
           DEFAULT: 'var(--subtle)',
         },
+        field: {
+          DEFAULT: 'var(--field)',
+        },
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
