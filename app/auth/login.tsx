@@ -3,7 +3,6 @@ import { Lock, UserRound } from 'lucide-react-native';
 import { useState } from 'react';
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg from 'react-native-svg';
 
 import { Button } from '@/src/components/ui/button';
 import { InputText } from '@/src/components/ui/inputText';
@@ -60,9 +59,11 @@ export default function Login() {
             <Lock size={24} strokeWidth={3} color="#909597" />
           </View>
         </View>
-        <Link href="/auth/recover" className="mt-12 w-full rounded-2xl bg-primary py-3 text-center">
-          <Text className="mt-4 w-full text-right text-primary">{t('recoverPassword')}</Text>
-        </Link>
+        <View className="mt-4 w-full items-end">
+          <Link href="/auth/recover">
+            <Text className="text-primary">{t('recoverPassword')}</Text>
+          </Link>
+        </View>
       </View>
 
       <Button onPress={() => {}} className="mb-4 w-full rounded-2xl bg-primary py-2 text-center">
