@@ -5,6 +5,7 @@ import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/src/components/ui/button';
+import { Checkbox } from '@/src/components/ui/checkbox';
 import { InputText } from '@/src/components/ui/inputText';
 import { Text } from '@/src/components/ui/text';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
@@ -38,6 +39,7 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [accept, setAccept] = useState(false);
 
   return (
     <SafeAreaView className="flex min-h-full flex-1 flex-col items-center justify-between px-8">
@@ -90,11 +92,11 @@ export default function Register() {
             <Lock size={24} strokeWidth={3} color="#909597" />
           </View>
         </View>
-        <View className="mt-4 w-full flex-row items-center">
-          <Text className="text-primary">{t('accept')}</Text>
+        <View className="mt-10 w-full flex-row items-center">
+          <Checkbox checked={accept} onCheckedChange={setAccept} />
+          <Text className="ml-4 text-primary">{t('accept')}</Text>
         </View>
       </View>
-
       <Button onPress={() => {}} className="mb-4 w-full rounded-2xl bg-primary py-2 text-center">
         <Text className="text-lg font-semibold">{t('createButton')}</Text>
       </Button>

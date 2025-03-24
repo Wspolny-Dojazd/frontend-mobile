@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "1.23.1",
+    "@rn-primitives/checkbox": "^1.1.0",
     "@rn-primitives/select": "1.1.0",
     "@rn-primitives/slot": "1.1.0",
     "@rn-primitives/types": "1.1.0",
