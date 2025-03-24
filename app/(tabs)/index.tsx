@@ -1,38 +1,25 @@
+// @ts-expect-error
+import Logo from 'assets/logo.svg';
 import { Link } from 'expo-router';
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import LanguageSelect from '@/src/components/LanguageSelect';
-import { ThemeToggle } from '@/src/components/ThemeToggle';
+import TextLanguageSelect from '@/src/components/TextLanguageSelect';
 import { Text } from '@/src/components/ui/text';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 
 const NAMESPACE = 'app/(tabs)/index';
 const TRANSLATIONS = {
   en: {
-    welcome: 'Welcome',
-    greeting: 'Hello, {{name}}!',
-    age: 'You are {{age}} years old.',
-    nested: {
-      key: 'Nested key',
-    },
-    double: {
-      nested: {
-        key: 'Nested key 2',
-      },
-    },
+    description: 'Travel together with friends without worrying if you will get on the same bus.',
+    signup: 'Sign up',
+    signin: 'Sign in',
   },
   pl: {
-    welcome: 'Witaj',
-    greeting: 'Cześć, {{name}}!',
-    age: 'Masz {{age}} lat.',
-    nested: {
-      key: 'Zagnieżdżony klucz',
-    },
-    double: {
-      nested: {
-        key: 'Zagnieżdżony klucz 2',
-      },
-    },
+    description:
+      'Podróżuj razem ze znajomymi bez zastanawiania się, czy na pewno wsądziecie w ten sam autobus.',
+    signup: 'Dołącz',
+    signin: 'Zaloguj się',
   },
 };
 
@@ -40,22 +27,25 @@ export default function App() {
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
 
   return (
-    <SafeAreaView className="flex-1 items-center justify-center">
-      <Text>{t('welcome')}</Text>
-      <Text>{t('greeting', { name: 'John' })}</Text>
-      <Text>{t('age', { age: 20 })}</Text>
-      <Text>{t('nested.key')}</Text>
-      <Text>{t('double.nested.key')}</Text>
+    <SafeAreaView className="flex min-h-full flex-1 flex-col items-center justify-between px-8">
+      <View className="flex w-full flex-1 items-center justify-center">
+        <Logo width={100} height={100} />
 
-      <ThemeToggle className="mt-4 p-2" />
-      <LanguageSelect className="mt-4" />
+        <Text className="my-8 text-4xl font-normal">Wspólny dojazd</Text>
+        <Text className="text-center text-base">{t('description')}</Text>
 
-      <Link href="/auth/login" className="mt-4 rounded-md border border-gray-300 p-2">
-        <Text>Login</Text>
-      </Link>
-      <Link href="/auth/register" className="mt-4 rounded-md border border-gray-300 p-2">
-        <Text>Register</Text>
-      </Link>
+        <Link
+          href="/auth/register"
+          className="mt-12 w-full rounded-2xl bg-primary py-3 text-center">
+          <Text className="text-lg text-white">{t('signup')}</Text>
+        </Link>
+
+        <Link href="/auth/login" className="mt-6 w-full rounded-2xl bg-subtle py-3 text-center">
+          <Text className="text-lg text-primary">{t('signin')}</Text>
+        </Link>
+      </View>
+
+      <TextLanguageSelect className="mb-4" />
     </SafeAreaView>
   );
 }

@@ -17,12 +17,30 @@ module.exports = {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: 'hsl(var(--primary))',
+          DEFAULT: 'var(--primary)',
           foreground: 'hsl(var(--primary-foreground))',
         },
         secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
+          DEFAULT: 'var(--secondary)',
           foreground: 'hsl(var(--secondary-foreground))',
+        },
+        info: {
+          DEAFULT: 'var(--info)',
+        },
+        warning: {
+          DEAFULT: 'var(--warning)',
+        },
+        danger: {
+          DEAFULT: 'var(--danger)',
+        },
+        success: {
+          DEAFULT: 'var(--success)',
+        },
+        subtle: {
+          DEFAULT: 'var(--subtle)',
+        },
+        field: {
+          DEFAULT: 'var(--field)',
         },
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',
@@ -44,6 +62,9 @@ module.exports = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+      },
+      fontFamily: {
+        inter: 'Inter',
       },
       borderWidth: {
         hairline: hairlineWidth(),
