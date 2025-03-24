@@ -60,7 +60,10 @@
   },
   "eslintConfig": {
     "extends": "universe/native",
-    "root": true
+    "root": true,
+    "env": {
+      "node": true
+    }
   },
   "main": "expo-router/entry",
   "private": true

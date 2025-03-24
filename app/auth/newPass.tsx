@@ -1,9 +1,7 @@
-import { Link } from 'expo-router';
-import { Lock, UserRound } from 'lucide-react-native';
+import { Lock } from 'lucide-react-native';
 import { useState } from 'react';
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg from 'react-native-svg';
 
 import { Button } from '@/src/components/ui/button';
 import { InputText } from '@/src/components/ui/inputText';

@@ -1,4 +1,3 @@
-import { Link } from 'expo-router';
 import { Lock, UserRound, Mail } from 'lucide-react-native';
 import { useState } from 'react';
 import { View } from 'react-native';

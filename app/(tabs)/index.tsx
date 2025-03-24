@@ -1,16 +1,12 @@
-import { Link } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { View } from 'react-native';
-
-import LanguageSelect from '@/src/components/LanguageSelect';
-import { ThemeToggle } from '@/src/components/ThemeToggle';
-import { Text } from '@/src/components/ui/text';
-import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
-import Svg from 'react-native-svg';
-
 // @ts-expect-error
 import Logo from 'assets/logo.svg';
+import { Link } from 'expo-router';
+import { View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import TextLanguageSelect from '@/src/components/TextLanguageSelect';
+import { Text } from '@/src/components/ui/text';
+import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 
 const NAMESPACE = 'app/(tabs)/index';
 const TRANSLATIONS = {
@@ -32,7 +28,7 @@ export default function App() {
 
   return (
     <SafeAreaView className="flex min-h-full flex-1 flex-col items-center justify-between px-8">
-      <View className={'flex w-full flex-1 items-center justify-center'}>
+      <View className="flex w-full flex-1 items-center justify-center">
         <Logo width={100} height={100} />
 
         <Text className="my-8 text-4xl font-normal">Wspólny dojazd</Text>
@@ -44,7 +40,7 @@ export default function App() {
           <Text className="text-lg text-white">{t('signup')}</Text>
         </Link>
 
-        <Link href="/auth/login" className="bg-subtle mt-6 w-full rounded-2xl py-3 text-center">
+        <Link href="/auth/login" className="mt-6 w-full rounded-2xl bg-subtle py-3 text-center">
           <Text className="text-lg text-primary">{t('signin')}</Text>
         </Link>
       </View>

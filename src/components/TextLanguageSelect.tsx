@@ -1,9 +1,9 @@
 import { ComponentProps, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
-import { Text } from '@/src/components/ui/text';
 
 import i18n from '@/i18n';
+import { Text } from '@/src/components/ui/text';
 import { loadInlineTranslations } from '@/src/lib/loadInlineTranslations';
 
 const NAMESPACE = 'components/LanguageSelect';
