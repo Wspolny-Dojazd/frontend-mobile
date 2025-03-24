@@ -17,11 +17,27 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="map"
+        name="transits"
         options={{
-          title: 'Map',
+          title: 'Transits',
           headerShown: false,
-          tabBarIcon: ({ color }) => <FontAwesome size={28} name="map" color={color} />,
+          tabBarIcon: ({ color }) => <FontAwesome size={28} name="bus" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="friends"
+        options={{
+          title: 'Friends',
+          headerShown: false,
+          tabBarIcon: ({ color }) => <FontAwesome size={28} name="users" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          headerShown: false,
+          tabBarIcon: ({ color }) => <FontAwesome size={28} name="user" color={color} />,
         }}
       />
     </Tabs>

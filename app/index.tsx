@@ -8,7 +8,7 @@ import TextLanguageSelect from '@/src/components/TextLanguageSelect';
 import { Text } from '@/src/components/ui/text';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 
-const NAMESPACE = 'app/(tabs)/index';
+const NAMESPACE = 'index';
 const TRANSLATIONS = {
   en: {
     description: 'Travel together with friends without worrying if you will get on the same bus.',
@@ -46,6 +46,10 @@ export default function App() {
       </View>
 
       <TextLanguageSelect className="mb-4" />
+
+      <Link href="/tabs" className="mb-4">
+        (DEBUG) Go to tabs
+      </Link>
     </SafeAreaView>
   );
 }
