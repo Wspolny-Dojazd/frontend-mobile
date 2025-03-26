@@ -57,6 +57,7 @@ export default function RootLayout() {
           <Stack.Screen name="auth" options={{ headerShown: false }} />
           <Stack.Screen name="map-test" options={{ headerShown: false }} />
           <Stack.Screen name="search-place" options={{ headerShown: false }} />
+          <Stack.Screen name="profile" options={{ headerShown: false }} />
         </Stack>
       </ThemeProvider>
       <PortalHost />

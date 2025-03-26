@@ -1,9 +1,4 @@
-import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
-import { View, FlatList, Switch, TouchableOpacity, Image } from 'react-native';
-import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
-import React from 'react';
-import { useState } from 'react';
-import { Text } from '@/src/components/ui/text';
+import { Link } from 'expo-router';
 import {
   BarChart2,
   Settings,
@@ -18,6 +13,12 @@ import {
   Pencil,
   ChevronRight,
 } from 'lucide-react-native';
+import React, { useState } from 'react';
+import { View, FlatList, Switch, TouchableOpacity, Image } from 'react-native';
+import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
+
+import { Text } from '@/src/components/ui/text';
+import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 
 const NAMESPACE = 'tabs/profile';
 const TRANSLATIONS = {
@@ -183,7 +184,7 @@ export default function App({ username }: { username: string }) {
       <View className="flex-row items-center">
         <Image
           source={{ uri: 'https://randomuser.me/api/portraits/men/32.jpg' }}
-          className="h-12 w-12 rounded-full border-8 border-indigo-600"
+          className="h-12 w-12 rounded-full border-8 border-red-600"
         />
         <Text className="ml-3 text-lg font-medium">
           {t('profile_greeting', { name: username })}
@@ -208,6 +209,10 @@ export default function App({ username }: { username: string }) {
           ListHeaderComponent={<ProfileHeaderComponent username={username} />}
           contentContainerStyle={{ paddingHorizontal: 8, paddingBottom: 8 }}
         />
+
+        <Link href="/profile/my-profile" className="mx-auto mb-8">
+          <Text>(DEBUG) Go to My Profile</Text>
+        </Link>
       </SafeAreaView>
     </SafeAreaProvider>
   );
