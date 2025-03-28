@@ -3,12 +3,13 @@ import { useState } from 'react';
 import { TouchableOpacity, View, Image } from 'react-native';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { Search, Plus } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 
 import { Text } from '@/src/components/ui/text';
 import { InputText } from '@/src/components/ui/inputText';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 import { Button } from '@/src/components/ui/button';
-import { UserBar } from '@/src/components/userBar';
+import { UserBar } from '@/src/components/UserBar';
 
 const NAMESPACE = 'app/tabs/friends';
 const TRANSLATIONS = {
@@ -104,55 +105,15 @@ const FriendChatItem = ({ name, message, time, imageSource, status, isUnread, on
   </TouchableOpacity>
 );
 
-// const FriendRequestItem = ({ name, imageSource, type }: {
-//   name: string;
-//   imageSource: any;
-//   type: 'new' | 'sent';
-// }) => {
-//   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
-
-//   return (
-//     <View className="flex-row items-center justify-between px-7 py-4 border-t border-gray-100">
-//       {/* Main content container */}
-//       <View className="flex-row items-center flex-1">
-//         {/* Image container */}
-//         <View className="relative">
-//           <Image
-//             source={imageSource}
-//             className="w-12 h-12 rounded-full mr-3"
-//           />
-//         </View>
-        
-//         {/* Text container */}
-//         <View className="flex-1">
-//           <Text className="font-medium text-base">{name}</Text>
-//         </View>
-//       </View>
-
-//       <View className="flex-row gap-3">
-//         {type === 'new' ? (
-//           <>
-//             <Button className="rounded-2xl" size="sm" variant="muted">
-//               <Text>{t('decline')}</Text>
-//             </Button>
-//             <Button className="rounded-2xl" size="sm">
-//               <Text>{t('accept')}</Text>
-//             </Button>
-//           </>
-//         ) : (
-//           <Button className="rounded-2xl" size="sm" variant="muted">
-//             <Text>{t('cancel')}</Text>
-//           </Button>
-//         )}
-//       </View>
-//     </View>
-//   );
-// };
-
 export default function App() {
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
   const [value, setValue] = useState('friends');
   const [name, setName] = useState('');
+  const router = useRouter();
+
+  const handleAddFriendPress = () => {
+    router.push('/add-friends');
+  };
 
   return (
     <SafeAreaView className="flex min-h-full flex-1 flex-col items-center">
@@ -222,7 +183,7 @@ export default function App() {
                   imageSource={request.imageSource}
                 >
                   <Button className="rounded-2xl" size="sm" variant="muted">
-                    <Text>{t('decline')}</Text>
+                    <Text className="text-secondary">{t('decline')}</Text>
                   </Button>
                   <Button className="rounded-2xl" size="sm">
                     <Text>{t('accept')}</Text>
@@ -239,7 +200,7 @@ export default function App() {
                   imageSource={request.imageSource}
                 >
                   <Button className="rounded-2xl" size="sm" variant="muted">
-                    <Text>{t('cancel')}</Text>
+                    <Text className="text-secondary">{t('cancel')}</Text>
                   </Button>
                 </UserBar>
               )
@@ -252,7 +213,7 @@ export default function App() {
       <Button
         className="absolute bottom-8 right-8 w-16 h-16 rounded-full bg-primary items-center justify-center shadow-lg shadow-black/30"
         size='icon'
-        onPress={() => console.log('Go to add friend page')} // Add your action here
+        onPress={handleAddFriendPress} // Add your action here
       >
         <Plus size={28} color="white" strokeWidth={2.5} />
       </Button>
