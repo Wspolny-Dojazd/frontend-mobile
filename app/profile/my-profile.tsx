@@ -6,8 +6,10 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 
 import { Pencil, ChevronLeft } from '@/src/lib/icons';
+import { InputText } from '@/src/components/ui/inputText';
+import { Input } from '@/src/components/ui/input';
 
-const avatarImage = require('../../assets/random_avatar.png'); // Import the image dynamically
+const avatarImage = require('../../assets/fallback-avatar.png'); // Import the image dynamically
 const DEFAULT_IMAGE = Image.resolveAssetSource(avatarImage).uri;
 
 const NAMESPACE = 'profile/my-profile';
@@ -39,7 +41,7 @@ const TRANSLATIONS = {
 export default function App() {
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
   const router = useRouter();
-  const { username } = useLocalSearchParams();
+  const { username, image } = useLocalSearchParams();
 
   return (
     <SafeAreaView className="flex items-center justify-center">
@@ -58,7 +60,7 @@ export default function App() {
       <View className="mt-10 flex-col items-center">
         <View className="relative">
           <Image
-            source={{ uri: DEFAULT_IMAGE }}
+            source={{ uri: typeof image === 'string' ? image : DEFAULT_IMAGE }}
             className="h-32 w-32 rounded-full border-2 border-gray-100"
           />
 
@@ -73,7 +75,13 @@ export default function App() {
 
         <Text className="mt-3 text-lg font-medium">{username}</Text>
       </View>
-
+      <Input
+        placeholder="Write some stuff..."
+        // value={"asd"}
+        // onChangeText={onChangeText}
+        aria-labelledby="inputLabel"
+        aria-errormessage="inputError"
+      />
       {/* <Link href="/tabs/profile">
       <Text>(DEBUG) Go to Preferences</Text>
     </Link> */}

@@ -20,8 +20,11 @@ import {
   Pencil,
 } from '@/src/lib/icons';
 
-const avatarImage = require('../../assets/random_avatar.png'); // Import the image dynamically
-const DEFAULT_IMAGE = Image.resolveAssetSource(avatarImage).uri;
+// handling dummy image, and fallback image
+const avatarImage = require('../../assets/dummy-avatar.png'); // Import the image dynamically
+const DEFAULT_IMAGE = avatarImage
+  ? Image.resolveAssetSource(avatarImage).uri
+  : Image.resolveAssetSource(require('../../assets/fallback-avatar.png')).uri;
 
 const NAMESPACE = 'tabs/profile';
 const TRANSLATIONS = {
@@ -174,7 +177,12 @@ export default function App({ username }: { username: string }) {
         </View>
         <TouchableOpacity
           className="h-12 w-12 items-center justify-center rounded-full"
-          onPress={() => router.push(`/profile/my-profile?username=${username}`)}>
+          onPress={() => {
+            router.push({
+              pathname: '/profile/my-profile',
+              params: { username, image: DEFAULT_IMAGE }, // passing the image URI
+            });
+          }}>
           <Pencil size={24} color="#6b7280" />
         </TouchableOpacity>
       </View>
