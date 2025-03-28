@@ -1,5 +1,5 @@
 import { Link, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, FlatList, TouchableOpacity, Image } from 'react-native';
 import { Switch } from '@/src/components/ui/switch';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
@@ -97,73 +97,76 @@ const SettingItem: React.FC<SettingItemProps> = ({
 export default function App({ username }: { username: string }) {
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const router = useRouter();
 
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
-  const settingsData = [
-    {
-      id: '1',
-      icon: <BarChart2 size={20} color="#6b7280" />,
-      title: t('statistics'),
-      onPress: () => console.log('Statistics pressed'),
-    },
-    {
-      id: '2',
-      icon: <Settings size={20} color="#6b7280" />,
-      title: t('preferences'),
-      onPress: () => console.log('Preferences pressed'),
-    },
-    {
-      id: '3',
-      icon: isDarkMode ? <Moon size={20} color="#6b7280" /> : <Sun size={20} color="#6b7280" />,
-      title: t('dark_mode'),
-      rightElement: <Switch checked={isDarkMode} onCheckedChange={toggleDarkMode} />,
-      onPress: toggleDarkMode,
-      isDarkMode: isDarkMode,
-    },
-    {
-      id: '4',
-      icon: <Bell size={20} color="#6b7280" />,
-      title: t('notifications'),
-      onPress: () => console.log('Notification pressed'),
-    },
-    {
-      id: '5',
-      icon: <Globe size={20} color="#6b7280" />,
-      title: t('language.text'),
-      rightElement: <Text className="text-gray-400">{t('language.secondary')}</Text>,
-      onPress: () => console.log('Language pressed'),
-    },
-    {
-      id: '6',
-      icon: <Lock size={20} color="#6b7280" />,
-      title: t('change_password'),
-      onPress: () => console.log('Change password pressed'),
-    },
-    {
-      id: '7',
-      icon: <HelpCircle size={20} color="#6b7280" />,
-      title: t('help'),
-      onPress: () => console.log('Help pressed'),
-    },
-    {
-      id: '8',
-      icon: <LogOut size={20} color="#6b7280" />,
-      title: t('logout'),
-      onPress: () => console.log('Logout pressed'),
-    },
-    {
-      id: '9',
-      icon: <XCircle size={20} color="#ef4444" />,
-      title: t('delete_account'),
-      textColor: '#ef4444',
-      onPress: () => console.log('Delete account pressed'),
-    },
-  ];
+  //do those dependencies make sense??
+  const settingsData = useMemo(
+    () => [
+      {
+        id: '1',
+        icon: <BarChart2 size={20} color="#6b7280" />,
+        title: t('statistics'),
+        onPress: () => console.log('Statistics pressed'),
+      },
+      {
+        id: '2',
+        icon: <Settings size={20} color="#6b7280" />,
+        title: t('preferences'),
+        onPress: () => router.push('/profile/preferences'),
+      },
+      {
+        id: '3',
+        icon: isDarkMode ? <Moon size={20} color="#6b7280" /> : <Sun size={20} color="#6b7280" />,
+        title: t('dark_mode'),
+        rightElement: <Switch checked={isDarkMode} onCheckedChange={toggleDarkMode} />,
+        onPress: toggleDarkMode,
+        isDarkMode: isDarkMode,
+      },
+      {
+        id: '4',
+        icon: <Bell size={20} color="#6b7280" />,
+        title: t('notifications'),
+        onPress: () => console.log('Notification pressed'),
+      },
+      {
+        id: '5',
+        icon: <Globe size={20} color="#6b7280" />,
+        title: t('language.text'),
+        rightElement: <Text className="text-gray-400">{t('language.secondary')}</Text>,
+        onPress: () => console.log('Language pressed'),
+      },
+      {
+        id: '6',
+        icon: <Lock size={20} color="#6b7280" />,
+        title: t('change_password'),
+        onPress: () => console.log('Change password pressed'),
+      },
+      {
+        id: '7',
+        icon: <HelpCircle size={20} color="#6b7280" />,
+        title: t('help'),
+        onPress: () => console.log('Help pressed'),
+      },
+      {
+        id: '8',
+        icon: <LogOut size={20} color="#6b7280" />,
+        title: t('logout'),
+        onPress: () => console.log('Logout pressed'),
+      },
+      {
+        id: '9',
+        icon: <XCircle size={20} color="#ef4444" />,
+        title: t('delete_account'),
+        textColor: '#ef4444',
+        onPress: () => console.log('Delete account pressed'),
+      },
+    ],
+    [isDarkMode, router, t]
+  );
 
   const ProfileHeaderComponent: React.FC<{ username: string }> = ({ username = 'John Doe' }) => {
-    const router = useRouter();
-
     return (
       <View className="mb-12 mt-6 flex-row items-center justify-between rounded-xl bg-gray-50 p-4">
         <View className="flex-row items-center">

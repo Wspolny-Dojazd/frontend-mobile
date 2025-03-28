@@ -8,6 +8,8 @@ import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 import { Pencil, ChevronLeft } from '@/src/lib/icons';
 import { InputText } from '@/src/components/ui/inputText';
 import { Input } from '@/src/components/ui/input';
+import { Label } from '@/src/components/ui/label';
+import { useState, useMemo } from 'react';
 
 const avatarImage = require('../../assets/fallback-avatar.png'); // Import the image dynamically
 const DEFAULT_IMAGE = Image.resolveAssetSource(avatarImage).uri;
@@ -22,8 +24,9 @@ const TRANSLATIONS = {
     },
     email: {
       text: 'Email',
-      secondary: 'Your email address',
+      secondary: 'Your address email',
     },
+    save: 'Save changes',
   },
   pl: {
     profile: 'Mój profil',
@@ -35,6 +38,7 @@ const TRANSLATIONS = {
       text: 'Email',
       secondary: 'Twój adres e-mail',
     },
+    save: 'Zapisz zmiany',
   },
 };
 
@@ -42,6 +46,19 @@ export default function App() {
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
   const router = useRouter();
   const { username, image } = useLocalSearchParams();
+
+  const [emailValue, setEmailValue] = useState('');
+  const [nicknameValue, setNicknameValue] = useState('');
+
+
+
+  
+  const handleEmailChange = (text: string) => {
+    setEmailValue(text);
+  };
+  const handleNicknameChange = (text: string) => {
+    setNicknameValue(text);
+  };
 
   return (
     <SafeAreaView className="flex items-center justify-center">
@@ -75,16 +92,51 @@ export default function App() {
 
         <Text className="mt-3 text-lg font-medium">{username}</Text>
       </View>
-      <Input
-        placeholder="Write some stuff..."
-        // value={"asd"}
-        // onChangeText={onChangeText}
-        aria-labelledby="inputLabel"
-        aria-errormessage="inputError"
-      />
-      {/* <Link href="/tabs/profile">
-      <Text>(DEBUG) Go to Preferences</Text>
-    </Link> */}
+      <View className="mt-10 w-full px-4">
+        {/* Nickname Field */}
+        <View className="mb-6 w-full">
+          <Label className="mb-2 text-base font-medium text-gray-700" nativeID="nicknameLabel">
+            {t('nickname.text')}
+          </Label>
+          <View className="relative">
+            <Input
+              placeholder="jfk1337_PL"
+              placeholderTextColor="#A0AEC0"
+              value={nicknameValue}
+              onChangeText={handleNicknameChange}
+              className="mb-12 rounded-2xl bg-field "
+              aria-labelledby="nicknameLabel"
+              aria-errormessage="inputError"
+            />
+          </View>
+        </View>
+
+        {/* Email Field */}
+        <View className="mb-6 w-full">
+          <Label className="mb-2 text-base font-medium text-gray-700" nativeID="emailLabel">
+            {t('email.text')}
+          </Label>
+          <View className="relative">
+            <Input
+              placeholder="example@email.com"
+              placeholderTextColor="#A0AEC0"
+              value={emailValue}
+              onChangeText={handleEmailChange}
+              className="mb-12 rounded-2xl border-2 bg-field"
+              aria-labelledby="emailLabel"
+              aria-errormessage="inputError"
+            />
+          </View>
+        </View>
+      </View>
+
+      <View className="w-full px-4">
+        <TouchableOpacity onPress={() => console.log('Save changes')} className="mb-6 mt-6">
+          <Text className="w-full rounded-2xl bg-teal-600 py-4 text-center text-lg font-semibold text-white">
+            {t('save')}
+          </Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 }
