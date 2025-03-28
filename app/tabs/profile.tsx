@@ -1,4 +1,4 @@
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import {
   BarChart2,
   Settings,
@@ -14,11 +14,14 @@ import {
   ChevronRight,
 } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { View, FlatList, Switch, TouchableOpacity, Image } from 'react-native';
+import { View, FlatList, TouchableOpacity, Image } from 'react-native';
+import { Switch } from '@/src/components/ui/switch';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
-
 import { Text } from '@/src/components/ui/text';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
+
+const avatarImage = require('../../assets/random_avatar.png'); // Import the image dynamically
+const DEFAULT_IMAGE = Image.resolveAssetSource(avatarImage).uri;
 
 const NAMESPACE = 'tabs/profile';
 const TRANSLATIONS = {
@@ -60,15 +63,7 @@ type SettingItemProps = {
   rightElement?: React.ReactNode;
   onPress?: () => void;
   textColor?: string;
-};
-
-type SettingData = {
-  id: string;
-  icon: React.ReactNode;
-  title: string;
-  rightElement?: React.ReactNode;
-  onPress: () => void;
-  textColor?: string;
+  isDarkMode?: boolean;
 };
 
 const SettingItem: React.FC<SettingItemProps> = ({
@@ -77,10 +72,17 @@ const SettingItem: React.FC<SettingItemProps> = ({
   rightElement = <ChevronRight size={20} color="#9ca3af" />,
   onPress,
   textColor = '#000',
+  isDarkMode,
 }) => {
   return (
-    <TouchableOpacity className="mb-2 flex-row items-center rounded-xl px-4 py-2" onPress={onPress}>
-      <View className="h-8 w-8 items-center justify-center rounded-md bg-gray-100">{icon}</View>
+    <TouchableOpacity className="mb-2 flex-row items-center rounded-xl py-1" onPress={onPress}>
+      <View
+        className={`h-10 w-10 items-center justify-center rounded-md ${
+          isDarkMode ? 'bg-stone-950' : 'bg-gray-100'
+        }`}>
+        {icon}
+      </View>
+
       <Text className="ml-3 flex-1" style={{ color: textColor }}>
         {title}
       </Text>
@@ -88,20 +90,14 @@ const SettingItem: React.FC<SettingItemProps> = ({
     </TouchableOpacity>
   );
 };
+
 export default function App({ username }: { username: string }) {
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(true);
 
-  const toggleDarkMode = () => {
-    setIsDarkMode((prev) => !prev);
-  };
+  const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
-  const toggleNotifications = () => {
-    setIsNotificationsEnabled((prev) => !prev);
-  };
-
-  const settingsData: SettingData[] = [
+  const settingsData = [
     {
       id: '1',
       icon: <BarChart2 size={20} color="#6b7280" />,
@@ -118,22 +114,15 @@ export default function App({ username }: { username: string }) {
       id: '3',
       icon: isDarkMode ? <Moon size={20} color="#6b7280" /> : <Sun size={20} color="#6b7280" />,
       title: t('dark_mode'),
-      rightElement: (
-        <Switch
-          value={isDarkMode}
-          onValueChange={toggleDarkMode}
-          trackColor={{ false: '#e5e7eb', true: '#d1d5db' }}
-          thumbColor={isDarkMode ? '#4b5563' : '#f9fafb'}
-        />
-      ),
-      onPress: () => {},
+      rightElement: <Switch checked={isDarkMode} onCheckedChange={toggleDarkMode} />,
+      onPress: toggleDarkMode,
+      isDarkMode: isDarkMode,
     },
     {
       id: '4',
       icon: <Bell size={20} color="#6b7280" />,
       title: t('notifications'),
-      rightElement: <Switch value={isNotificationsEnabled} onValueChange={toggleNotifications} />,
-      onPress: () => {},
+      onPress: () => console.log('Notification pressed'),
     },
     {
       id: '5',
@@ -169,42 +158,35 @@ export default function App({ username }: { username: string }) {
     },
   ];
 
-  const renderItem = ({ item }: { item: SettingData }) => (
-    <SettingItem
-      icon={item.icon}
-      title={item.title}
-      rightElement={item.rightElement}
-      onPress={item.onPress}
-      textColor={item.textColor}
-    />
-  );
+  const ProfileHeaderComponent: React.FC<{ username: string }> = ({ username = 'John Doe' }) => {
+    const router = useRouter();
 
-  const ProfileHeaderComponent: React.FC<{ username: string }> = ({ username }) => (
-    <View className="mb-12 mt-6 flex-row items-center justify-between rounded-xl border-8 border-slate-500 bg-slate-300 p-4">
-      <View className="flex-row items-center">
-        <Image
-          source={{ uri: 'https://randomuser.me/api/portraits/men/32.jpg' }}
-          className="h-12 w-12 rounded-full border-8 border-red-600"
-        />
-        <Text className="ml-3 text-lg font-medium">
-          {t('profile_greeting', { name: username })}
-        </Text>
+    return (
+      <View className="mb-12 mt-6 flex-row items-center justify-between rounded-xl bg-gray-50 p-4">
+        <View className="flex-row items-center">
+          <Image
+            source={{ uri: DEFAULT_IMAGE }}
+            className="h-12 w-12 rounded-full border-2 border-gray-100"
+          />
+          <Text className="ml-3 text-lg font-medium">
+            {t('profile_greeting', { name: username })}
+          </Text>
+        </View>
+        <TouchableOpacity
+          className="h-12 w-12 items-center justify-center rounded-full"
+          onPress={() => router.push('/profile/my-profile')}>
+          <Pencil size={24} color="#6b7280" />
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity
-        className="h-12 w-12 items-center justify-center rounded-full bg-gray-100"
-        onPress={() => console.log('Edit profile pressed')}>
-        <Pencil size={24} color="#6b7280" />
-      </TouchableOpacity>
-    </View>
-  );
+    );
+  };
 
-  username = 'John Doe';
   return (
     <SafeAreaProvider>
-      <SafeAreaView className="flex min-h-full flex-1 flex-col  justify-between px-8">
+      <SafeAreaView className="flex min-h-full flex-1 flex-col justify-between px-8">
         <FlatList
           data={settingsData}
-          renderItem={renderItem}
+          renderItem={({ item }) => <SettingItem {...item} />}
           keyExtractor={(item) => item.id}
           ListHeaderComponent={<ProfileHeaderComponent username={username} />}
           contentContainerStyle={{ paddingHorizontal: 8, paddingBottom: 8 }}
