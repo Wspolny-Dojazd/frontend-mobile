@@ -1,5 +1,12 @@
 import { Link, useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { View, FlatList, TouchableOpacity, Image } from 'react-native';
+import { Switch } from '@/src/components/ui/switch';
+import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
+import { Text } from '@/src/components/ui/text';
+import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 import {
+  ChevronRight,
   BarChart2,
   Settings,
   Moon,
@@ -11,14 +18,7 @@ import {
   LogOut,
   XCircle,
   Pencil,
-  ChevronRight,
-} from 'lucide-react-native';
-import React, { useState } from 'react';
-import { View, FlatList, TouchableOpacity, Image } from 'react-native';
-import { Switch } from '@/src/components/ui/switch';
-import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
-import { Text } from '@/src/components/ui/text';
-import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
+} from '@/src/lib/icons';
 
 const avatarImage = require('../../assets/random_avatar.png'); // Import the image dynamically
 const DEFAULT_IMAGE = Image.resolveAssetSource(avatarImage).uri;
@@ -174,7 +174,7 @@ export default function App({ username }: { username: string }) {
         </View>
         <TouchableOpacity
           className="h-12 w-12 items-center justify-center rounded-full"
-          onPress={() => router.push('/profile/my-profile')}>
+          onPress={() => router.push(`/profile/my-profile?username=${username}`)}>
           <Pencil size={24} color="#6b7280" />
         </TouchableOpacity>
       </View>
