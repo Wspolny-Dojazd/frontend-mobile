@@ -8,6 +8,8 @@ import { Button } from '@/src/components/ui/button';
 import { InputText } from '@/src/components/ui/inputText';
 import { Text } from '@/src/components/ui/text';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
+import { $api } from '@/src/api/api';
+import { useMeErrorTranslations } from '@/src/api/errors/auth/me';
 
 const NAMESPACE = 'app/auth/login';
 const TRANSLATIONS = {
@@ -31,6 +33,28 @@ export default function Login() {
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const queryUser = $api.useQuery('get', '/api/Auth/me');
+  const { t: tMeError } = useMeErrorTranslations();
+
+  if (queryUser.isLoading) {
+    // TODO: show loading
+  }
+
+  if (queryUser.isError) {
+    // TODO: show error
+
+    const message = tMeError(queryUser.error.code);
+    if (queryUser.error.code === 'USER_NOT_FOUND') {
+      // TODO: show error
+    }
+  }
+
+  // isSuccess else
+  if (queryUser.isSuccess) {
+    const { id, nickname, email, token } = queryUser.data;
+    // TODO: save token to Auth Context
+  }
 
   return (
     <SafeAreaView className="flex min-h-full flex-1 flex-col items-center justify-between px-8">
@@ -64,6 +88,14 @@ export default function Login() {
             <Text className="text-primary">{t('recoverPassword')}</Text>
           </Link>
         </View>
+
+        <Text>{process.env.EXPO_PUBLIC_API_URL}</Text>
+        <Text>Data: {JSON.stringify(queryUser.data)}</Text>
+        <Text>Error: {JSON.stringify(queryUser.error)}</Text>
+        <Text>Loading: {JSON.stringify(queryUser.isLoading)}</Text>
+        <Text>Error: {JSON.stringify(queryUser.isError)}</Text>
+        <Text>Success: {JSON.stringify(queryUser.isSuccess)}</Text>
+        <Text>Retry Count: {JSON.stringify(queryUser.failureCount)}</Text>
       </View>
 
       <Button onPress={() => {}} className="mb-4 w-full rounded-2xl bg-primary py-2 text-center">

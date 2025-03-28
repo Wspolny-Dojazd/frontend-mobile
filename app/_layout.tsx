@@ -3,6 +3,7 @@ import '@/global.css';
 
 import { Theme, ThemeProvider, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { PortalHost } from '@rn-primitives/portal';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
@@ -10,6 +11,9 @@ import { Platform } from 'react-native';
 
 import { NAV_THEME } from '@/src/lib/constants';
 import { useColorScheme } from '@/src/lib/useColorScheme';
+
+// TODO: Make the client persistent
+const queryClient = new QueryClient();
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -48,7 +52,7 @@ export default function RootLayout() {
   }
 
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
         <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
         <Stack>
@@ -60,7 +64,7 @@ export default function RootLayout() {
         </Stack>
       </ThemeProvider>
       <PortalHost />
-    </>
+    </QueryClientProvider>
   );
 }
 
