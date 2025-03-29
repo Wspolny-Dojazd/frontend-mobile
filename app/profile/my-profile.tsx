@@ -1,10 +1,9 @@
-import { Link, useRouter, useLocalSearchParams } from 'expo-router';
-import { useState, useMemo } from 'react';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useState } from 'react';
 import { View, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Input } from '@/src/components/ui/input';
-import { InputText } from '@/src/components/ui/inputText';
 import { Label } from '@/src/components/ui/label';
 import { Text } from '@/src/components/ui/text';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';

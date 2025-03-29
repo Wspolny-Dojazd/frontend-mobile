@@ -243,10 +243,6 @@ export default function App() {
     setSelectedFriend(friend);
   };
 
-  const handleRemoveFriend = () => {
-    setSelectedFriend(null);
-  };
-
   return (
     <SafeAreaView className="flex min-h-full flex-1 flex-col items-center">
       <Tabs value={value} onValueChange={setValue} className="w-full">
@@ -255,7 +251,7 @@ export default function App() {
             <TabsTrigger value="friends" className="flex-1 rounded-full">
               <Text>{t('friends')}</Text>
             </TabsTrigger>
-            <TabsTrigger value="requests" className="flex-1 flex-1 rounded-full">
+            <TabsTrigger value="requests" className="flex-1 rounded-full">
               <Text>{t('requests')}</Text>
             </TabsTrigger>
           </TabsList>

@@ -1,4 +1,4 @@
-import { Link, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { TouchableOpacity, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -8,14 +8,13 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/src/components/ui/select';
 import { Separator } from '@/src/components/ui/separator';
 import { Text } from '@/src/components/ui/text';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
-import { ChevronDown, ChevronLeft } from '@/src/lib/icons';
+import { ChevronLeft } from '@/src/lib/icons';
 
 const NAMESPACE = 'profile/preferences';
 const TRANSLATIONS = {
@@ -56,16 +55,6 @@ export default function App() {
     left: 12,
     right: 12,
   };
-
-  const units: { value: string; label: string }[] = [
-    { value: 'metric', label: 'Metryczne' },
-    { value: 'imperial', label: 'Imperialne' },
-  ];
-
-  const hourFormats: { value: string; label: string }[] = [
-    { value: '24', label: '24-godzinny' },
-    { value: '12', label: '12-godzinny' },
-  ];
 
   return (
     <SafeAreaView className="flex items-center justify-center">

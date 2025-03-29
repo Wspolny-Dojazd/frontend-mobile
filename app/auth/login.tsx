@@ -5,11 +5,11 @@ import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { $api } from '@/src/api/api';
-import { useMeErrorTranslations } from '@/src/api/errors/auth/me';
 import { Button } from '@/src/components/ui/button';
 import { InputText } from '@/src/components/ui/inputText';
 import { Text } from '@/src/components/ui/text';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
+// import { useMeErrorTranslations } from '@/src/api/errors/auth/me';
 
 const NAMESPACE = 'app/auth/login';
 const TRANSLATIONS = {
@@ -35,7 +35,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
 
   const queryUser = $api.useQuery('get', '/api/Auth/me');
-  const { t: tMeError } = useMeErrorTranslations();
+  // const { t: tMeError } = useMeErrorTranslations();
 
   if (queryUser.isLoading) {
     // TODO: show loading
@@ -44,7 +44,7 @@ export default function Login() {
   if (queryUser.isError) {
     // TODO: show error
 
-    const message = tMeError(queryUser.error.code);
+    // const message = tMeError(queryUser.error.code);
     if (queryUser.error.code === 'USER_NOT_FOUND') {
       // TODO: show error
     }
@@ -52,7 +52,7 @@ export default function Login() {
 
   // isSuccess else
   if (queryUser.isSuccess) {
-    const { id, nickname, email, token } = queryUser.data;
+    // const { id, nickname, email, token } = queryUser.data;
     // TODO: save token to Auth Context
   }
 
