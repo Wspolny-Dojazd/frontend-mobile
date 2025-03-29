@@ -4,12 +4,12 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { $api } from '@/src/api/api';
+import { useMeErrorTranslations } from '@/src/api/errors/auth/me';
 import { Button } from '@/src/components/ui/button';
 import { InputText } from '@/src/components/ui/inputText';
 import { Text } from '@/src/components/ui/text';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
-import { $api } from '@/src/api/api';
-import { useMeErrorTranslations } from '@/src/api/errors/auth/me';
 
 const NAMESPACE = 'app/auth/login';
 const TRANSLATIONS = {

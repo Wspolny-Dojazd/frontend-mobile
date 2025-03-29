@@ -1,7 +1,8 @@
+import { X, UserRoundCheck, ChevronRight } from 'lucide-react-native';
 import { useEffect, useRef } from 'react';
 import { View, Modal, TouchableOpacity, Image, Animated, Dimensions } from 'react-native';
+
 import { Text } from '@/src/components/ui/text';
-import { X, UserRoundCheck, ChevronRight } from 'lucide-react-native';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 
 const { height } = Dimensions.get('window');
@@ -71,25 +72,13 @@ export function FriendInfoDialog({ visible, onClose, friend, onRemove }: FriendI
   }, [visible]);
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="none"
-      onRequestClose={onClose}
-    >
-      <Animated.View 
-        className="flex-1 bg-black/50" 
-        style={{ opacity: backdropOpacity }}
-      >
-        <TouchableOpacity 
-          className="flex-1" 
-          activeOpacity={1} 
-          onPress={onClose}
-        />
+    <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
+      <Animated.View className="flex-1 bg-black/50" style={{ opacity: backdropOpacity }}>
+        <TouchableOpacity className="flex-1" activeOpacity={1} onPress={onClose} />
       </Animated.View>
 
       <Animated.View
-        className="absolute w-full bg-white rounded-t-3xl p-6"
+        className="absolute w-full rounded-t-3xl bg-white p-6"
         style={{
           height: MODAL_HEIGHT,
           transform: [{ translateY: slideAnim }],
@@ -99,11 +88,10 @@ export function FriendInfoDialog({ visible, onClose, friend, onRemove }: FriendI
           shadowRadius: 20,
           elevation: 20,
           overflow: 'visible',
-        }}
-      >
+        }}>
         {/* Profile Image Container */}
         <View className="absolute -top-16 left-0 right-0 items-center">
-          <View 
+          <View
             className="relative"
             style={{
               shadowColor: '#000',
@@ -111,59 +99,47 @@ export function FriendInfoDialog({ visible, onClose, friend, onRemove }: FriendI
               shadowOpacity: 0.1,
               shadowRadius: 8,
               elevation: 8,
-            }}
-          >
-            <Image
-              source={friend.imageSource}
-              className="w-32 h-32 rounded-full"
-            />
+            }}>
+            <Image source={friend.imageSource} className="h-32 w-32 rounded-full" />
           </View>
         </View>
 
         {/* Close Button */}
-        <TouchableOpacity
-          className="absolute top-6 right-6 z-10"
-          onPress={onClose}
-        >
+        <TouchableOpacity className="absolute right-6 top-6 z-10" onPress={onClose}>
           <X size={24} color="#6B7280" />
         </TouchableOpacity>
 
         {/* Content */}
         <View className="mt-16">
           {/* Name and Status */}
-          <View className="items-center mb-10">
+          <View className="mb-10 items-center">
             <Text className="text-3xl font-bold">{friend.name}</Text>
-            <View className="flex-row items-center mt-8">
+            <View className="mt-8 flex-row items-center">
               <UserRoundCheck size={18} strokeWidth={2} color="#3d917c" />
-              <Text className="text-primary ml-2">{t('friendsStatus')}</Text>
+              <Text className="ml-2 text-primary">{t('friendsStatus')}</Text>
             </View>
           </View>
 
           {/* Stats Container */}
-          <View className="flex-row justify-around mb-8">
+          <View className="mb-8 flex-row justify-around">
             <View className="items-center">
-              <Text className="text-3xl font-bold">
-                {friend.sharedRides}
-              </Text>
+              <Text className="text-3xl font-bold">{friend.sharedRides}</Text>
               <Text>{t('sharedRides')}</Text>
             </View>
-            
+
             <View className="items-center">
-              <Text className="text-3xl font-bold">
-                {friend.sharedKm.toFixed(2)}
-              </Text>
+              <Text className="text-3xl font-bold">{friend.sharedKm.toFixed(2)}</Text>
               <Text>{t('sharedKm')}</Text>
             </View>
           </View>
 
           {/* Remove Friend Button */}
           <TouchableOpacity
-            className="w-full mt-auto flex-row items-center justify-between px-4 py-3 border-t b-2 border-muted"
-            onPress={onRemove}
-          >
+            className="b-2 mt-auto w-full flex-row items-center justify-between border-t border-muted px-4 py-3"
+            onPress={onRemove}>
             {/* Left side with X icon and text */}
             <View className="flex-row items-center gap-4">
-              <View className="bg-red-50 rounded-xl p-2">
+              <View className="rounded-xl bg-red-50 p-2">
                 <X size={16} color="#e37590" />
               </View>
               <Text>{t('removeFriend')}</Text>
