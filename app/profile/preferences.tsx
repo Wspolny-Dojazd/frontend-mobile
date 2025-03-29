@@ -2,6 +2,7 @@ import { Link, useRouter } from 'expo-router';
 import { TouchableOpacity, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Label } from '@/src/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -15,7 +16,6 @@ import { Separator } from '@/src/components/ui/separator';
 import { Text } from '@/src/components/ui/text';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 import { ChevronDown, ChevronLeft } from '@/src/lib/icons';
-import { Label } from '@/src/components/ui/label';
 
 const NAMESPACE = 'profile/preferences';
 const TRANSLATIONS = {
