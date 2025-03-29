@@ -1,15 +1,14 @@
-import { Link } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Text } from '@/src/components/ui/text';
-import { View, TouchableOpacity, Image } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
-
-import { Pencil, ChevronLeft } from '@/src/lib/icons';
-import { InputText } from '@/src/components/ui/inputText';
-import { Input } from '@/src/components/ui/input';
-import { Label } from '@/src/components/ui/label';
+import { Link, useRouter, useLocalSearchParams } from 'expo-router';
 import { useState, useMemo } from 'react';
+import { View, TouchableOpacity, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { Input } from '@/src/components/ui/input';
+import { InputText } from '@/src/components/ui/inputText';
+import { Label } from '@/src/components/ui/label';
+import { Text } from '@/src/components/ui/text';
+import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
+import { Pencil, ChevronLeft } from '@/src/lib/icons';
 
 const avatarImage = require('../../assets/fallback-avatar.png'); // Import the image dynamically
 const DEFAULT_IMAGE = Image.resolveAssetSource(avatarImage).uri;
@@ -50,9 +49,6 @@ export default function App() {
   const [emailValue, setEmailValue] = useState('');
   const [nicknameValue, setNicknameValue] = useState('');
 
-
-
-  
   const handleEmailChange = (text: string) => {
     setEmailValue(text);
   };

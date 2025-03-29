@@ -1,8 +1,9 @@
 import { Link, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { View, FlatList, TouchableOpacity, Image } from 'react-native';
-import { Switch } from '@/src/components/ui/switch';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
+
+import { Switch } from '@/src/components/ui/switch';
 import { Text } from '@/src/components/ui/text';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 import {
@@ -122,7 +123,7 @@ export default function App({ username }: { username: string }) {
         title: t('dark_mode'),
         rightElement: <Switch checked={isDarkMode} onCheckedChange={toggleDarkMode} />,
         onPress: toggleDarkMode,
-        isDarkMode: isDarkMode,
+        isDarkMode,
       },
       {
         id: '4',

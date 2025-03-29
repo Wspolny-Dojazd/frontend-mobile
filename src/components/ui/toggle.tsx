@@ -2,8 +2,9 @@ import * as TogglePrimitive from '@rn-primitives/toggle';
 import { cva, type VariantProps } from 'class-variance-authority';
 import type { LucideIcon } from 'lucide-react-native';
 import * as React from 'react';
-import { cn } from '@/src/lib/utils';
+
 import { TextClassContext } from '@/src/components/ui/text';
+import { cn } from '@/src/lib/utils';
 
 const toggleVariants = cva(
   'web:group web:inline-flex items-center justify-center rounded-md web:ring-offset-background web:transition-colors web:hover:bg-muted active:bg-muted web:focus-visible:outline-none web:focus-visible:ring-2 web:focus-visible:ring-ring web:focus-visible:ring-offset-2',
@@ -54,13 +55,12 @@ const Toggle = React.forwardRef<
       toggleTextVariants({ variant, size }),
       props.pressed ? 'text-accent-foreground' : 'web:group-hover:text-muted-foreground',
       className
-    )}
-  >
+    )}>
     <TogglePrimitive.Root
       ref={ref}
       className={cn(
         toggleVariants({ variant, size }),
-        props.disabled && 'web:pointer-events-none opacity-50',
+        props.disabled && 'opacity-50 web:pointer-events-none',
         props.pressed && 'bg-accent',
         className
       )}
