@@ -32,7 +32,7 @@ npx expo start --clear
 ## Running options
 
 - You can use `--tunnel` if your computer and phone are not in the same network.
-- You can use `--clear` to clear the cache. Using it everytime decreases risk of some issues you would be spending hours on.
+- You can use `--clear` to clear the cache. U`sing it everytime decreases risk of some issues you would be spending hours on.
 - When Expo Go is installed manually using an older version (like we do), a problem can occur because Android automatically upgrades it to the latest version after some time without asking. Therefore, if you see an error indicating that your Expo Go is running SDK 52 while your project is using SDK 51, you need to uninstall Expo Go and then reinstall the version with SDK 51 manually.
 
 ## Main libraries to know
