@@ -7,15 +7,17 @@ type UserBarProps = {
   name: string;
   imageSource: any;
   children?: ReactNode;
+  className?: string;
 };
 
 export const UserBar = ({ 
   name, 
   imageSource, 
-  children 
+  children,
+  className = '' 
 }: UserBarProps) => {
   return (
-    <View className="flex-row items-center justify-between px-7 py-4 border-t border-gray-100">
+    <View className={`flex-row items-center justify-between px-7 py-4 ${className}`}>
       {/* Main content container */}
       <View className="flex-row items-center flex-1">
         {/* Image container */}

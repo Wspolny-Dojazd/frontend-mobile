@@ -1,0 +1,182 @@
+// components/ui/friend-info-dialog.tsx
+import { useEffect, useRef } from 'react';
+import { View, Modal, TouchableOpacity, Image, Animated, Dimensions } from 'react-native';
+import { Text } from '@/src/components/ui/text';
+import { X, UserRoundCheck, ChevronRight } from 'lucide-react-native';
+import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
+
+const { height } = Dimensions.get('window');
+const MODAL_HEIGHT = height * 0.7; // 70% of screen height
+
+const NAMESPACE = 'app/src/components/ui/dialog';
+const TRANSLATIONS = {
+  en: {
+    friendsStatus: 'You are friends',
+    sharedRides: 'Shared rides',
+    sharedKm: 'Shared kilometers',
+    removeFriend: 'Remove friend',
+  },
+  pl: {
+    friendsStatus: 'Jesteście znajomymi',
+    sharedRides: 'Wspólne przejazdy',
+    sharedKm: 'Wspólne kilometry',
+    removeFriend: 'Usuń ze znajomych',
+  },
+};
+
+type FriendInfoDialogProps = {
+  visible: boolean;
+  onClose: () => void;
+  friend: {
+    name: string;
+    imageSource: any;
+    sharedRides: number;
+    sharedKm: number;
+  };
+  onRemove: () => void;
+};
+
+export function FriendInfoDialog({ visible, onClose, friend, onRemove }: FriendInfoDialogProps) {
+  const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
+  const slideAnim = useRef(new Animated.Value(height)).current;
+  const backdropOpacity = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (visible) {
+      Animated.parallel([
+        Animated.timing(slideAnim, {
+          toValue: height - MODAL_HEIGHT,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(backdropOpacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(slideAnim, {
+          toValue: height,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(backdropOpacity, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [visible]);
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="none"
+      onRequestClose={onClose}
+    >
+      <Animated.View 
+        className="flex-1 bg-black/50" 
+        style={{ opacity: backdropOpacity }}
+      >
+        <TouchableOpacity 
+          className="flex-1" 
+          activeOpacity={1} 
+          onPress={onClose}
+        />
+      </Animated.View>
+
+      <Animated.View
+        className="absolute w-full bg-white rounded-t-3xl p-6"
+        style={{
+          height: MODAL_HEIGHT,
+          transform: [{ translateY: slideAnim }],
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.1,
+          shadowRadius: 20,
+          elevation: 20,
+          overflow: 'visible',
+        }}
+      >
+        {/* Profile Image Container */}
+        <View className="absolute -top-16 left-0 right-0 items-center">
+          <View 
+            className="relative"
+            style={{
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.1,
+              shadowRadius: 8,
+              elevation: 8,
+            }}
+          >
+            <Image
+              source={friend.imageSource}
+              className="w-32 h-32 rounded-full"
+            />
+          </View>
+        </View>
+
+        {/* Close Button */}
+        <TouchableOpacity
+          className="absolute top-6 right-6 z-10"
+          onPress={onClose}
+        >
+          <X size={24} color="#6B7280" />
+        </TouchableOpacity>
+
+        {/* Content */}
+        <View className="mt-16">
+          {/* Name and Status */}
+          <View className="items-center mb-10">
+            <Text className="text-3xl font-bold">{friend.name}</Text>
+            <View className="flex-row items-center mt-8">
+              <UserRoundCheck size={18} strokeWidth={2} color="#3d917c" />
+              <Text className="text-primary ml-2">{t('friendsStatus')}</Text>
+            </View>
+          </View>
+
+          {/* Stats Container */}
+          <View className="flex-row justify-around mb-8">
+            <View className="items-center">
+              <Text className="text-3xl font-bold">
+                {friend.sharedRides}
+              </Text>
+              <Text>{t('sharedRides')}</Text>
+            </View>
+            
+            <View className="items-center">
+              <Text className="text-3xl font-bold">
+                {friend.sharedKm.toFixed(2)}
+              </Text>
+              <Text>{t('sharedKm')}</Text>
+            </View>
+          </View>
+
+          {/* Remove Friend Button */}
+          <TouchableOpacity
+            className="w-full mt-auto flex-row items-center justify-between px-4 py-3 border-t b-2 border-muted"
+            onPress={onRemove}
+          >
+            {/* Left side with X icon and text */}
+            <View className="flex-row items-center gap-4">
+              <View className="bg-red-50 rounded-xl p-2">
+                <X size={16} color="#e37590" />
+              </View>
+              <Text>{t('removeFriend')}</Text>
+            </View>
+
+            {/* Right chevron (non-clickable) */}
+            <View>
+              <ChevronRight size={24} color="#909597" />
+            </View>
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
+    </Modal>
+  );
+}

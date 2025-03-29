@@ -10,6 +10,7 @@ import { InputText } from '@/src/components/ui/inputText';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 import { Button } from '@/src/components/ui/button';
 import { UserBar } from '@/src/components/UserBar';
+import { FriendInfoDialog } from '@/src/features/users/UserInfoModal';
 
 const NAMESPACE = 'app/tabs/friends';
 const TRANSLATIONS = {
@@ -44,14 +45,14 @@ const statusColors: Record<Status, string> = {
 };
 
 const friends = [
-  { name: 'Jane Cooper', message: 'lecimy tutaj', time: '9:41', imageSource: {uri: 'https://fastly.picsum.photos/id/852/200/200.jpg?hmac=4UHLpiS9j3YDnvq-w-MqnP5-ymiyvMs6BNV5ukoTRrI' }, status: 'active' as const, isUnread: true },
-  { name: 'Kristin Watson', message: 'siema mordo', time: '9:30', imageSource: {uri: 'https://fastly.picsum.photos/id/1077/200/200.jpg?hmac=hiq7UCoz9ZFgr9HcMCpbnKhV-IMyOJqsQtVFyqmqohQ' }, status: 'active' as const, isUnread: true },
-  { name: 'Darrell Steward', message: 'Nostrud eius', time: 'pon.', imageSource: {uri: 'https://fastly.picsum.photos/id/277/200/200.jpg?hmac=zlHjTbiytnfBWurpKXXSvMRzVSmkgW13o4K7Q-08r68' }, status: 'inactive' as const, isUnread: false },
-  { name: 'Guy Hawkins', message: 'Aliquip incididunt', time: 'pon.', imageSource: {uri: 'https://fastly.picsum.photos/id/231/200/200.jpg?hmac=lUSm6Na5VxIhLKub6Y3JaBOAwCjkimAi-zHEOInwL58' }, status: 'inactive' as const, isUnread: false },
-  { name: 'Kayley Tess', message: 'Irure inci', time: 'niedz.', imageSource: {uri: 'https://fastly.picsum.photos/id/134/200/200.jpg?hmac=a3L-JjVSGeG8w3SdNpzxdh8WSC0xHJXgeD6QryCK7pU' }, status: 'active' as const, isUnread: false },
-  { name: 'Sara Giona', message: 'Aute ullamco', time: 'niedz.', imageSource: {uri: 'https://fastly.picsum.photos/id/626/200/200.jpg?hmac=k-fpo_bQAtxcljtuQzE1GTq5YEufAV5jjzW3n86c0i0' }, status: 'inactive' as const, isUnread: false },
-  { name: 'Jaye Inga', message: 'Nostrud eiusmod', time: '13 mar', imageSource: {uri: 'https://fastly.picsum.photos/id/942/200/200.jpg?hmac=Gh7W-H3ZGmweB9STLwQvq-IHkxrVyawHVTKYxy-u9mA' }, status: 'away' as const, isUnread: false },
-  { name: 'Kiran Glaucus', message: 'Proident cillum', time: '2 mar', imageSource: {uri: 'https://fastly.picsum.photos/id/764/200/200.jpg?hmac=g-JXLL-Box0-4IF64xLkh-OYHpc0kuCIXsRTuaqEPhQ' }, status: 'busy' as const, isUnread: false },
+  { name: 'Jane Cooper', message: 'lecimy tutaj', time: '9:41', imageSource: {uri: 'https://fastly.picsum.photos/id/852/200/200.jpg?hmac=4UHLpiS9j3YDnvq-w-MqnP5-ymiyvMs6BNV5ukoTRrI' }, status: 'active' as const, isUnread: true, sharedRides: 12, sharedKm: 55 },
+  { name: 'Kristin Watson', message: 'siema mordo', time: '9:30', imageSource: {uri: 'https://fastly.picsum.photos/id/1077/200/200.jpg?hmac=hiq7UCoz9ZFgr9HcMCpbnKhV-IMyOJqsQtVFyqmqohQ' }, status: 'active' as const, isUnread: true, sharedRides: 5, sharedKm: 78.5 },
+  { name: 'Darrell Steward', message: 'Nostrud eius', time: 'pon.', imageSource: {uri: 'https://fastly.picsum.photos/id/277/200/200.jpg?hmac=zlHjTbiytnfBWurpKXXSvMRzVSmkgW13o4K7Q-08r68' }, status: 'inactive' as const, isUnread: false, sharedRides: 1, sharedKm: 4.33 },
+  { name: 'Guy Hawkins', message: 'Aliquip incididunt', time: 'pon.', imageSource: {uri: 'https://fastly.picsum.photos/id/231/200/200.jpg?hmac=lUSm6Na5VxIhLKub6Y3JaBOAwCjkimAi-zHEOInwL58' }, status: 'inactive' as const, isUnread: false, sharedRides: 0, sharedKm: 0 },
+  { name: 'Kayley Tess', message: 'Irure inci', time: 'niedz.', imageSource: {uri: 'https://fastly.picsum.photos/id/134/200/200.jpg?hmac=a3L-JjVSGeG8w3SdNpzxdh8WSC0xHJXgeD6QryCK7pU' }, status: 'active' as const, isUnread: false, sharedRides: 78, sharedKm: 7653 },
+  { name: 'Sara Giona', message: 'Aute ullamco', time: 'niedz.', imageSource: {uri: 'https://fastly.picsum.photos/id/626/200/200.jpg?hmac=k-fpo_bQAtxcljtuQzE1GTq5YEufAV5jjzW3n86c0i0' }, status: 'inactive' as const, isUnread: false, sharedRides: 1589, sharedKm: 432867.2 },
+  { name: 'Jaye Inga', message: 'Nostrud eiusmod', time: '13 mar', imageSource: {uri: 'https://fastly.picsum.photos/id/942/200/200.jpg?hmac=Gh7W-H3ZGmweB9STLwQvq-IHkxrVyawHVTKYxy-u9mA' }, status: 'away' as const, isUnread: false, sharedRides: 666, sharedKm: 3245 },
+  { name: 'Kiran Glaucus', message: 'Proident cillum', time: '2 mar', imageSource: {uri: 'https://fastly.picsum.photos/id/764/200/200.jpg?hmac=g-JXLL-Box0-4IF64xLkh-OYHpc0kuCIXsRTuaqEPhQ' }, status: 'busy' as const, isUnread: false, sharedRides: 3, sharedKm: 100.11 },
 ];
 
 const friendRequests = [
@@ -61,14 +62,15 @@ const friendRequests = [
   { name: 'John Doe', imageSource: {uri: 'https://fastly.picsum.photos/id/942/200/200.jpg?hmac=Gh7W-H3ZGmweB9STLwQvq-IHkxrVyawHVTKYxy-u9mA'}, type: 'new' as const },
 ];
 
-const FriendChatItem = ({ name, message, time, imageSource, status, isUnread, onPress = () => {} }: { 
+const FriendChatItem = ({ name, message, time, imageSource, status, isUnread, onPress, onProfilePress }: { 
   name: string;
   message: string;
   time: string;
   imageSource: any;
   status: Status;
   isUnread: boolean;
-  onPress: () => void
+  onPress: () => void;
+  onProfilePress: () => void;
 }) => (
   <TouchableOpacity
     className={`px-7 py-3 border-b border-gray-100 ${isUnread && 'bg-subtle'}`}
@@ -80,14 +82,16 @@ const FriendChatItem = ({ name, message, time, imageSource, status, isUnread, on
       {/* Main content container */}
       <View className="flex-row items-center flex-1">
         {/* Image container */}
-        <View className="relative">
-          <Image
-            source={imageSource}
-            className="w-12 h-12 rounded-full mr-3"
-          />
-          {/* Status indicator */}
-          <View className={`absolute bottom-0 right-2 w-4 h-4 rounded-full border-2 border-white ${statusColors[status]}`} />
-        </View>
+        <TouchableOpacity onPress={onProfilePress}>
+          <View className="relative">
+            <Image
+              source={imageSource}
+              className="w-12 h-12 rounded-full mr-3"
+            />
+            {/* Status indicator */}
+            <View className={`absolute bottom-0 right-2 w-4 h-4 rounded-full border-2 border-white ${statusColors[status]}`} />
+          </View>
+        </TouchableOpacity>
         
         {/* Text container */}
         <View className="flex-1">
@@ -110,9 +114,18 @@ export default function App() {
   const [value, setValue] = useState('friends');
   const [name, setName] = useState('');
   const router = useRouter();
+  const [selectedFriend, setSelectedFriend] = useState<typeof friends[number] | null>(null);
 
   const handleAddFriendPress = () => {
     router.push('/add-friends');
+  };
+
+  const handleProfilePress = (friend: typeof friends[number]) => {
+    setSelectedFriend(friend);
+  };
+
+  const handleRemoveFriend = () => {
+    setSelectedFriend(null);
   };
 
   return (
@@ -123,14 +136,14 @@ export default function App() {
         className='w-full'
       >
         <View className="px-5">
-        <TabsList className='flex-row w-full'>
-          <TabsTrigger value='friends' className='flex-1 rounded-full'>
-            <Text>{t('friends')}</Text>
-          </TabsTrigger>
-          <TabsTrigger value='requests' className='flex-1 flex-1 rounded-full'>
-            <Text>{t('requests')}</Text>
-          </TabsTrigger>
-        </TabsList>
+          <TabsList className='flex-row w-full'>
+            <TabsTrigger value='friends' className='flex-1 rounded-full'>
+              <Text>{t('friends')}</Text>
+            </TabsTrigger>
+            <TabsTrigger value='requests' className='flex-1 flex-1 rounded-full'>
+              <Text>{t('requests')}</Text>
+            </TabsTrigger>
+          </TabsList>
         </View>
 
         <TabsContent value='friends'>
@@ -156,6 +169,7 @@ export default function App() {
                 status={friend.status}
                 isUnread={friend.isUnread}
                 onPress={() => console.log('Go to chat with', friend.name)}
+                onProfilePress={() => handleProfilePress(friend)}
               />
             ))}
           </View>
@@ -181,6 +195,7 @@ export default function App() {
                   key={index}
                   name={request.name}
                   imageSource={request.imageSource}
+                  className="border-t border-muted"
                 >
                   <Button className="rounded-2xl" size="sm" variant="muted">
                     <Text className="text-secondary">{t('decline')}</Text>
@@ -198,6 +213,7 @@ export default function App() {
                   key={index}
                   name={request.name}
                   imageSource={request.imageSource}
+                  className="border-t border-muted"
                 >
                   <Button className="rounded-2xl" size="sm" variant="muted">
                     <Text className="text-secondary">{t('cancel')}</Text>
@@ -217,6 +233,18 @@ export default function App() {
       >
         <Plus size={28} color="white" strokeWidth={2.5} />
       </Button>
+
+      {selectedFriend && (
+        <FriendInfoDialog
+          visible={!!selectedFriend}
+          onClose={() => setSelectedFriend(null)}
+          friend={{ ...selectedFriend }}
+          onRemove={() => {
+            setSelectedFriend(null);
+          }}
+        />
+      )}
+
     </SafeAreaView>
   );
 }
