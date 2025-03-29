@@ -7,8 +7,12 @@ export default function App() {
   return (
     <SafeAreaView className="flex min-h-full flex-1 flex-col items-center justify-between px-8">
       <Text>Ekran główny</Text>
-      <Link href="/map-test">(DEBUG) Go to Map Test</Link>
-      <Link href="/search-place">(DEBUG) Go to Search Place</Link>
+      <Link href="/map-test" className="dark:text-white">
+        (DEBUG) Go to Map Test
+      </Link>
+      <Link href="/search-place" className="dark:text-white">
+        (DEBUG) Go to Search Place
+      </Link>
     </SafeAreaView>
   );
 }

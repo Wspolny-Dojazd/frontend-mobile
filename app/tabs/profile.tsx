@@ -1,4 +1,4 @@
-import { Link, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { View, FlatList, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
@@ -203,10 +203,6 @@ export default function App({ username }: { username: string }) {
           ListHeaderComponent={<ProfileHeaderComponent username={username} />}
           contentContainerStyle={{ paddingHorizontal: 8, paddingBottom: 8 }}
         />
-
-        <Link href="/profile/my-profile" className="mx-auto mb-8">
-          <Text>(DEBUG) Go to My Profile</Text>
-        </Link>
       </SafeAreaView>
     </SafeAreaProvider>
   );
