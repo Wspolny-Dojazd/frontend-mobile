@@ -1,6 +1,6 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
-import { TouchableOpacity, View, Image } from 'react-native';
+import { TouchableOpacity, View, Image, ScrollView } from 'react-native';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { Search, Plus } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
@@ -158,7 +158,7 @@ export default function App() {
               <Search size={24} strokeWidth={3} color="#909597" />
             </View>
           </View>
-          <View>
+          <ScrollView contentContainerStyle={{ paddingBottom: 320 }}>
             {friends.map((friend, index) => (
               <FriendChatItem
                 key={index}
@@ -172,11 +172,11 @@ export default function App() {
                 onProfilePress={() => handleProfilePress(friend)}
               />
             ))}
-          </View>
+          </ScrollView >
         </TabsContent>
 
         <TabsContent value='requests'>
-        <View className="relative w-full px-7 my-4">
+          <View className="relative w-full px-7 my-4">
             <InputText
               placeholder={t('search')}
               value={name}
@@ -187,7 +187,7 @@ export default function App() {
               <Search size={24} strokeWidth={3} color="#909597" />
             </View>
           </View>
-          <View>
+          <ScrollView contentContainerStyle={{ paddingBottom: 320 }}>
             <Text className="text-center text-muted-foreground my-2">{t('newRequests')}</Text>
             {friendRequests.map((request, index) => (
               request.type === 'new' && (
@@ -221,7 +221,7 @@ export default function App() {
                 </UserBar>
               )
             ))}
-          </View>
+          </ScrollView>
         </TabsContent>
       </Tabs>
 

@@ -1,6 +1,6 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
-import { View, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity, ScrollView } from 'react-native';
 import { Text } from '@/src/components/ui/text';
 import { InputText } from '@/src/components/ui/inputText';
 import { Search, ChevronLeft } from 'lucide-react-native';
@@ -10,7 +10,7 @@ import { router } from 'expo-router';
 
 import { UserBar } from '@/src/components/UserBar';
 
-const NAMESPACE = 'app/friends/add';
+const NAMESPACE = 'app/add-friends/index';
 const TRANSLATIONS = {
   en: {
     title: 'Invite friends',
@@ -73,23 +73,25 @@ export default function AddFriendView() {
         </View>
       </View>
 
-      {users.map((user, index) => (
-        <UserBar
-          key={index}
-          name={user.name}
-          imageSource={user.imageSource}
-        >
-          <Button
-            className="rounded-2xl min-w-24"
-            size="sm"
-            variant={user.invited ? "muted" : "default"}
-            disabled={user.invited}
-            onPress={() => handleSendRequest(index)}
+      <ScrollView>
+        {users.map((user, index) => (
+          <UserBar
+            key={index}
+            name={user.name}
+            imageSource={user.imageSource}
           >
-          <Text>{t(user.invited ? 'sent' : 'invite')}</Text>
-          </Button>
-        </UserBar>
-      ))}
+            <Button
+              className="rounded-2xl min-w-24"
+              size="sm"
+              variant={user.invited ? "muted" : "default"}
+              disabled={user.invited}
+              onPress={() => handleSendRequest(index)}
+            >
+            <Text>{t(user.invited ? 'sent' : 'invite')}</Text>
+            </Button>
+          </UserBar>
+        ))}
+      </ScrollView>
     </SafeAreaView>
   );
 }

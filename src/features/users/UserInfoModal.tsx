@@ -1,4 +1,3 @@
-// components/ui/friend-info-dialog.tsx
 import { useEffect, useRef } from 'react';
 import { View, Modal, TouchableOpacity, Image, Animated, Dimensions } from 'react-native';
 import { Text } from '@/src/components/ui/text';
