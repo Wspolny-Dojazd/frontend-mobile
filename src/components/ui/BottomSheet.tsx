@@ -4,13 +4,12 @@ import { View, Text, TouchableWithoutFeedback, StyleSheet, Animated, Easing } fr
 type BottomSheetProps = {
   children: ReactNode;
   onClose: () => void;
-  visible: boolean; // Show or hide the bottom sheet
+  visible: boolean;
 };
 
 export function BottomSheet({ children, onClose, visible }: BottomSheetProps) {
-  const translateY = new Animated.Value(1000); // Start the BottomSheet off-screen
+  const translateY = new Animated.Value(1000);
 
-  // Animate the BottomSheet when it becomes visible
   React.useEffect(() => {
     if (visible) {
       Animated.timing(translateY, {

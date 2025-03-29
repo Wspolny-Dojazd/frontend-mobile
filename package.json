@@ -27,7 +27,7 @@
     "expo-router": "3.5.24",
     "expo-status-bar": "1.12.1",
     "i18next": "24.2.3",
-    "lucide-react-native": "0.479.0",
+    "lucide-react-native": "^0.479.0",
     "nativewind": "4.1.23",
     "openapi-fetch": "0.13.5",
     "openapi-react-query": "0.3.1",
