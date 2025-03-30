@@ -100,62 +100,66 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.searchBarContainer}>
-        <View style={styles.searchBarWrapper}>
-          <Feather
-            name={isFocused ? 'arrow-left' : 'search'}
-            size={24}
-            color="gray"
-            style={styles.searchIcon}
-            onPress={() => {
-              if (isFocused) {
-                setIsFocused(false);
-                setSearchQuery('');
-              }
-            }}
-          />
-          <TextInput
-            placeholder="Search places..."
-            value={searchQuery}
-            onChangeText={(e) => setSearchQuery(e)}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            style={styles.searchBar}
-            onSubmitEditing={handleSearchSubmit}
-          />
+      <View style={styles.container}>
+        <View style={styles.searchBarContainer}>
+          <View style={styles.searchBarWrapper}>
+            <Feather
+              name={isFocused ? 'arrow-left' : 'search'}
+              size={24}
+              color="gray"
+              style={styles.searchIcon}
+              onPress={() => {
+                if (isFocused) {
+                  setIsFocused(false);
+                  setSearchQuery('');
+                }
+              }}
+            />
+            <TextInput
+              placeholder="Search places..."
+              value={searchQuery}
+              onChangeText={(e) => setSearchQuery(e)}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              style={styles.searchBar}
+              onSubmitEditing={handleSearchSubmit}
+            />
+          </View>
+        </View>
+
+        <View style={styles.resultsContainer}>
+          {isFocused && !searchQuery && pastSearches.length > 0 && (
+            <View style={styles.searchResultsContainer}>
+              <Text style={styles.pastSearchesTitle}>Past Searches</Text>
+              <FlatList
+                data={pastSearches}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={styles.searchResultItem}
+                    onPress={() => setSearchQuery(item)}>
+                    <Text style={styles.searchResultText}>{item}</Text>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          )}
+
+          {isFocused && searchQuery && searchResults.length > 0 && (
+            <View style={styles.searchResultsContainer}>
+              <FlatList
+                data={searchResults}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item }) => (
+                  <TouchableOpacity style={styles.searchResultItem}>
+                    <Text style={styles.searchResultText}>{item}</Text>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          )}
         </View>
       </View>
-
-      {isFocused && !searchQuery && pastSearches.length > 0 && (
-        <View style={styles.searchResultsContainer}>
-          <Text style={styles.pastSearchesTitle}>Past Searches</Text>
-          <FlatList
-            data={pastSearches}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={styles.searchResultItem}
-                onPress={() => handlePastSearch(item)}>
-                <Text style={styles.searchResultText}>{item}</Text>
-              </TouchableOpacity>
-            )}
-          />
-        </View>
-      )}
-
-      {isFocused && searchQuery && searchResults.length > 0 && (
-        <View style={styles.searchResultsContainer}>
-          <FlatList
-            data={searchResults}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => (
-              <TouchableOpacity style={styles.searchResultItem}>
-                <Text style={styles.searchResultText}>{item}</Text>
-              </TouchableOpacity>
-            )}
-          />
-        </View>
-      )}
 
       <View style={[styles.mapContainer, isFocused && styles.whiteBackground]}>
         <MapView
@@ -198,13 +202,12 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    padding: 8,
+    paddingTop: 20,
+    backgroundColor: 'white',
   },
   searchBarContainer: {
     width: '100%',
-    paddingTop: 20,
+    paddingHorizontal: 15,
     paddingBottom: 10,
   },
   searchBarWrapper: {
@@ -224,21 +227,24 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
   },
+  resultsContainer: {
+    flex: 1,
+    paddingHorizontal: 15,
+  },
   searchResultsContainer: {
     width: '100%',
-    maxHeight: 200,
-    position: 'absolute',
-    top: 80,
     backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    zIndex: 1,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 5,
+    paddingVertical: 5,
   },
   pastSearchesTitle: {
     fontSize: 16,
     fontWeight: 'bold',
     color: 'gray',
     marginBottom: 10,
+    paddingLeft: 10,
   },
   searchResultItem: {
     padding: 10,
