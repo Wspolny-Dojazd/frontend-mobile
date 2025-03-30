@@ -4,292 +4,292 @@
  */
 
 export interface paths {
-    "/api/Auth/login": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["LoginRequestDto"];
-                    "text/json": components["schemas"]["LoginRequestDto"];
-                    "application/*+json": components["schemas"]["LoginRequestDto"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["AuthResponseDto"];
-                        "application/json": components["schemas"]["AuthResponseDto"];
-                        "text/json": components["schemas"]["AuthResponseDto"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["LoginErrorCodeErrorResponse"];
-                        "application/json": components["schemas"]["LoginErrorCodeErrorResponse"];
-                        "text/json": components["schemas"]["LoginErrorCodeErrorResponse"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+  '/api/Auth/login': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/Auth/register": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['LoginRequestDto'];
+          'text/json': components['schemas']['LoginRequestDto'];
+          'application/*+json': components['schemas']['LoginRequestDto'];
         };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["RegisterRequestDto"];
-                    "text/json": components["schemas"]["RegisterRequestDto"];
-                    "application/*+json": components["schemas"]["RegisterRequestDto"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["AuthResponseDto"];
-                        "application/json": components["schemas"]["AuthResponseDto"];
-                        "text/json": components["schemas"]["AuthResponseDto"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["RegisterErrorCodeErrorResponse"];
-                        "application/json": components["schemas"]["RegisterErrorCodeErrorResponse"];
-                        "text/json": components["schemas"]["RegisterErrorCodeErrorResponse"];
-                    };
-                };
-                /** @description Conflict */
-                409: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["RegisterErrorCodeErrorResponse"];
-                        "application/json": components["schemas"]["RegisterErrorCodeErrorResponse"];
-                        "text/json": components["schemas"]["RegisterErrorCodeErrorResponse"];
-                    };
-                };
-            };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthResponseDto'];
+            'application/json': components['schemas']['AuthResponseDto'];
+            'text/json': components['schemas']['AuthResponseDto'];
+          };
         };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['LoginErrorCodeErrorResponse'];
+            'application/json': components['schemas']['LoginErrorCodeErrorResponse'];
+            'text/json': components['schemas']['LoginErrorCodeErrorResponse'];
+          };
+        };
+      };
     };
-    "/api/Auth/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["AuthResponseDto"];
-                        "application/json": components["schemas"]["AuthResponseDto"];
-                        "text/json": components["schemas"]["AuthResponseDto"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["AuthErrorCodeErrorResponse"];
-                        "application/json": components["schemas"]["AuthErrorCodeErrorResponse"];
-                        "text/json": components["schemas"]["AuthErrorCodeErrorResponse"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["UserErrorCodeErrorResponse"];
-                        "application/json": components["schemas"]["UserErrorCodeErrorResponse"];
-                        "text/json": components["schemas"]["UserErrorCodeErrorResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/Auth/register': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/Users/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['RegisterRequestDto'];
+          'text/json': components['schemas']['RegisterRequestDto'];
+          'application/*+json': components['schemas']['RegisterRequestDto'];
         };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["UserDto"];
-                        "application/json": components["schemas"]["UserDto"];
-                        "text/json": components["schemas"]["UserDto"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["UserErrorCodeErrorResponse"];
-                        "application/json": components["schemas"]["UserErrorCodeErrorResponse"];
-                        "text/json": components["schemas"]["UserErrorCodeErrorResponse"];
-                    };
-                };
-            };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthResponseDto'];
+            'application/json': components['schemas']['AuthResponseDto'];
+            'text/json': components['schemas']['AuthResponseDto'];
+          };
         };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['RegisterErrorCodeErrorResponse'];
+            'application/json': components['schemas']['RegisterErrorCodeErrorResponse'];
+            'text/json': components['schemas']['RegisterErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Conflict */
+        409: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['RegisterErrorCodeErrorResponse'];
+            'application/json': components['schemas']['RegisterErrorCodeErrorResponse'];
+            'text/json': components['schemas']['RegisterErrorCodeErrorResponse'];
+          };
+        };
+      };
     };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/Auth/me': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthResponseDto'];
+            'application/json': components['schemas']['AuthResponseDto'];
+            'text/json': components['schemas']['AuthResponseDto'];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['UserErrorCodeErrorResponse'];
+            'application/json': components['schemas']['UserErrorCodeErrorResponse'];
+            'text/json': components['schemas']['UserErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/Users/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: number;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['UserDto'];
+            'application/json': components['schemas']['UserDto'];
+            'text/json': components['schemas']['UserDto'];
+          };
+        };
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['UserErrorCodeErrorResponse'];
+            'application/json': components['schemas']['UserErrorCodeErrorResponse'];
+            'text/json': components['schemas']['UserErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        /** @enum {string} */
-        AuthErrorCode: "MISSING_TOKEN" | "INVALID_TOKEN" | "EXPIRED_TOKEN";
-        AuthErrorCodeErrorResponse: {
-            code: components["schemas"]["AuthErrorCode"];
-            message?: string | null;
-        };
-        AuthResponseDto: {
-            /** Format: int32 */
-            id: number;
-            nickname: string;
-            email: string;
-            token: string;
-        };
-        /** @enum {string} */
-        LoginErrorCode: "INVALID_CREDENTIALS" | "INVALID_EMAIL_FORMAT" | "VALIDATION_ERROR";
-        LoginErrorCodeErrorResponse: {
-            code: components["schemas"]["LoginErrorCode"];
-            message?: string | null;
-        };
-        LoginRequestDto: {
-            /** Format: email */
-            email: string;
-            password: string;
-        };
-        /** @enum {string} */
-        RegisterErrorCode: "EMAIL_ALREADY_USED" | "INVALID_EMAIL_FORMAT" | "VALIDATION_ERROR";
-        RegisterErrorCodeErrorResponse: {
-            code: components["schemas"]["RegisterErrorCode"];
-            message?: string | null;
-        };
-        RegisterRequestDto: {
-            /** Format: email */
-            email: string;
-            password: string;
-            nickname: string;
-        };
-        UserDto: {
-            /** Format: int32 */
-            id: number;
-            nickname: string;
-            email: string;
-        };
-        /** @enum {string} */
-        UserErrorCode: "USER_NOT_FOUND";
-        UserErrorCodeErrorResponse: {
-            code: components["schemas"]["UserErrorCode"];
-            message?: string | null;
-        };
+  schemas: {
+    /** @enum {string} */
+    AuthErrorCode: 'MISSING_TOKEN' | 'INVALID_TOKEN' | 'EXPIRED_TOKEN';
+    AuthErrorCodeErrorResponse: {
+      code: components['schemas']['AuthErrorCode'];
+      message?: string | null;
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    AuthResponseDto: {
+      /** Format: int32 */
+      id: number;
+      nickname: string;
+      email: string;
+      token: string;
+    };
+    /** @enum {string} */
+    LoginErrorCode: 'INVALID_CREDENTIALS' | 'INVALID_EMAIL_FORMAT' | 'VALIDATION_ERROR';
+    LoginErrorCodeErrorResponse: {
+      code: components['schemas']['LoginErrorCode'];
+      message?: string | null;
+    };
+    LoginRequestDto: {
+      /** Format: email */
+      email: string;
+      password: string;
+    };
+    /** @enum {string} */
+    RegisterErrorCode: 'EMAIL_ALREADY_USED' | 'INVALID_EMAIL_FORMAT' | 'VALIDATION_ERROR';
+    RegisterErrorCodeErrorResponse: {
+      code: components['schemas']['RegisterErrorCode'];
+      message?: string | null;
+    };
+    RegisterRequestDto: {
+      /** Format: email */
+      email: string;
+      password: string;
+      nickname: string;
+    };
+    UserDto: {
+      /** Format: int32 */
+      id: number;
+      nickname: string;
+      email: string;
+    };
+    /** @enum {string} */
+    UserErrorCode: 'USER_NOT_FOUND';
+    UserErrorCodeErrorResponse: {
+      code: components['schemas']['UserErrorCode'];
+      message?: string | null;
+    };
+  };
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export type operations = Record<string, never>;

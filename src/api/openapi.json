@@ -1,499 +1,453 @@
 {
-    "openapi": "3.0.1",
-    "info": {
-        "title": "Transport API",
-        "version": "v1"
-    },
-    "paths": {
-        "/api/Auth/login": {
-            "post": {
-                "tags": [
-                    "Auth"
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/LoginRequestDto"
-                            }
-                        },
-                        "text/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/LoginRequestDto"
-                            }
-                        },
-                        "application/*+json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/LoginRequestDto"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "text/plain": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AuthResponseDto"
-                                }
-                            },
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AuthResponseDto"
-                                }
-                            },
-                            "text/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AuthResponseDto"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "content": {
-                            "text/plain": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/LoginErrorCodeErrorResponse"
-                                }
-                            },
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/LoginErrorCodeErrorResponse"
-                                }
-                            },
-                            "text/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/LoginErrorCodeErrorResponse"
-                                }
-                            }
-                        }
-                    }
-                }
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Transport API",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/Auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequestDto"
+              }
             }
+          }
         },
-        "/api/Auth/register": {
-            "post": {
-                "tags": [
-                    "Auth"
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/RegisterRequestDto"
-                            }
-                        },
-                        "text/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/RegisterRequestDto"
-                            }
-                        },
-                        "application/*+json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/RegisterRequestDto"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "text/plain": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AuthResponseDto"
-                                }
-                            },
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AuthResponseDto"
-                                }
-                            },
-                            "text/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AuthResponseDto"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "content": {
-                            "text/plain": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/RegisterErrorCodeErrorResponse"
-                                }
-                            },
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/RegisterErrorCodeErrorResponse"
-                                }
-                            },
-                            "text/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/RegisterErrorCodeErrorResponse"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "content": {
-                            "text/plain": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/RegisterErrorCodeErrorResponse"
-                                }
-                            },
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/RegisterErrorCodeErrorResponse"
-                                }
-                            },
-                            "text/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/RegisterErrorCodeErrorResponse"
-                                }
-                            }
-                        }
-                    }
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
                 }
-            }
-        },
-        "/api/Auth/me": {
-            "get": {
-                "tags": [
-                    "Auth"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "text/plain": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AuthResponseDto"
-                                }
-                            },
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AuthResponseDto"
-                                }
-                            },
-                            "text/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AuthResponseDto"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "text/plain": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
-                                }
-                            },
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
-                                }
-                            },
-                            "text/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "text/plain": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UserErrorCodeErrorResponse"
-                                }
-                            },
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UserErrorCodeErrorResponse"
-                                }
-                            },
-                            "text/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UserErrorCodeErrorResponse"
-                                }
-                            }
-                        }
-                    }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
                 }
-            }
-        },
-        "/api/Users/{id}": {
-            "get": {
-                "tags": [
-                    "Users"
-                ],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int32"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "text/plain": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UserDto"
-                                }
-                            },
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UserDto"
-                                }
-                            },
-                            "text/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UserDto"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "text/plain": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UserErrorCodeErrorResponse"
-                                }
-                            },
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UserErrorCodeErrorResponse"
-                                }
-                            },
-                            "text/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UserErrorCodeErrorResponse"
-                                }
-                            }
-                        }
-                    }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
                 }
+              }
             }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
         }
+      }
     },
-    "components": {
-        "schemas": {
-            "AuthErrorCode": {
-                "enum": [
-                    "MISSING_TOKEN",
-                    "INVALID_TOKEN",
-                    "EXPIRED_TOKEN"
-                ],
-                "type": "string"
+    "/api/Auth/register": {
+      "post": {
+        "tags": ["Auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequestDto"
+              }
             },
-            "AuthErrorCodeErrorResponse": {
-                "required": [
-                    "code"
-                ],
-                "type": "object",
-                "properties": {
-                    "code": {
-                        "$ref": "#/components/schemas/AuthErrorCode"
-                    },
-                    "message": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequestDto"
+              }
             },
-            "AuthResponseDto": {
-                "required": [
-                    "email",
-                    "id",
-                    "nickname",
-                    "token"
-                ],
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "format": "int32"
-                    },
-                    "nickname": {
-                        "minLength": 1,
-                        "type": "string"
-                    },
-                    "email": {
-                        "minLength": 1,
-                        "type": "string"
-                    },
-                    "token": {
-                        "minLength": 1,
-                        "type": "string"
-                    }
-                },
-                "additionalProperties": false
-            },
-            "LoginErrorCode": {
-                "enum": [
-                    "INVALID_CREDENTIALS",
-                    "INVALID_EMAIL_FORMAT",
-                    "VALIDATION_ERROR"
-                ],
-                "type": "string"
-            },
-            "LoginErrorCodeErrorResponse": {
-                "required": [
-                    "code"
-                ],
-                "type": "object",
-                "properties": {
-                    "code": {
-                        "$ref": "#/components/schemas/LoginErrorCode"
-                    },
-                    "message": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            },
-            "LoginRequestDto": {
-                "required": [
-                    "email",
-                    "password"
-                ],
-                "type": "object",
-                "properties": {
-                    "email": {
-                        "minLength": 1,
-                        "type": "string",
-                        "format": "email"
-                    },
-                    "password": {
-                        "minLength": 1,
-                        "type": "string"
-                    }
-                },
-                "additionalProperties": false
-            },
-            "RegisterErrorCode": {
-                "enum": [
-                    "EMAIL_ALREADY_USED",
-                    "INVALID_EMAIL_FORMAT",
-                    "VALIDATION_ERROR"
-                ],
-                "type": "string"
-            },
-            "RegisterErrorCodeErrorResponse": {
-                "required": [
-                    "code"
-                ],
-                "type": "object",
-                "properties": {
-                    "code": {
-                        "$ref": "#/components/schemas/RegisterErrorCode"
-                    },
-                    "message": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            },
-            "RegisterRequestDto": {
-                "required": [
-                    "email",
-                    "nickname",
-                    "password"
-                ],
-                "type": "object",
-                "properties": {
-                    "email": {
-                        "minLength": 1,
-                        "type": "string",
-                        "format": "email"
-                    },
-                    "password": {
-                        "minLength": 1,
-                        "type": "string"
-                    },
-                    "nickname": {
-                        "minLength": 1,
-                        "type": "string"
-                    }
-                },
-                "additionalProperties": false
-            },
-            "UserDto": {
-                "required": [
-                    "email",
-                    "id",
-                    "nickname"
-                ],
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "format": "int32"
-                    },
-                    "nickname": {
-                        "minLength": 1,
-                        "type": "string"
-                    },
-                    "email": {
-                        "minLength": 1,
-                        "type": "string"
-                    }
-                },
-                "additionalProperties": false
-            },
-            "UserErrorCode": {
-                "enum": [
-                    "USER_NOT_FOUND"
-                ],
-                "type": "string"
-            },
-            "UserErrorCodeErrorResponse": {
-                "required": [
-                    "code"
-                ],
-                "type": "object",
-                "properties": {
-                    "code": {
-                        "$ref": "#/components/schemas/UserErrorCode"
-                    },
-                    "message": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequestDto"
+              }
             }
+          }
         },
-        "securitySchemes": {
-            "Bearer": {
-                "type": "http",
-                "description": "Your Bearer token (without 'Bearer' prefix)",
-                "scheme": "bearer",
-                "bearerFormat": "JWT"
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
             }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
         }
+      }
     },
-    "security": [
-        {
-            "Bearer": []
+    "/api/Auth/me": {
+      "get": {
+        "tags": ["Auth"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
         }
-    ]
+      }
+    },
+    "/api/Users/{id}": {
+      "get": {
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AuthErrorCode": {
+        "enum": ["MISSING_TOKEN", "INVALID_TOKEN", "EXPIRED_TOKEN"],
+        "type": "string"
+      },
+      "AuthErrorCodeErrorResponse": {
+        "required": ["code"],
+        "type": "object",
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/AuthErrorCode"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AuthResponseDto": {
+        "required": ["email", "id", "nickname", "token"],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nickname": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "email": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "token": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LoginErrorCode": {
+        "enum": ["INVALID_CREDENTIALS", "INVALID_EMAIL_FORMAT", "VALIDATION_ERROR"],
+        "type": "string"
+      },
+      "LoginErrorCodeErrorResponse": {
+        "required": ["code"],
+        "type": "object",
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/LoginErrorCode"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LoginRequestDto": {
+        "required": ["email", "password"],
+        "type": "object",
+        "properties": {
+          "email": {
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RegisterErrorCode": {
+        "enum": ["EMAIL_ALREADY_USED", "INVALID_EMAIL_FORMAT", "VALIDATION_ERROR"],
+        "type": "string"
+      },
+      "RegisterErrorCodeErrorResponse": {
+        "required": ["code"],
+        "type": "object",
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/RegisterErrorCode"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RegisterRequestDto": {
+        "required": ["email", "nickname", "password"],
+        "type": "object",
+        "properties": {
+          "email": {
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "nickname": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserDto": {
+        "required": ["email", "id", "nickname"],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nickname": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "email": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserErrorCode": {
+        "enum": ["USER_NOT_FOUND"],
+        "type": "string"
+      },
+      "UserErrorCodeErrorResponse": {
+        "required": ["code"],
+        "type": "object",
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/UserErrorCode"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "description": "Your Bearer token (without 'Bearer' prefix)",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "Bearer": []
+    }
+  ]
 }

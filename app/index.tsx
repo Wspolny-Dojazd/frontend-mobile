@@ -47,7 +47,7 @@ export default function App() {
 
       <TextLanguageSelect className="mb-4" />
 
-      <Link href="/tabs" className="mb-4">
+      <Link href="/tabs" className="mb-4 dark:text-white">
         (DEBUG) Go to tabs
       </Link>
     </SafeAreaView>

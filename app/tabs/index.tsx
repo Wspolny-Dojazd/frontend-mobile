@@ -193,8 +193,12 @@ export default function App() {
       )}
 
       <Text>Ekran główny</Text>
-      <Link href="/map-test">(DEBUG) Go to Map Test</Link>
-      <Link href="/search-place">(DEBUG) Go to Search Place</Link>
+      <Link href="/map-test" className="dark:text-white">
+        (DEBUG) Go to Map Test
+      </Link>
+      <Link href="/search-place" className="dark:text-white">
+        (DEBUG) Go to Search Place
+      </Link>
     </SafeAreaView>
   );
 }
