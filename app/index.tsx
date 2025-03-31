@@ -1,12 +1,13 @@
-// @ts-expect-error
-import Logo from 'assets/logo.svg';
+// app/index.tsx
+// @ts-expect-error - Acknowledge potential SVG import issue if bundler isn't configured
+import Logo from 'assets/logo.svg'; // Assuming path is correct
 import { Link } from 'expo-router';
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import TextLanguageSelect from '@/src/components/TextLanguageSelect';
-import { Text } from '@/src/components/ui/text';
-import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
+import TextLanguageSelect from '@/src/components/TextLanguageSelect'; // Assuming path is correct
+import { Text } from '@/src/components/ui/text'; // Assuming path is correct
+import { useTypedTranslation } from '@/src/hooks/useTypedTranslations'; // Assuming path is correct
 
 const NAMESPACE = 'index';
 const TRANSLATIONS = {
@@ -27,28 +28,36 @@ export default function App() {
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
 
   return (
-    <SafeAreaView className="flex min-h-full flex-1 flex-col items-center justify-between px-8">
+    // Ensure root uses bg-background or similar theme-aware class if needed
+    <SafeAreaView className="flex min-h-full flex-1 flex-col items-center justify-between px-8 bg-background">
       <View className="flex w-full flex-1 items-center justify-center">
+        {/* Ensure Logo component handles potential errors or provide fallback */}
         <Logo width={100} height={100} />
 
         <Text className="my-8 text-4xl font-normal">Wspólny dojazd</Text>
         <Text className="text-center text-base">{t('description')}</Text>
 
+        {/* Link styled as Sign up Button */}
         <Link
-          href="/auth/register"
+          href="/auth/register" // Navigates to register screen handled by 'auth' container
           className="mt-12 w-full rounded-2xl bg-primary py-3 text-center">
+          {/* Ensure Text component inherits styles or apply directly */}
           <Text className="text-lg text-white">{t('signup')}</Text>
         </Link>
 
-        <Link href="/auth/login" className="mt-6 w-full rounded-2xl bg-subtle py-3 text-center">
+        {/* Link styled as Sign in Button */}
+        <Link href="/auth/login" // Navigates to login screen handled by 'auth' container
+          className="mt-6 w-full rounded-2xl bg-subtle py-3 text-center">
           <Text className="text-lg text-primary">{t('signin')}</Text>
         </Link>
       </View>
 
+      {/* Language Selector Component */}
       <TextLanguageSelect className="mb-4" />
 
+      {/* Debug Link targeting the 'tabs' screen name */}
       <Link href="/tabs" className="mb-4 dark:text-white">
-        (DEBUG) Go to tabs
+        (DEBUG) Go to tabs container
       </Link>
     </SafeAreaView>
   );

@@ -2,22 +2,27 @@ import { components } from '../../openapi';
 
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 
+export const NAMESPACE = 'src/api/errors/auth/me';
+// Combine possible error codes from the /me endpoint (check openapi.json responses: 401, 404)
 type ErrorCode = components['schemas']['AuthErrorCode'] | components['schemas']['UserErrorCode'];
 
-export const NAMESPACE = 'src/api/errors/auth/me';
 export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
   en: {
-    MISSING_TOKEN: 'Missing token',
-    INVALID_TOKEN: 'Invalid token',
-    EXPIRED_TOKEN: 'Expired token',
-    USER_NOT_FOUND: 'User not found',
+    // Auth Errors (401)
+    MISSING_TOKEN: 'Authentication token is missing. Please log in.',
+    INVALID_TOKEN: 'Your session is invalid. Please log in again.',
+    EXPIRED_TOKEN: 'Your session has expired. Please log in again.',
+    // User Errors (404)
+    USER_NOT_FOUND: 'User account not found.',
   },
   pl: {
-    MISSING_TOKEN: 'Brak tokenu',
-    INVALID_TOKEN: 'Nieprawidłowy token',
-    EXPIRED_TOKEN: 'Token wygasł',
-    USER_NOT_FOUND: 'Użytkownik nie znaleziony',
+    // Auth Errors (401)
+    MISSING_TOKEN: 'Brak tokenu uwierzytelniającego. Proszę się zalogować.',
+    INVALID_TOKEN: 'Twoja sesja jest nieprawidłowa. Proszę zalogować się ponownie.',
+    EXPIRED_TOKEN: 'Twoja sesja wygasła. Proszę zalogować się ponownie.',
+    // User Errors (404)
+    USER_NOT_FOUND: 'Nie znaleziono konta użytkownika.',
   },
 };
 
-export const useMeErrorTranslations = () => useTypedTranslation(NAMESPACE, TRANSLATIONS);
+export const useMeErrorTranslations = () => useTypedTranslation(NAMESPACE, TRANSLATIONS as Record<string, Record<string, string>>);

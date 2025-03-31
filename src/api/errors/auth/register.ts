@@ -1,21 +1,19 @@
-import { components } from '../../openapi';
-
+import { components } from '../../openapi'; // Adjust path
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 
 export const NAMESPACE = 'src/api/errors/auth/register';
-export const TRANSLATIONS: Record<
-  string,
-  Record<components['schemas']['RegisterErrorCode'], string>
-> = {
+type ErrorCode = components['schemas']['RegisterErrorCode'];
+
+export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
   en: {
-    EMAIL_ALREADY_USED: 'Email already used',
-    INVALID_EMAIL_FORMAT: 'Invalid email format',
-    VALIDATION_ERROR: 'Validation error',
+    EMAIL_ALREADY_USED: 'This email address is already registered.',
+    INVALID_EMAIL_FORMAT: 'The email format is invalid.',
+    VALIDATION_ERROR: 'Registration validation failed. Please check your input.',
   },
   pl: {
-    EMAIL_ALREADY_USED: 'Adres email już używany',
-    INVALID_EMAIL_FORMAT: 'Nieprawidłowy format adresu email',
-    VALIDATION_ERROR: 'Błąd walidacji',
+    EMAIL_ALREADY_USED: 'Ten adres email jest już zarejestrowany.',
+    INVALID_EMAIL_FORMAT: 'Format adresu email jest nieprawidłowy.',
+    VALIDATION_ERROR: 'Błąd walidacji rejestracji. Proszę sprawdzić wprowadzone dane.',
   },
 };
 
