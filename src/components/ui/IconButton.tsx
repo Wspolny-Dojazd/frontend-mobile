@@ -1,6 +1,6 @@
-import { TouchableOpacity, StyleSheet, ViewStyle } from 'react-native';
-import { FC } from 'react';
 import { MapPin, Crosshair, LucideIcon } from 'lucide-react-native';
+import { FC } from 'react';
+import { TouchableOpacity, StyleSheet, ViewStyle } from 'react-native';
 
 type IconButtonProps = {
   icon: keyof typeof icons;

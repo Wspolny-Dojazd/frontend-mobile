@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { View, Text, TouchableWithoutFeedback, StyleSheet, Animated, Easing } from 'react-native';
+import { View, TouchableWithoutFeedback, StyleSheet, Animated, Easing } from 'react-native';
 
 type BottomSheetProps = {
   children: ReactNode;
