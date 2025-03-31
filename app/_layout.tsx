@@ -8,6 +8,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { Platform } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { NAV_THEME } from '@/src/lib/constants';
 import { useColorScheme } from '@/src/lib/useColorScheme';
@@ -52,21 +53,23 @@ export default function RootLayout() {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-        <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
-        <Stack>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen name="tabs" options={{ headerShown: false }} />
-          <Stack.Screen name="auth" options={{ headerShown: false }} />
-          <Stack.Screen name="map-test" options={{ headerShown: false }} />
-          <Stack.Screen name="search-place" options={{ headerShown: false }} />
-          <Stack.Screen name="add-friends" options={{ headerShown: false }} />
-          <Stack.Screen name="profile" options={{ headerShown: false }} />
-        </Stack>
-      </ThemeProvider>
-      <PortalHost />
-    </QueryClientProvider>
+    <GestureHandlerRootView>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+          <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
+          <Stack>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="tabs" options={{ headerShown: false }} />
+            <Stack.Screen name="auth" options={{ headerShown: false }} />
+            <Stack.Screen name="map-test" options={{ headerShown: false }} />
+            <Stack.Screen name="search-place" options={{ headerShown: false }} />
+            <Stack.Screen name="add-friends" options={{ headerShown: false }} />
+            <Stack.Screen name="profile" options={{ headerShown: false }} />
+          </Stack>
+        </ThemeProvider>
+        <PortalHost />
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }
 

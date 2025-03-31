@@ -43,7 +43,7 @@ export const LocationButton: React.FC<LocationButtonProps> = ({
   return (
     <TouchableOpacity
       className={`absolute bottom-5 right-5 h-[50px] w-[50px] items-center justify-center rounded-full shadow-md ${
-        colorScheme === 'dark' ? 'bg-[#333]' : 'bg-white'
+        colorScheme === 'dark' ? 'bg-gray-900' : 'bg-white'
       }`}
       onPress={onPress}>
       {renderLocationIcon()}
