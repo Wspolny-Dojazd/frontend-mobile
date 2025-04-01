@@ -1,16 +1,18 @@
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { Lock, UserRound, Mail } from 'lucide-react-native';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Button } from '@/src/components/ui/button'; // Assuming path
-import { InputText } from '@/src/components/ui/inputText'; // Assuming path
-import { Text } from '@/src/components/ui/text'; // Assuming path
+import { Button } from '@/src/components/ui/button';
+import { InputText } from '@/src/components/ui/inputText';
+import { Text } from '@/src/components/ui/text';
 import { useAuth } from '@/src/context/authContext';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 
 const NAMESPACE = 'app/auth/register';
+const REDIRECT_DELAY_MS = 2500; //  Redirect delay duration
+
 const TRANSLATIONS = {
   en: {
     register: 'Create Account',
@@ -21,6 +23,7 @@ const TRANSLATIONS = {
     loginPrompt: 'Already have an account?',
     loginLink: 'Login here',
     registering: 'Registering...',
+    loggedInRedirect: 'Already logged in. Redirecting to profile...',
   },
   pl: {
     register: 'Utwórz konto',
@@ -31,6 +34,7 @@ const TRANSLATIONS = {
     loginPrompt: 'Masz już konto?',
     loginLink: 'Zaloguj się',
     registering: 'Rejestrowanie...',
+    loggedInRedirect: 'Jesteś już zalogowany. Przekierowanie do profilu...',
   },
 };
 
@@ -39,44 +43,82 @@ export default function Register() {
   const [nickname, setNickname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { register, isLoading, error } = useAuth(); // Use context
+  const { register, isLoading, error: authError, token, isInitializing } = useAuth();
+  const router = useRouter(); // Added router
+  const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [isRedirecting, setIsRedirecting] = useState(false); // State to show redirect message
+
+  useEffect(() => {
+    // Clear previous timer
+    if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current);
+
+    // Redirect logic for logged-in users
+    if (!isInitializing && token) {
+      console.log('Register Screen: Detected logged-in user. Setting redirect timer.');
+      setIsRedirecting(true);
+      redirectTimerRef.current = setTimeout(() => {
+        console.log('Register Screen: Redirect timer fired. Redirecting to /auth/profile.');
+        router.replace('/auth/profile');
+      }, REDIRECT_DELAY_MS);
+    } else {
+      setIsRedirecting(false);
+    }
+
+    // Cleanup timer on unmount or dependency change
+    return () => {
+      if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current);
+    };
+  }, [isInitializing, token, router]);
 
   const handleRegister = () => {
-     if (!nickname.trim() || !email.trim() || !password.trim()) {
-       console.warn('Nickname, Email and password are required');
-       return;
-    }
-    register({ nickname: nickname.trim(), email: email.trim(), password }); // Call context action
+    if (!nickname.trim() || !email.trim() || !password.trim()) return;
+    register({ nickname: nickname.trim(), email: email.trim(), password });
   };
 
+  const iconPaddingClass = 'ps-[14px]';
+
+  // Show redirect message if applicable
+  if (isRedirecting) {
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center bg-background p-8">
+        <ActivityIndicator size="large" className="mb-4" />
+        <Text className="text-center text-lg text-muted-foreground">{t('loggedInRedirect')}</Text>
+      </SafeAreaView>
+    );
+  }
+
+  // Render the normal register form if not redirecting
   return (
     <SafeAreaView className="flex min-h-full flex-1 flex-col items-center justify-between bg-background px-8">
       <View className="mt-16 flex w-full flex-1 items-center">
         <Text className="mb-12 text-4xl font-bold text-foreground">{t('register')}</Text>
 
-        {/* Display Error from Context */}
-        {error && (
-          <View className="mb-4 w-full rounded border border-destructive bg-destructive/10 p-3">
-            <Text className="text-center font-semibold text-destructive">{error}</Text>
-          </View>
-        )}
+        {/* Error Display */}
+        {authError &&
+          !isLoading && ( // Only show register errors
+            <View className="mb-4 w-full rounded border border-destructive bg-destructive/10 p-3">
+              <Text className="text-center font-semibold text-destructive">{authError}</Text>
+            </View>
+          )}
 
-        {/* Nickname Input */}
+        {/* Nickname Input*/}
         <View className="relative mb-6 w-full">
           <InputText
             placeholder={t('nickname')}
             value={nickname}
             onChangeText={setNickname}
             autoCapitalize="none"
-            className="rounded-lg bg-input py-3 pl-12 text-foreground"
+            className="rounded-2xl bg-field py-3 pl-12 text-black"
             placeholderTextColor="text-muted-foreground"
+            editable={!isLoading} // Disable if registering
           />
-          <View className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-            <UserRound size={20} strokeWidth={2.5} color="#909597" />
+          <View
+            className={`pointer-events-none absolute inset-y-0 left-0 top-2 flex items-center ${iconPaddingClass}`}>
+            <UserRound size={24} strokeWidth={3} color="#909597" />
           </View>
         </View>
 
-        {/* Email Input */}
+        {/* Email Input*/}
         <View className="relative mb-6 w-full">
           <InputText
             placeholder={t('email')}
@@ -85,15 +127,17 @@ export default function Register() {
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
-            className="rounded-lg bg-input py-3 pl-12 text-foreground"
+            className="rounded-2xl bg-field py-3 pl-12 text-black"
             placeholderTextColor="text-muted-foreground"
+            editable={!isLoading} // Disable if registering
           />
-          <View className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-            <Mail size={20} strokeWidth={2.5} color="#909597" />
+          <View
+            className={`pointer-events-none absolute inset-y-0 left-0 top-2 flex items-center ${iconPaddingClass}`}>
+            <Mail size={24} strokeWidth={3} color="#909597" />
           </View>
         </View>
 
-        {/* Password Input */}
+        {/* Password Input*/}
         <View className="relative mb-8 w-full">
           <InputText
             placeholder={t('password')}
@@ -101,11 +145,13 @@ export default function Register() {
             value={password}
             onChangeText={setPassword}
             autoComplete="new-password"
-            className="w-full rounded-lg bg-input py-3 pl-12 text-foreground"
+            className="w-full rounded-2xl bg-field py-3 pl-12 text-black"
             placeholderTextColor="text-muted-foreground"
+            editable={!isLoading} // Disable if registering
           />
-          <View className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-            <Lock size={20} strokeWidth={2.5} color="#909597" />
+          <View
+            className={`pointer-events-none absolute inset-y-0 left-0 top-2 flex items-center ${iconPaddingClass}`}>
+            <Lock size={24} strokeWidth={3} color="#909597" />
           </View>
         </View>
       </View>
@@ -122,13 +168,12 @@ export default function Register() {
       <Button
         onPress={handleRegister}
         disabled={isLoading}
-        className="mb-6 w-full rounded-lg bg-primary py-3"
-      >
+        className="mb-6 w-full rounded-2xl bg-primary py-3">
         {isLoading ? (
           <View className="flex-row items-center justify-center">
-             <ActivityIndicator size="small" color="#ffffff" className="mr-2" />
-             <Text className="text-lg font-semibold text-primary-foreground">{t('registering')}</Text>
-           </View>
+            <ActivityIndicator size="small" color="#ffffff" className="mr-2" />
+            <Text className="text-lg font-semibold text-white">{t('registering')}</Text>
+          </View>
         ) : (
           <Text className="text-lg font-semibold text-white">{t('registerButton')}</Text>
         )}

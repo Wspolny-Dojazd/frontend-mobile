@@ -1,15 +1,22 @@
 // src/context/authContext.tsx
-import React, { createContext, useState, useContext, ReactNode, useCallback, useEffect } from 'react';
-import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
+import React, {
+  createContext,
+  useState,
+  useContext,
+  ReactNode,
+  useCallback,
+  useEffect,
+} from 'react';
+// Removed AppState import
 
-import { $api, fetchClient } from '@/src/api/api';
-import { components } from '@/src/api/openapi';
-import { ApiError } from '@/src/api/errors/types';
-
+import { $api } from '@/src/api/api';
 import { useLoginErrorTranslations } from '@/src/api/errors/auth/login';
-import { useRegisterErrorTranslations } from '@/src/api/errors/auth/register';
 import { useMeErrorTranslations } from '@/src/api/errors/auth/me';
+import { useRegisterErrorTranslations } from '@/src/api/errors/auth/register';
+import { ApiError } from '@/src/api/errors/types'; // Keep if used elsewhere
+import { components } from '@/src/api/openapi';
 
 // Types
 type User = components['schemas']['AuthResponseDto'];
@@ -18,6 +25,12 @@ type RegisterData = components['schemas']['RegisterRequestDto'];
 type LoginErrorCode = components['schemas']['LoginErrorCode'];
 type RegisterErrorCode = components['schemas']['RegisterErrorCode'];
 type MeErrorCode = components['schemas']['AuthErrorCode'] | components['schemas']['UserErrorCode'];
+type QueryError = {
+  message: string;
+  data?: { code?: MeErrorCode; message?: string | null };
+  status?: number;
+  response?: { status?: number };
+};
 
 // Context Type
 interface AuthContextType {
@@ -33,7 +46,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const AUTH_TOKEN_KEY = 'authToken';
-const ERROR_TIMEOUT_MS = 3000; // 3 seconds
+const ERROR_TIMEOUT_MS = 3000;
 
 // Provider Props
 interface AuthProviderProps {
@@ -44,7 +57,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // State
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isInitializing, setIsInitializing] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -58,124 +70,205 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const loginMutation = $api.useMutation('post', '/api/Auth/login');
   const registerMutation = $api.useMutation('post', '/api/Auth/register');
 
+  // Query for user data
+  const {
+    data: meData,
+    error: meQueryError,
+    isLoading: isMeLoading,
+    isError: isMeError,
+  } = $api.useQuery(
+    'get',
+    '/api/Auth/me',
+    { headers: token ? { Authorization: `Bearer ${token}` } : undefined },
+    {
+      enabled: !!token && !isInitializing,
+      retry: (failureCount, error: unknown) => {
+        const hookError = error as QueryError;
+        const status = hookError?.status ?? hookError?.response?.status;
+        const errorCode = hookError?.data?.code;
+        if (
+          status === 401 ||
+          status === 404 ||
+          errorCode === 'INVALID_TOKEN' ||
+          errorCode === 'EXPIRED_TOKEN' ||
+          errorCode === 'USER_NOT_FOUND'
+        ) {
+          return false;
+        }
+        return failureCount < 1;
+      },
+      staleTime: 5 * 60 * 1000,
+    }
+  );
 
   // --- useEffect for Auto-Clearing Error ---
   useEffect(() => {
     let timerId: NodeJS.Timeout | null = null;
     if (error) {
-      timerId = setTimeout(() => { setError(null); }, ERROR_TIMEOUT_MS);
+      timerId = setTimeout(() => {
+        setError(null);
+      }, ERROR_TIMEOUT_MS);
     }
-    return () => { if (timerId) { clearTimeout(timerId); } };
-  }, [error]);
-  // --- End useEffect ---
-
-
-  // loadUser function (Corrected error handling)
-  const loadUser = useCallback(async (currentToken: string) => {
-    if (!currentToken) { setUser(null); return; }
-    setIsLoading(true);
-    let responseStatus: number | undefined;
-    try {
-      const { data, error: responseError, response } = await fetchClient.GET('/api/Auth/me', { headers: { Authorization: `Bearer ${currentToken}` } });
-      responseStatus = response?.status;
-      if (responseError && typeof responseError === 'object' && 'code' in responseError) {
-          throw { message: responseError.message || 'Authorization failed', data: responseError, response: response, status: responseStatus } as ApiError<MeErrorCode> & { response?: Response };
+    return () => {
+      if (timerId) {
+        clearTimeout(timerId);
       }
-      if (responseError) { throw new Error("Network or server error occurred."); }
-      if (data) { setUser(data); setError(null); } // Clear error on SUCCESS
-      else { throw new Error("Failed to retrieve user data (empty response)."); }
-    } catch (err: unknown) {
-      const thrownError = err as ApiError<MeErrorCode> & { response?: Response; status?: number };
-      const status = thrownError.status ?? thrownError.response?.status;
-      const errorCode = thrownError.data?.code;
-      const errorMessage = errorCode ? tMeError(errorCode) : (thrownError.message || 'Failed to load user details.');
-      setError(errorMessage); // Set the error state
-      if (status === 401 || status === 404 || errorCode === 'INVALID_TOKEN' || errorCode === 'EXPIRED_TOKEN' || errorCode === 'USER_NOT_FOUND') {
-        setToken(null); setUser(null); await AsyncStorage.removeItem(AUTH_TOKEN_KEY);
-      } else { setUser(null); } // Clear user on other errors too
-    } finally { setIsLoading(false); }
-  }, [tMeError]);
+    };
+  }, [error]);
 
-  // useEffect for initialization
+  // --- useEffect for Initialization ---
   useEffect(() => {
     const initializeAuth = async () => {
       setIsInitializing(true);
       try {
         const storedToken = await AsyncStorage.getItem(AUTH_TOKEN_KEY);
-        if (storedToken) { setToken(storedToken); await loadUser(storedToken); } // Attempt load, might set error if expired
-        else { setToken(null); setUser(null); setError(null); } // Clear error if no token found
+        setToken(storedToken); // Set state first
+        console.log(`Initialization: Found token in storage? ${!!storedToken}`);
+        if (!storedToken) {
+          setUser(null);
+          setError(null);
+        }
       } catch (e) {
-        console.error("Failed to initialize auth:", e); setError("Failed to load session.");
-        setToken(null); setUser(null);
-      } finally { setIsInitializing(false); }
+        console.error('Failed to initialize auth:', e);
+        setError('Failed to load session.');
+        setToken(null);
+        setUser(null);
+      } finally {
+        setTimeout(() => setIsInitializing(false), 50);
+      }
     };
     initializeAuth();
-  }, [loadUser]);
+  }, []); // Run only once on mount
 
-  // login function
-  const login = useCallback(async (credentials: LoginCredentials) => {
-    setError(null); // Clear errors before attempting
-    setIsLoading(true);
-    try {
-      const data = await loginMutation.mutateAsync({ body: credentials });
-      if (data?.token) {
-        setToken(data.token); setUser(data); await AsyncStorage.setItem(AUTH_TOKEN_KEY, data.token);
-        // console.log("AUTH_CONTEXT: Attempting redirect to /auth/profile after login"); // Keep for debug
-        router.replace('/auth/profile'); // Target the profile screen within the (auth) group
-      } else { throw new Error("Login response did not contain a token."); }
-    } catch (err: unknown) {
-      // console.error('Login error:', err); // Keep for debug
-      const apiError = err as ApiError<LoginErrorCode>; const errorCode = apiError.data?.code;
-      setError(errorCode ? tLoginError(errorCode) : 'Login failed. Please try again.');
-      setToken(null); setUser(null); await AsyncStorage.removeItem(AUTH_TOKEN_KEY);
-    } finally { setIsLoading(false); }
-  }, [loginMutation, router, tLoginError]);
+  // --- useEffect to Update State based on /me Query Results ---
+  useEffect(() => {
+    if (!isInitializing) {
+      if (isMeLoading) {
+        /* Handled by combinedIsLoading */
+      } else if (isMeError && meQueryError) {
+        const hookError = meQueryError as QueryError;
+        const status = hookError?.status ?? hookError?.response?.status;
+        const errorCode = hookError?.data?.code;
+        const apiMessage = hookError?.data?.message;
+        const errorMessage = errorCode
+          ? tMeError(errorCode)
+          : apiMessage || hookError?.message || 'Failed to load user details.';
+        console.error('Error fetching /me:', {
+          status,
+          errorCode,
+          apiMessage,
+          hookMessage: hookError?.message,
+        });
+        setError(errorMessage);
+        setUser(null);
+        if (
+          status === 401 ||
+          status === 404 ||
+          errorCode === 'INVALID_TOKEN' ||
+          errorCode === 'EXPIRED_TOKEN' ||
+          errorCode === 'USER_NOT_FOUND'
+        ) {
+          console.log('Auth error on /me fetch, clearing token state and storage.');
+          setToken(null);
+          AsyncStorage.removeItem(AUTH_TOKEN_KEY);
+        }
+      } else if (meData) {
+        setUser(meData);
+        setError(null);
+      } else if (!token) {
+        // If token became null
+        setUser(null);
+        setError(null);
+      }
+    }
+  }, [isInitializing, isMeLoading, isMeError, meQueryError, meData, token, tMeError]);
 
-  // register function
-  const register = useCallback(async (registrationData: RegisterData) => {
-    setError(null); // Clear errors before attempting
-    setIsLoading(true);
-    try {
-      // console.log('REGISTER: Attempting registration with:', JSON.stringify(registrationData)); // Keep for debug
-      const data = await registerMutation.mutateAsync({ body: registrationData });
-      // console.log('REGISTER: Mutation success, API response:', JSON.stringify(data)); // Keep for debug
-      if (data?.token) {
-        setToken(data.token); setUser(data); await AsyncStorage.setItem(AUTH_TOKEN_KEY, data.token);
-        // console.log("AUTH_CONTEXT: Registration successful, attempting redirect to /auth/profile"); // Keep for debug
-        router.replace('/auth/profile'); // Target the profile screen within the (auth) group
-      } else { /* console.error("REGISTER: API success response missing token.", data); */ throw new Error("Registration completed but no token received."); }
-    } catch (err: unknown) {
-      // console.error('REGISTER: Caught error object during registration attempt:', JSON.stringify(err, null, 2)); // Keep for debug
-      const anyError = err as any; const apiError = err as ApiError<RegisterErrorCode>; const httpStatus = anyError.status ?? anyError.response?.status; const errorData = apiError.data ?? anyError.data ?? anyError.error?.data; const errorCode = errorData?.code; const backendMessage = errorData?.message ?? anyError.message;
-      // console.error(`REGISTER: Parsed Error details - Status: ${httpStatus}, Code: ${errorCode}, Backend Msg: ${backendMessage}`); // Keep for debug
-      const displayMessage = errorCode ? tRegisterError(errorCode) : (backendMessage || 'Registration failed. Please try again.');
-      // console.log(`REGISTER: Setting display error to: "${displayMessage}"`); // Keep for debug
-      setError(displayMessage); // Set the user-facing error state
-      setToken(null); setUser(null);
-    } finally { setIsLoading(false); }
-  }, [registerMutation, router, tRegisterError]);
+  // --- login function ---
+  const login = useCallback(
+    async (credentials: LoginCredentials) => {
+      setError(null);
+      try {
+        const data = await loginMutation.mutateAsync({ body: credentials });
+        if (data?.token) {
+          await AsyncStorage.setItem(AUTH_TOKEN_KEY, data.token);
+          setToken(data.token);
+          setUser(data);
+          router.replace('/auth/profile');
+        } else {
+          throw new Error('Login response did not contain a token.');
+        }
+      } catch (err: unknown) {
+        const apiError = err as ApiError<LoginErrorCode> & { status?: number };
+        const errorCode = apiError.data?.code;
+        setError(errorCode ? tLoginError(errorCode) : 'Login failed. Please try again.');
+        setToken(null);
+        setUser(null);
+        await AsyncStorage.removeItem(AUTH_TOKEN_KEY);
+      }
+    },
+    [loginMutation, router, tLoginError]
+  );
 
-  // logout function
+  // --- register function ---
+  const register = useCallback(
+    async (registrationData: RegisterData) => {
+      setError(null);
+      try {
+        const data = await registerMutation.mutateAsync({ body: registrationData });
+        if (data?.token) {
+          await AsyncStorage.setItem(AUTH_TOKEN_KEY, data.token);
+          setToken(data.token);
+          setUser(data);
+          router.replace('/auth/profile');
+        } else {
+          throw new Error('Registration completed but no token received.');
+        }
+      } catch (err: unknown) {
+        const anyError = err as any;
+        const errorData = anyError?.data ?? anyError?.error?.data;
+        const errorCode = errorData?.code as RegisterErrorCode | undefined;
+        const backendMessage = errorData?.message ?? anyError?.message;
+        const displayMessage = errorCode
+          ? tRegisterError(errorCode)
+          : backendMessage || 'Registration failed. Please try again.';
+        setError(displayMessage);
+        setToken(null);
+        setUser(null);
+      }
+    },
+    [registerMutation, router, tRegisterError]
+  );
+
+  // --- logout function ---
   const logout = useCallback(async () => {
-    setError(null); // Clear errors on logout action
-    setToken(null); setUser(null); await AsyncStorage.removeItem(AUTH_TOKEN_KEY);
-    // console.log("AUTH_CONTEXT: Attempting redirect to / after logout"); // Keep for debug
-    router.replace('/'); // Redirect to the root index screen
+    setError(null);
+    setUser(null);
+    setToken(null);
+    await AsyncStorage.removeItem(AUTH_TOKEN_KEY);
+    router.replace('/');
   }, [router]);
 
   // Combined loading state
-  const combinedIsLoading = isLoading || loginMutation.isPending || registerMutation.isPending;
+  const combinedIsLoading = isMeLoading || loginMutation.isPending || registerMutation.isPending;
 
   // Context value
-  const value: AuthContextType = { token, user, login, register, logout, isLoading: combinedIsLoading, isInitializing, error };
+  const value: AuthContextType = {
+    token,
+    user,
+    login,
+    register,
+    logout,
+    isLoading: !isInitializing && combinedIsLoading,
+    isInitializing,
+    error,
+  };
 
-  // Provide the context
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 // Custom hook
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) { throw new Error('useAuth must be used within an AuthProvider'); }
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 };

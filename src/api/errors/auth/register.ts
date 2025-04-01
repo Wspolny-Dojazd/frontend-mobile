@@ -1,4 +1,5 @@
 import { components } from '../../openapi'; // Adjust path
+
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 
 export const NAMESPACE = 'src/api/errors/auth/register';

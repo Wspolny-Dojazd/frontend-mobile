@@ -25,4 +25,5 @@ export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
   },
 };
 
-export const useMeErrorTranslations = () => useTypedTranslation(NAMESPACE, TRANSLATIONS as Record<string, Record<string, string>>);
+export const useMeErrorTranslations = () =>
+  useTypedTranslation(NAMESPACE, TRANSLATIONS as Record<string, Record<string, string>>);
