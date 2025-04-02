@@ -108,7 +108,7 @@ export default function Register() {
             value={nickname}
             onChangeText={setNickname}
             autoCapitalize="none"
-            className="rounded-2xl bg-field py-3 pl-12 text-black"
+            className="rounded-2xl py-3 pl-12 text-black"
             placeholderTextColor="text-muted-foreground"
             editable={!isLoading} // Disable if registering
           />
@@ -127,7 +127,7 @@ export default function Register() {
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
-            className="rounded-2xl bg-field py-3 pl-12 text-black"
+            className="rounded-2xl py-3 pl-12 text-black"
             placeholderTextColor="text-muted-foreground"
             editable={!isLoading} // Disable if registering
           />

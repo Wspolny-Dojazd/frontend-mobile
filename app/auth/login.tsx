@@ -99,14 +99,14 @@ export default function Login() {
         )}
 
         {/* --- Email Input --- */}
-        <View className="relative w-full">
+        <View className="relative mb-6 w-full">
           <InputText
             placeholder={t('email')}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
-            className="mb-12 rounded-2xl bg-field pl-12 text-black"
+            className="pl-12 text-black"
             editable={!isLoading}
           />
           <View className="pointer-events-none absolute inset-y-0 left-0 top-2 flex items-center ps-3">
@@ -121,7 +121,7 @@ export default function Login() {
             secureTextEntry
             value={password}
             onChangeText={setPassword}
-            className="w-full rounded-2xl bg-field pl-12 text-black"
+            className="pl-12 text-black"
             editable={!isLoading}
           />
           <View className="pointer-events-none absolute inset-y-0 left-0 top-2 flex items-center ps-3">

@@ -99,7 +99,6 @@ export default function App() {
               placeholderTextColor="#A0AEC0"
               value={nicknameValue}
               onChangeText={handleNicknameChange}
-              className="mb-12 rounded-2xl bg-field "
               aria-labelledby="nicknameLabel"
               aria-errormessage="inputError"
             />
@@ -117,7 +116,6 @@ export default function App() {
               placeholderTextColor="#A0AEC0"
               value={emailValue}
               onChangeText={handleEmailChange}
-              className="mb-12 rounded-2xl border-2 bg-field"
               aria-labelledby="emailLabel"
               aria-errormessage="inputError"
             />

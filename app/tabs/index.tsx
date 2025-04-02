@@ -1,21 +1,14 @@
-import { Link } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useState } from 'react';
 
-import { Text } from '@/src/components/ui/text';
+import { Coordinate, SearchLocationView } from '@/src/features/map/SearchLocationView';
 
 export default function App() {
+  const [selectedCoordinate, setSelectedCoordinate] = useState<Coordinate | null>(null);
+
   return (
-    <SafeAreaView className="flex min-h-full flex-1 flex-col items-center justify-between px-8">
-      <Text>Ekran główny</Text>
-      <Link href="/map-test" className="dark:text-white">
-        (DEBUG) Go to Map Test
-      </Link>
-      <Link href="/auth/profile" className="dark:text-white">
-        (DEBUG) Go to LogOut Page
-      </Link>
-      <Link href="/search-place" className="dark:text-white">
-        (DEBUG) Go to Search Place
-      </Link>
-    </SafeAreaView>
+    <SearchLocationView
+      selectedCoordinate={selectedCoordinate}
+      setSelectedCoordinate={setSelectedCoordinate}
+    />
   );
 }

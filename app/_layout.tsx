@@ -4,9 +4,9 @@ import '@/global.css';
 import { Theme, ThemeProvider, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { PortalHost } from '@rn-primitives/portal';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Slot, useRouter, useSegments } from 'expo-router';
+import { Slot, Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   ActivityIndicator,
   View,
@@ -110,6 +110,16 @@ export default function RootLayout() {
           <AuthProvider>
             <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
             <AuthRedirector />
+            {/* <Stack>
+                <Stack.Screen name="index" options={{ headerShown: false }} />
+                <Stack.Screen name="tabs" options={{ headerShown: false }} />
+                <Stack.Screen name="auth" options={{ headerShown: false }} />
+                <Stack.Screen name="map-test" options={{ headerShown: false }} />
+                <Stack.Screen name="search-place" options={{ headerShown: false }} />
+                <Stack.Screen name="add-friends" options={{ headerShown: false }} />
+                <Stack.Screen name="profile" options={{ headerShown: false }} />
+              </Stack> */}
+            {/* </AuthRedirector> */}
             <PortalHost />
           </AuthProvider>
         </ThemeProvider>
