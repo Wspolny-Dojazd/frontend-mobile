@@ -8,6 +8,7 @@ import { Label } from '@/src/components/ui/label';
 import { Text } from '@/src/components/ui/text';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 import { Pencil, ChevronLeft } from '@/src/lib/icons';
+import { useColorScheme } from '@/src/lib/useColorScheme';
 
 const avatarImage = require('../../assets/fallback-avatar.png'); // Import the image dynamically
 const DEFAULT_IMAGE = Image.resolveAssetSource(avatarImage).uri;
@@ -44,6 +45,8 @@ export default function App() {
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
   const router = useRouter();
   const { username, image } = useLocalSearchParams();
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   const [emailValue, setEmailValue] = useState('');
   const [nicknameValue, setNicknameValue] = useState('');
@@ -56,24 +59,26 @@ export default function App() {
   };
 
   return (
-    <SafeAreaView className="flex items-center justify-center">
+    <SafeAreaView className="flex-1 bg-white dark:bg-gray-900">
       <View className="relative mt-4 w-full flex-row items-center justify-center py-4">
         <TouchableOpacity
           className="absolute left-4 z-10"
           onPress={() => {
             router.back();
           }}>
-          <ChevronLeft color="#666" size={24} />
+          <ChevronLeft className="text-gray-600 dark:text-gray-400" size={24} />
         </TouchableOpacity>
 
-        <Text className="text-center text-4xl font-semibold text-slate-800">{t('profile')}</Text>
+        <Text className="text-center text-4xl font-semibold text-slate-800 dark:text-white">
+          {t('profile')}
+        </Text>
       </View>
 
       <View className="mt-10 flex-col items-center">
         <View className="relative">
           <Image
             source={{ uri: typeof image === 'string' ? image : DEFAULT_IMAGE }}
-            className="h-32 w-32 rounded-full border-2 border-gray-100"
+            className="h-32 w-32 rounded-full border-2 border-gray-100 dark:border-gray-700"
           />
 
           <TouchableOpacity
@@ -85,39 +90,47 @@ export default function App() {
           </TouchableOpacity>
         </View>
 
-        <Text className="mt-3 text-lg font-medium">{username}</Text>
+        <Text className="mt-3 text-lg font-medium text-gray-900 dark:text-gray-100">
+          {username}
+        </Text>
       </View>
       <View className="mt-10 w-full px-4">
         {/* Nickname Field */}
         <View className="mb-6 w-full">
-          <Label className="mb-2 text-base font-medium text-gray-700" nativeID="nicknameLabel">
+          <Label
+            className="mb-2 text-base font-medium text-gray-700 dark:text-gray-300"
+            nativeID="nicknameLabel">
             {t('nickname.text')}
           </Label>
           <View className="relative">
             <Input
               placeholder="jfk1337_PL"
-              placeholderTextColor="#A0AEC0"
+              placeholderTextColor={isDark ? '#6B7280' : '#A0AEC0'}
               value={nicknameValue}
               onChangeText={handleNicknameChange}
               aria-labelledby="nicknameLabel"
               aria-errormessage="inputError"
+              className="border-gray-200 bg-white text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             />
           </View>
         </View>
 
         {/* Email Field */}
         <View className="mb-6 w-full">
-          <Label className="mb-2 text-base font-medium text-gray-700" nativeID="emailLabel">
+          <Label
+            className="mb-2 text-base font-medium text-gray-700 dark:text-gray-300"
+            nativeID="emailLabel">
             {t('email.text')}
           </Label>
           <View className="relative">
             <Input
               placeholder="example@email.com"
-              placeholderTextColor="#A0AEC0"
+              placeholderTextColor={isDark ? '#6B7280' : '#A0AEC0'}
               value={emailValue}
               onChangeText={handleEmailChange}
               aria-labelledby="emailLabel"
               aria-errormessage="inputError"
+              className="border-gray-200 bg-white text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             />
           </View>
         </View>
