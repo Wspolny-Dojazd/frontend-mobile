@@ -41,8 +41,14 @@
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
     --primary: #3d917c;
+    --subtle: #1a1a1a;
+    --secondary: #27272a;
+    --info: #77b8ee;
+    --warning: #f4c871;
+    --danger: #e97c80;
+    --success: #78ed9f;
+    --field: #22222a;
     --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 64.9%;

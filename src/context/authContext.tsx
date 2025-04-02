@@ -67,8 +67,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { t: tMeError } = useMeErrorTranslations();
 
   // Mutations
-  const loginMutation = $api.useMutation('post', '/api/Auth/login');
-  const registerMutation = $api.useMutation('post', '/api/Auth/register');
+  const loginMutation = $api.useMutation('post', '/api/auth/login');
+  const registerMutation = $api.useMutation('post', '/api/auth/register');
 
   // Query for user data
   const {
@@ -78,7 +78,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isError: isMeError,
   } = $api.useQuery(
     'get',
-    '/api/Auth/me',
+    '/api/auth/me',
     { headers: token ? { Authorization: `Bearer ${token}` } : undefined },
     {
       enabled: !!token && !isInitializing,
