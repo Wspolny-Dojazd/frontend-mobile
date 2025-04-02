@@ -18,6 +18,31 @@ import { useRegisterErrorTranslations } from '@/src/api/errors/auth/register';
 import { ApiError } from '@/src/api/errors/types'; // Keep if used elsewhere
 import { components } from '@/src/api/openapi';
 
+// JWT Token validation utility
+const isTokenExpired = (token: string): boolean => {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      console.error('Invalid token structure');
+      return true;
+    }
+    const base64Url = parts[1] as string;
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    const payload = JSON.parse(jsonPayload);
+    const expirationTime = payload.exp * 1000; // Convert to milliseconds
+    return Date.now() >= expirationTime;
+  } catch (error) {
+    console.error('Error validating token:', error);
+    return true; // Consider invalid if we can't decode
+  }
+};
+
 // Types
 type User = components['schemas']['AuthResponseDto'];
 type LoginCredentials = components['schemas']['LoginRequestDto'];
@@ -122,11 +147,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsInitializing(true);
       try {
         const storedToken = await AsyncStorage.getItem(AUTH_TOKEN_KEY);
-        setToken(storedToken); // Set state first
-        console.log(`Initialization: Found token in storage? ${!!storedToken}`);
-        if (!storedToken) {
+        if (storedToken && isTokenExpired(storedToken)) {
+          console.log('Stored token is expired, clearing auth state');
+          await AsyncStorage.removeItem(AUTH_TOKEN_KEY);
+          setToken(null);
           setUser(null);
           setError(null);
+        } else {
+          setToken(storedToken);
+          console.log(`Initialization: Found valid token in storage? ${!!storedToken}`);
         }
       } catch (e) {
         console.error('Failed to initialize auth:', e);
@@ -166,22 +195,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           status === 404 ||
           errorCode === 'INVALID_TOKEN' ||
           errorCode === 'EXPIRED_TOKEN' ||
-          errorCode === 'USER_NOT_FOUND'
+          errorCode === 'USER_NOT_FOUND' ||
+          (token && isTokenExpired(token))
         ) {
-          console.log('Auth error on /me fetch, clearing token state and storage.');
+          console.log(
+            'Auth error on /me fetch or token expired, clearing token state and storage.'
+          );
           setToken(null);
           AsyncStorage.removeItem(AUTH_TOKEN_KEY);
         }
       } else if (meData) {
-        setUser(meData);
-        setError(null);
+        if (token && isTokenExpired(token)) {
+          console.log('Token expired during active session, logging out');
+          setToken(null);
+          setUser(null);
+          AsyncStorage.removeItem(AUTH_TOKEN_KEY);
+          router.replace('/');
+        } else {
+          setUser(meData);
+          setError(null);
+        }
       } else if (!token) {
         // If token became null
         setUser(null);
         setError(null);
       }
     }
-  }, [isInitializing, isMeLoading, isMeError, meQueryError, meData, token, tMeError]);
+  }, [isInitializing, isMeLoading, isMeError, meQueryError, meData, token, tMeError, router]);
 
   // --- login function ---
   const login = useCallback(
