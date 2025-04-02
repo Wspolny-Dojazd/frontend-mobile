@@ -59,7 +59,7 @@ export default function App() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-gray-900">
+    <SafeAreaView className="flex-1 ">
       <View className="relative mt-4 w-full flex-row items-center justify-center py-4">
         <TouchableOpacity
           className="absolute left-4 z-10"
@@ -110,7 +110,6 @@ export default function App() {
               onChangeText={handleNicknameChange}
               aria-labelledby="nicknameLabel"
               aria-errormessage="inputError"
-              className="border-gray-200 bg-white text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             />
           </View>
         </View>
@@ -130,7 +129,6 @@ export default function App() {
               onChangeText={handleEmailChange}
               aria-labelledby="emailLabel"
               aria-errormessage="inputError"
-              className="border-gray-200 bg-white text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             />
           </View>
         </View>

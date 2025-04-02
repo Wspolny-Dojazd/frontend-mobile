@@ -1,25 +1,24 @@
 import { useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
-import { View, FlatList, TouchableOpacity, Image } from 'react-native';
+import { View, FlatList, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
-import { useColorScheme } from '@/src/lib/useColorScheme';
-import { Switch } from '@/src/components/ui/switch';
+
+import { $api } from '@/src/api/api';
 import { Text } from '@/src/components/ui/text';
+import { useAuth } from '@/src/context/authContext';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 import {
   ChevronRight,
   BarChart2,
   Settings,
-  Moon,
-  Sun,
   Bell,
-  Globe,
   Lock,
   HelpCircle,
   LogOut,
   XCircle,
   Pencil,
 } from '@/src/lib/icons';
+import { useColorScheme } from '@/src/lib/useColorScheme';
 
 // handling dummy image, and fallback image
 const avatarImage = require('../../assets/dummy-avatar.png'); // Import the image dynamically
@@ -33,12 +32,7 @@ const TRANSLATIONS = {
     profile_greeting: 'Hi, {{name}}!',
     statistics: 'Statistics',
     preferences: 'Preferences',
-    dark_mode: 'Dark mode',
     notifications: 'Notifications',
-    language: {
-      text: 'App language',
-      secondary: 'English',
-    },
     change_password: 'Change password',
     help: 'Help',
     logout: 'Logout',
@@ -48,12 +42,7 @@ const TRANSLATIONS = {
     profile_greeting: 'Cześć, {{name}}!',
     statistics: 'Statystyki',
     preferences: 'Preferencje',
-    dark_mode: 'Tryb ciemny',
     notifications: 'Powiadomienia',
-    language: {
-      text: 'Język aplikacji',
-      secondary: 'Polski',
-    },
     change_password: 'Zmień hasło',
     help: 'Pomoc',
     logout: 'Wyloguj się',
@@ -78,9 +67,9 @@ const SettingItem: React.FC<SettingItemProps> = ({
 }) => {
   return (
     <TouchableOpacity
-      className="mb-2 flex-row items-center rounded-xl py-1 dark:bg-gray-800"
+      className="mb-2 flex-row items-center rounded-xl p-2 dark:bg-gray-900"
       onPress={onPress}>
-      <View className="h-10 w-10 items-center justify-center rounded-md bg-gray-100 dark:bg-gray-700">
+      <View className="h-10 w-10 items-center justify-center rounded-md bg-gray-100 dark:bg-gray-800">
         {icon}
       </View>
 
@@ -96,9 +85,14 @@ const SettingItem: React.FC<SettingItemProps> = ({
 
 export default function App({ username }: { username: string }) {
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
-  const { colorScheme, toggleColorScheme } = useColorScheme();
-  const isDark = colorScheme === 'dark';
+
   const router = useRouter();
+  const { logout, token } = useAuth();
+  const queryMe = $api.useQuery('get', '/api/auth/me', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
   const settingsData = useMemo(
     () => [
@@ -116,60 +110,53 @@ export default function App({ username }: { username: string }) {
       },
       {
         id: '3',
-        icon: isDark ? (
-          <Moon size={20} className="text-gray-400" />
-        ) : (
-          <Sun size={20} className="text-gray-500" />
-        ),
-        title: t('dark_mode'),
-        rightElement: <Switch checked={isDark} onCheckedChange={toggleColorScheme} />,
-        onPress: toggleColorScheme,
-      },
-      {
-        id: '4',
         icon: <Bell size={20} className="text-gray-500 dark:text-gray-400" />,
         title: t('notifications'),
         onPress: () => console.log('Notification pressed'),
       },
       {
-        id: '5',
-        icon: <Globe size={20} className="text-gray-500 dark:text-gray-400" />,
-        title: t('language.text'),
-        rightElement: <Text className="mx-4 text-gray-400">{t('language.secondary')}</Text>,
-        onPress: () => console.log('Language pressed'),
-      },
-      {
-        id: '6',
+        id: '4',
         icon: <Lock size={20} className="text-gray-500 dark:text-gray-400" />,
         title: t('change_password'),
         onPress: () => console.log('Change password pressed'),
       },
       {
-        id: '7',
+        id: '5',
         icon: <HelpCircle size={20} className="text-gray-500 dark:text-gray-400" />,
         title: t('help'),
         onPress: () => console.log('Help pressed'),
       },
       {
-        id: '8',
+        id: '6',
         icon: <LogOut size={20} className="text-gray-500 dark:text-gray-400" />,
         title: t('logout'),
-        onPress: () => console.log('Logout pressed'),
+        onPress: () => logout(),
       },
       {
-        id: '9',
+        id: '7',
         icon: <XCircle size={20} color="#ef4444" />,
         title: t('delete_account'),
         textColor: '#ef4444',
         onPress: () => console.log('Delete account pressed'),
       },
     ],
-    [colorScheme, router, t, isDark]
+    [router, t]
   );
 
-  const ProfileHeaderComponent: React.FC<{ username: string }> = ({ username = 'John Doe' }) => {
+  const ProfileHeaderComponent: React.FC<{ username: string | undefined; isLoading: boolean }> = ({
+    username = 'John Doe',
+    isLoading,
+  }) => {
+    if (isLoading) {
+      return (
+        <View className="mb-12 mt-6 flex-row items-center justify-between rounded-xl bg-gray-50 p-4 dark:bg-gray-900">
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      );
+    }
+
     return (
-      <View className="mb-12 mt-6 flex-row items-center justify-between rounded-xl bg-gray-50 p-4 dark:bg-gray-800">
+      <View className="mb-12 mt-6 flex-row items-center justify-between rounded-xl bg-gray-50 p-4 dark:bg-gray-900">
         <View className="flex-row items-center">
           <Image
             source={{ uri: DEFAULT_IMAGE }}
@@ -195,12 +182,17 @@ export default function App({ username }: { username: string }) {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView className="flex min-h-full flex-1 flex-col justify-between bg-white px-8 dark:bg-gray-900">
+      <SafeAreaView className="flex min-h-full flex-1 flex-col justify-between px-4">
         <FlatList
           data={settingsData}
           renderItem={({ item }) => <SettingItem {...item} />}
           keyExtractor={(item) => item.id}
-          ListHeaderComponent={<ProfileHeaderComponent username={username} />}
+          ListHeaderComponent={
+            <ProfileHeaderComponent
+              username={queryMe.data?.nickname}
+              isLoading={queryMe.isLoading}
+            />
+          }
           contentContainerStyle={{ paddingHorizontal: 8, paddingBottom: 8 }}
         />
       </SafeAreaView>
