@@ -28,7 +28,7 @@ const Input = React.forwardRef<React.ElementRef<typeof TextInput>, InputPropsWit
     return (
       <View
         className={cn(
-          'flex flex-row items-center overflow-hidden rounded-xl border border-input  bg-field',
+          'flex flex-row items-center justify-between overflow-hidden rounded-xl border border-input  bg-field',
           containerClassName
         )}>
         {leftSection && <View className={cn('px-2', leftSectionClassName)}>{leftSection}</View>}

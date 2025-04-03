@@ -18,7 +18,6 @@ import {
   XCircle,
   Pencil,
 } from '@/src/lib/icons';
-import { useColorScheme } from '@/src/lib/useColorScheme';
 
 // handling dummy image, and fallback image
 const avatarImage = require('../../assets/dummy-avatar.png'); // Import the image dynamically
