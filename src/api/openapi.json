@@ -5,10 +5,12 @@
     "version": "v1"
   },
   "paths": {
-    "/api/Auth/login": {
+    "/api/auth/login": {
       "post": {
         "tags": ["Auth"],
+        "summary": "Authenticates a user using provided credentials and returns a JWT token.",
         "requestBody": {
+          "description": "The login request containing email and password.",
           "content": {
             "application/json": {
               "schema": {
@@ -29,7 +31,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The user has been authenticated successfully.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -49,7 +51,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "The request payload is invalid.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -64,6 +66,26 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/LoginErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
                 }
               }
             }
@@ -71,10 +93,12 @@
         }
       }
     },
-    "/api/Auth/register": {
+    "/api/auth/register": {
       "post": {
         "tags": ["Auth"],
+        "summary": "Registers a new user and returns a JWT token.",
         "requestBody": {
+          "description": "The registration request containing email, nickname, and password.",
           "content": {
             "application/json": {
               "schema": {
@@ -95,7 +119,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The user has been registered successfully.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -115,7 +139,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "The request payload is invalid.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -135,7 +159,7 @@
             }
           },
           "409": {
-            "description": "Conflict",
+            "description": "The email address is already in use.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -153,16 +177,37 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
           }
         }
       }
     },
-    "/api/Auth/me": {
+    "/api/auth/me": {
       "get": {
         "tags": ["Auth"],
+        "summary": "Retrieves the currently authenticated user's profile and JWT token.",
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The user profile has been retrieved successfully.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -177,6 +222,26 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The authenticated user was not found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorCodeErrorResponse"
                 }
               }
             }
@@ -201,8 +266,231 @@
               }
             }
           },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/groups/{id}": {
+      "get": {
+        "tags": ["Groups"],
+        "summary": "Retrieves a group by its unique identifier.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The unique identifier of the group.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The group was successfully retrieved.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupDto"
+                }
+              }
+            }
+          },
           "404": {
-            "description": "Not Found",
+            "description": "The group was not found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/groups": {
+      "post": {
+        "tags": ["Groups"],
+        "summary": "Creates a new group.",
+        "responses": {
+          "200": {
+            "description": "The group was successfully created.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": ["Groups"],
+        "summary": "Retrieves all groups that the currently logged user is a member of.",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the user's groups.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GroupDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GroupDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GroupDto"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The user was not found.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -220,17 +508,158 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
           }
         }
       }
     },
-    "/api/Users/{id}": {
-      "get": {
-        "tags": ["Users"],
+    "/api/groups/join/code/{code}": {
+      "post": {
+        "tags": ["Groups"],
+        "summary": "Adds the currently authenticated user to a group using a joining code.",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "description": "The unique joining code of the group.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user was successfully added to the group.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The group was not found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/groups/{id}/leave": {
+      "post": {
+        "tags": ["Groups"],
+        "summary": "Removes the currently authenticated user from the specified group.",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "The unique identifier of the group.",
             "required": true,
             "schema": {
               "type": "integer",
@@ -240,7 +669,431 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The user was successfully removed from the group.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The group was not found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/groups/{id}/kick/{userId}": {
+      "post": {
+        "tags": ["Groups"],
+        "summary": "Removes a specific user from a group (kick user).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The unique identifier of the group.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "The unique identifier of the user to be removed.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user was successfully removed from the group.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The user is not a member of the group.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The group was not found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user-configuration": {
+      "get": {
+        "tags": ["UserConfiguration"],
+        "summary": "Retrieves a user configuration.",
+        "responses": {
+          "200": {
+            "description": "The user configuration was found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserConfigurationDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserConfigurationDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserConfigurationDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The user configuration was not found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserConfigurationErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserConfigurationErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserConfigurationErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["UserConfiguration"],
+        "summary": "Updates user configuration.",
+        "requestBody": {
+          "description": "The user configuration fields to update with.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserConfigurationDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserConfigurationDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserConfigurationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The user configuration was updated successfully.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserConfigurationDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserConfigurationDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserConfigurationDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The user configuration data had invalid format.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserConfigurationErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserConfigurationErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserConfigurationErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Retrieves a user by their unique identifier.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The unique identifier of the user to retrieve.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user was found.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -260,7 +1113,7 @@
             }
           },
           "404": {
-            "description": "Not Found",
+            "description": "The user was not found.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -275,6 +1128,46 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
                 }
               }
             }
@@ -287,7 +1180,8 @@
     "schemas": {
       "AuthErrorCode": {
         "enum": ["MISSING_TOKEN", "INVALID_TOKEN", "EXPIRED_TOKEN"],
-        "type": "string"
+        "type": "string",
+        "description": "Defines error codes related to authentication operations, returned in API error responses."
       },
       "AuthErrorCodeErrorResponse": {
         "required": ["code"],
@@ -298,18 +1192,20 @@
           },
           "message": {
             "type": "string",
+            "description": "The human-readable error message.",
             "nullable": true
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Represents a strongly-typed error response containing a machine-readable error code."
       },
       "AuthResponseDto": {
         "required": ["email", "id", "nickname", "token"],
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "format": "uuid"
           },
           "nickname": {
             "minLength": 1,
@@ -326,9 +1222,75 @@
         },
         "additionalProperties": false
       },
+      "DistanceUnit": {
+        "enum": ["Kilometers", "Miles"],
+        "type": "string"
+      },
+      "GroupDto": {
+        "required": ["id", "joiningCode"],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "joiningCode": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GroupErrorCode": {
+        "enum": ["GROUP_NOT_FOUND", "USER_NOT_FOUND", "USER_ALREADY_IN_GROUP", "USER_NOT_IN_GROUP"],
+        "type": "string",
+        "description": "Defines error codes related to group operations, returned in API error responses."
+      },
+      "GroupErrorCodeErrorResponse": {
+        "required": ["code"],
+        "type": "object",
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/GroupErrorCode"
+          },
+          "message": {
+            "type": "string",
+            "description": "The human-readable error message.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents a strongly-typed error response containing a machine-readable error code."
+      },
+      "InternalErrorCode": {
+        "enum": ["INTERNAL_ERROR"],
+        "type": "string",
+        "description": "Defines error codes related to internal errors."
+      },
+      "InternalErrorCodeErrorResponse": {
+        "required": ["code"],
+        "type": "object",
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/InternalErrorCode"
+          },
+          "message": {
+            "type": "string",
+            "description": "The human-readable error message.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents a strongly-typed error response containing a machine-readable error code."
+      },
+      "Language": {
+        "enum": ["Polish", "English"],
+        "type": "string"
+      },
       "LoginErrorCode": {
         "enum": ["INVALID_CREDENTIALS", "INVALID_EMAIL_FORMAT", "VALIDATION_ERROR"],
-        "type": "string"
+        "type": "string",
+        "description": "Defines error codes returned by the login endpoint."
       },
       "LoginErrorCodeErrorResponse": {
         "required": ["code"],
@@ -339,10 +1301,12 @@
           },
           "message": {
             "type": "string",
+            "description": "The human-readable error message.",
             "nullable": true
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Represents a strongly-typed error response containing a machine-readable error code."
       },
       "LoginRequestDto": {
         "required": ["email", "password"],
@@ -362,7 +1326,8 @@
       },
       "RegisterErrorCode": {
         "enum": ["EMAIL_ALREADY_USED", "INVALID_EMAIL_FORMAT", "VALIDATION_ERROR"],
-        "type": "string"
+        "type": "string",
+        "description": "Defines error codes returned by the registration endpoint."
       },
       "RegisterErrorCodeErrorResponse": {
         "required": ["code"],
@@ -373,10 +1338,12 @@
           },
           "message": {
             "type": "string",
+            "description": "The human-readable error message.",
             "nullable": true
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Represents a strongly-typed error response containing a machine-readable error code."
       },
       "RegisterRequestDto": {
         "required": ["email", "nickname", "password"],
@@ -397,6 +1364,54 @@
           }
         },
         "additionalProperties": false
+      },
+      "Theme": {
+        "enum": ["Dark", "Light"],
+        "type": "string"
+      },
+      "TimeSystem": {
+        "enum": ["TwelveHour", "TwentyFourHour"],
+        "type": "string"
+      },
+      "UserConfigurationDto": {
+        "required": ["distanceUnit", "language", "theme", "timeSystem"],
+        "type": "object",
+        "properties": {
+          "timeSystem": {
+            "$ref": "#/components/schemas/TimeSystem"
+          },
+          "distanceUnit": {
+            "$ref": "#/components/schemas/DistanceUnit"
+          },
+          "language": {
+            "$ref": "#/components/schemas/Language"
+          },
+          "theme": {
+            "$ref": "#/components/schemas/Theme"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserConfigurationErrorCode": {
+        "enum": ["USER_CONFIGURATION_NOT_FOUND", "VALIDATION_ERROR"],
+        "type": "string",
+        "description": "Defines error codes related to user configuration operations, returned in API error responses."
+      },
+      "UserConfigurationErrorCodeErrorResponse": {
+        "required": ["code"],
+        "type": "object",
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/UserConfigurationErrorCode"
+          },
+          "message": {
+            "type": "string",
+            "description": "The human-readable error message.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents a strongly-typed error response containing a machine-readable error code."
       },
       "UserDto": {
         "required": ["email", "id", "nickname"],
@@ -419,7 +1434,8 @@
       },
       "UserErrorCode": {
         "enum": ["USER_NOT_FOUND"],
-        "type": "string"
+        "type": "string",
+        "description": "Defines error codes related to user operations, returned in API error responses."
       },
       "UserErrorCodeErrorResponse": {
         "required": ["code"],
@@ -430,10 +1446,12 @@
           },
           "message": {
             "type": "string",
+            "description": "The human-readable error message.",
             "nullable": true
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Represents a strongly-typed error response containing a machine-readable error code."
       }
     },
     "securitySchemes": {
@@ -448,6 +1466,24 @@
   "security": [
     {
       "Bearer": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Provides authentication endpoints for user login, registration, and profile."
+    },
+    {
+      "name": "Groups",
+      "description": "Provides API endpoints for managing groups and user membership within groups."
+    },
+    {
+      "name": "UserConfiguration",
+      "description": "Provides API endpoints for managing and retrieving data related to a user configuration."
+    },
+    {
+      "name": "Users",
+      "description": "Provides API endpoints for managing and retrieving user-related data."
     }
   ]
 }

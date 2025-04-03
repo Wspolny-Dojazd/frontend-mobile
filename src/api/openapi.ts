@@ -4,7 +4,7 @@
  */
 
 export interface paths {
-  '/api/Auth/login': {
+  '/api/auth/login': {
     parameters: {
       query?: never;
       header?: never;
@@ -13,6 +13,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
+    /** Authenticates a user using provided credentials and returns a JWT token. */
     post: {
       parameters: {
         query?: never;
@@ -20,6 +21,7 @@ export interface paths {
         path?: never;
         cookie?: never;
       };
+      /** @description The login request containing email and password. */
       requestBody?: {
         content: {
           'application/json': components['schemas']['LoginRequestDto'];
@@ -28,7 +30,7 @@ export interface paths {
         };
       };
       responses: {
-        /** @description OK */
+        /** @description The user has been authenticated successfully. */
         200: {
           headers: {
             [name: string]: unknown;
@@ -39,7 +41,7 @@ export interface paths {
             'text/json': components['schemas']['AuthResponseDto'];
           };
         };
-        /** @description Bad Request */
+        /** @description The request payload is invalid. */
         400: {
           headers: {
             [name: string]: unknown;
@@ -50,6 +52,17 @@ export interface paths {
             'text/json': components['schemas']['LoginErrorCodeErrorResponse'];
           };
         };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
       };
     };
     delete?: never;
@@ -58,7 +71,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/Auth/register': {
+  '/api/auth/register': {
     parameters: {
       query?: never;
       header?: never;
@@ -67,6 +80,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
+    /** Registers a new user and returns a JWT token. */
     post: {
       parameters: {
         query?: never;
@@ -74,6 +88,7 @@ export interface paths {
         path?: never;
         cookie?: never;
       };
+      /** @description The registration request containing email, nickname, and password. */
       requestBody?: {
         content: {
           'application/json': components['schemas']['RegisterRequestDto'];
@@ -82,7 +97,7 @@ export interface paths {
         };
       };
       responses: {
-        /** @description OK */
+        /** @description The user has been registered successfully. */
         200: {
           headers: {
             [name: string]: unknown;
@@ -93,7 +108,7 @@ export interface paths {
             'text/json': components['schemas']['AuthResponseDto'];
           };
         };
-        /** @description Bad Request */
+        /** @description The request payload is invalid. */
         400: {
           headers: {
             [name: string]: unknown;
@@ -104,7 +119,7 @@ export interface paths {
             'text/json': components['schemas']['RegisterErrorCodeErrorResponse'];
           };
         };
-        /** @description Conflict */
+        /** @description The email address is already in use. */
         409: {
           headers: {
             [name: string]: unknown;
@@ -115,6 +130,17 @@ export interface paths {
             'text/json': components['schemas']['RegisterErrorCodeErrorResponse'];
           };
         };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
       };
     };
     delete?: never;
@@ -123,13 +149,14 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/Auth/me': {
+  '/api/auth/me': {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
+    /** Retrieves the currently authenticated user's profile and JWT token. */
     get: {
       parameters: {
         query?: never;
@@ -139,7 +166,7 @@ export interface paths {
       };
       requestBody?: never;
       responses: {
-        /** @description OK */
+        /** @description The user profile has been retrieved successfully. */
         200: {
           headers: {
             [name: string]: unknown;
@@ -161,7 +188,7 @@ export interface paths {
             'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
           };
         };
-        /** @description Not Found */
+        /** @description The authenticated user was not found. */
         404: {
           headers: {
             [name: string]: unknown;
@@ -170,6 +197,17 @@ export interface paths {
             'text/plain': components['schemas']['UserErrorCodeErrorResponse'];
             'application/json': components['schemas']['UserErrorCodeErrorResponse'];
             'text/json': components['schemas']['UserErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
           };
         };
       };
@@ -182,25 +220,584 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/Users/{id}': {
+  '/api/groups/{id}': {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
+    /** Retrieves a group by its unique identifier. */
     get: {
       parameters: {
         query?: never;
         header?: never;
         path: {
+          /** @description The unique identifier of the group. */
           id: number;
         };
         cookie?: never;
       };
       requestBody?: never;
       responses: {
-        /** @description OK */
+        /** @description The group was successfully retrieved. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupDto'];
+            'application/json': components['schemas']['GroupDto'];
+            'text/json': components['schemas']['GroupDto'];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The group was not found. */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/groups': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Retrieves all groups that the currently logged user is a member of. */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Successfully retrieved the user's groups. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupDto'][];
+            'application/json': components['schemas']['GroupDto'][];
+            'text/json': components['schemas']['GroupDto'][];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The user was not found. */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['UserErrorCodeErrorResponse'];
+            'application/json': components['schemas']['UserErrorCodeErrorResponse'];
+            'text/json': components['schemas']['UserErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    /** Creates a new group. */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description The group was successfully created. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupDto'];
+            'application/json': components['schemas']['GroupDto'];
+            'text/json': components['schemas']['GroupDto'];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/groups/join/code/{code}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Adds the currently authenticated user to a group using a joining code. */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          /** @description The unique joining code of the group. */
+          code: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description The user was successfully added to the group. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupDto'];
+            'application/json': components['schemas']['GroupDto'];
+            'text/json': components['schemas']['GroupDto'];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The group was not found. */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/groups/{id}/leave': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Removes the currently authenticated user from the specified group. */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          /** @description The unique identifier of the group. */
+          id: number;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description The user was successfully removed from the group. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupDto'];
+            'application/json': components['schemas']['GroupDto'];
+            'text/json': components['schemas']['GroupDto'];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The group was not found. */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/groups/{id}/kick/{userId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Removes a specific user from a group (kick user). */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          /** @description The unique identifier of the group. */
+          id: number;
+          /** @description The unique identifier of the user to be removed. */
+          userId: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description The user was successfully removed from the group. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupDto'];
+            'application/json': components['schemas']['GroupDto'];
+            'text/json': components['schemas']['GroupDto'];
+          };
+        };
+        /** @description The user is not a member of the group. */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The group was not found. */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/user-configuration': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Retrieves a user configuration. */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description The user configuration was found. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['UserConfigurationDto'];
+            'application/json': components['schemas']['UserConfigurationDto'];
+            'text/json': components['schemas']['UserConfigurationDto'];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The user configuration was not found. */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['UserConfigurationErrorCodeErrorResponse'];
+            'application/json': components['schemas']['UserConfigurationErrorCodeErrorResponse'];
+            'text/json': components['schemas']['UserConfigurationErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    /** Updates user configuration. */
+    put: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      /** @description The user configuration fields to update with. */
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['UserConfigurationDto'];
+          'text/json': components['schemas']['UserConfigurationDto'];
+          'application/*+json': components['schemas']['UserConfigurationDto'];
+        };
+      };
+      responses: {
+        /** @description The user configuration was updated successfully. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['UserConfigurationDto'];
+            'application/json': components['schemas']['UserConfigurationDto'];
+            'text/json': components['schemas']['UserConfigurationDto'];
+          };
+        };
+        /** @description The user configuration data had invalid format. */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['UserConfigurationErrorCodeErrorResponse'];
+            'application/json': components['schemas']['UserConfigurationErrorCodeErrorResponse'];
+            'text/json': components['schemas']['UserConfigurationErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/users/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Retrieves a user by their unique identifier. */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          /** @description The unique identifier of the user to retrieve. */
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description The user was found. */
         200: {
           headers: {
             [name: string]: unknown;
@@ -211,7 +808,18 @@ export interface paths {
             'text/json': components['schemas']['UserDto'];
           };
         };
-        /** @description Not Found */
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The user was not found. */
         404: {
           headers: {
             [name: string]: unknown;
@@ -220,6 +828,17 @@ export interface paths {
             'text/plain': components['schemas']['UserErrorCodeErrorResponse'];
             'application/json': components['schemas']['UserErrorCodeErrorResponse'];
             'text/json': components['schemas']['UserErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
           };
         };
       };
@@ -236,23 +855,68 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    /** @enum {string} */
+    /**
+     * @description Defines error codes related to authentication operations, returned in API error responses.
+     * @enum {string}
+     */
     AuthErrorCode: 'MISSING_TOKEN' | 'INVALID_TOKEN' | 'EXPIRED_TOKEN';
+    /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     AuthErrorCodeErrorResponse: {
       code: components['schemas']['AuthErrorCode'];
+      /** @description The human-readable error message. */
       message?: string | null;
     };
     AuthResponseDto: {
-      /** Format: int32 */
-      id: number;
+      /** Format: uuid */
+      id: string;
       nickname: string;
       email: string;
       token: string;
     };
     /** @enum {string} */
+    DistanceUnit: 'Kilometers' | 'Miles';
+    GroupDto: {
+      /** Format: int32 */
+      id: number;
+      joiningCode: string;
+    };
+    /**
+     * @description Defines error codes related to group operations, returned in API error responses.
+     * @enum {string}
+     */
+    GroupErrorCode:
+      | 'GROUP_NOT_FOUND'
+      | 'USER_NOT_FOUND'
+      | 'USER_ALREADY_IN_GROUP'
+      | 'USER_NOT_IN_GROUP';
+    /** @description Represents a strongly-typed error response containing a machine-readable error code. */
+    GroupErrorCodeErrorResponse: {
+      code: components['schemas']['GroupErrorCode'];
+      /** @description The human-readable error message. */
+      message?: string | null;
+    };
+    /**
+     * @description Defines error codes related to internal errors.
+     * @enum {string}
+     */
+    InternalErrorCode: 'INTERNAL_ERROR';
+    /** @description Represents a strongly-typed error response containing a machine-readable error code. */
+    InternalErrorCodeErrorResponse: {
+      code: components['schemas']['InternalErrorCode'];
+      /** @description The human-readable error message. */
+      message?: string | null;
+    };
+    /** @enum {string} */
+    Language: 'Polish' | 'English';
+    /**
+     * @description Defines error codes returned by the login endpoint.
+     * @enum {string}
+     */
     LoginErrorCode: 'INVALID_CREDENTIALS' | 'INVALID_EMAIL_FORMAT' | 'VALIDATION_ERROR';
+    /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     LoginErrorCodeErrorResponse: {
       code: components['schemas']['LoginErrorCode'];
+      /** @description The human-readable error message. */
       message?: string | null;
     };
     LoginRequestDto: {
@@ -260,10 +924,15 @@ export interface components {
       email: string;
       password: string;
     };
-    /** @enum {string} */
+    /**
+     * @description Defines error codes returned by the registration endpoint.
+     * @enum {string}
+     */
     RegisterErrorCode: 'EMAIL_ALREADY_USED' | 'INVALID_EMAIL_FORMAT' | 'VALIDATION_ERROR';
+    /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     RegisterErrorCodeErrorResponse: {
       code: components['schemas']['RegisterErrorCode'];
+      /** @description The human-readable error message. */
       message?: string | null;
     };
     RegisterRequestDto: {
@@ -272,16 +941,42 @@ export interface components {
       password: string;
       nickname: string;
     };
+    /** @enum {string} */
+    Theme: 'Dark' | 'Light';
+    /** @enum {string} */
+    TimeSystem: 'TwelveHour' | 'TwentyFourHour';
+    UserConfigurationDto: {
+      timeSystem: components['schemas']['TimeSystem'];
+      distanceUnit: components['schemas']['DistanceUnit'];
+      language: components['schemas']['Language'];
+      theme: components['schemas']['Theme'];
+    };
+    /**
+     * @description Defines error codes related to user configuration operations, returned in API error responses.
+     * @enum {string}
+     */
+    UserConfigurationErrorCode: 'USER_CONFIGURATION_NOT_FOUND' | 'VALIDATION_ERROR';
+    /** @description Represents a strongly-typed error response containing a machine-readable error code. */
+    UserConfigurationErrorCodeErrorResponse: {
+      code: components['schemas']['UserConfigurationErrorCode'];
+      /** @description The human-readable error message. */
+      message?: string | null;
+    };
     UserDto: {
       /** Format: int32 */
       id: number;
       nickname: string;
       email: string;
     };
-    /** @enum {string} */
+    /**
+     * @description Defines error codes related to user operations, returned in API error responses.
+     * @enum {string}
+     */
     UserErrorCode: 'USER_NOT_FOUND';
+    /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     UserErrorCodeErrorResponse: {
       code: components['schemas']['UserErrorCode'];
+      /** @description The human-readable error message. */
       message?: string | null;
     };
   };
