@@ -1,3 +1,4 @@
+const { withMonicon } = require('@monicon/metro');
 const { getDefaultConfig } = require('expo/metro-config');
 const { withNativeWind } = require('nativewind/metro');
 
@@ -34,8 +35,31 @@ const configureMetro = async () => {
     },
   };
 
+  // Apply Monicon configuration
+  const configWithMonicon = withMonicon(mergedConfig, {
+    icons: [
+      'bx:walk',
+      'ion:bus-outline',
+      'ic:outline-subway',
+      'material-symbols-light:chevron-right',
+      'heroicons:home-solid',
+      'pajamas:profile',
+      'gis:map-users',
+      'material-symbols:group',
+      'majesticons:map-marker',
+      'uil:map-marker',
+      'bi:chat-square-text',
+      'ph:tram',
+      'circum:edit',
+      'famicons:calendar-sharp',
+      'iconamoon:exit-fill',
+    ],
+    // Load all icons from the listed collections
+    // collections: ['radix-icons'],
+  });
+
   // Apply NativeWind
-  return withNativeWind(mergedConfig, { input: './global.css' });
+  return withNativeWind(configWithMonicon, { input: './global.css' });
 };
 
 // Export the final configuration

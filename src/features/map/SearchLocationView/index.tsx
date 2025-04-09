@@ -1,7 +1,8 @@
+import { useRouter } from 'expo-router';
 import { useColorScheme } from 'nativewind';
 import { useMemo, useState, useRef, useCallback, useEffect } from 'react';
-import { Text, View, Pressable } from 'react-native';
-import MapView, { Marker, LongPressEvent } from 'react-native-maps';
+import { Text, View, Pressable, Alert } from 'react-native';
+import MapView, { Marker, LongPressEvent, ClickEvent, MapPressEvent } from 'react-native-maps';
 
 import { CustomMapView } from '@/src/features/map/CustomMapView';
 import { LocationButton } from '@/src/features/map/LocationButton';
@@ -11,6 +12,7 @@ import {
 } from '@/src/features/map/SearchLocationView/LocationBottomSheet';
 import { SearchView } from '@/src/features/map/SearchLocationView/SearchView';
 import { useLocation } from '@/src/features/map/useLocation';
+import { ChevronLeft } from '@/src/lib/icons/ChevronLeft';
 import { Search } from '@/src/lib/icons/Search';
 import { useInlineTranslations } from '@/src/lib/useInlineTranslations';
 import { useTheme } from '@/src/lib/useTheme';
@@ -18,18 +20,20 @@ import { useTheme } from '@/src/lib/useTheme';
 const NAMESPACE = 'src/features/map/SearchLocationView';
 const TRANSLATIONS = {
   en: {
-    whereAreYouGoing: 'Where are you going...',
+    whereAreYouGoing: 'Search the place you want to go...',
     selectedPlace: 'Selected Place',
     newRide: 'New Ride',
     meters: 'm',
     kilometers: 'km',
+    pressAndHoldToDropPin: 'Or tap on the map to drop a pin',
   },
   pl: {
-    whereAreYouGoing: 'Gdzie się wybierasz...',
+    whereAreYouGoing: 'Wyszukaj miejsce, do którego chcesz się dostać...',
     selectedPlace: 'Wybrane miejsce',
     newRide: 'Nowy Przejazd',
     meters: 'm',
     kilometers: 'km',
+    pressAndHoldToDropPin: 'Lub naciśnij na mapie, aby upuścić pinezkę',
   },
 };
 
@@ -179,15 +183,18 @@ export type Coordinate = {
 export type SearchLocationViewProps = {
   selectedCoordinate: Coordinate | null;
   setSelectedCoordinate: (coordinate: Coordinate | null) => void;
+  showBackButton?: boolean;
 };
 
 export const SearchLocationView = ({
   selectedCoordinate,
   setSelectedCoordinate,
+  showBackButton = false,
 }: SearchLocationViewProps) => {
   const { t } = useInlineTranslations(NAMESPACE, TRANSLATIONS);
   const { colorScheme } = useColorScheme();
   const mapRef = useRef<MapView>(null);
+  const router = useRouter();
 
   const { location, errorMsg, isLocating, isMapCentered, handleMapChange, handleCenterOnUser } =
     useLocation({
@@ -211,7 +218,7 @@ export const SearchLocationView = ({
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [bottomSheetIndex, setBottomSheetIndex] = useState(-1); // -1 for closed
 
-  const handleMapLongPress = useCallback((event: LongPressEvent) => {
+  const handleMapPress = useCallback((event: MapPressEvent) => {
     const { coordinate } = event.nativeEvent;
     setSelectedCoordinate(coordinate);
     setBottomSheetIndex(0);
@@ -268,13 +275,20 @@ export const SearchLocationView = ({
 
   return (
     <>
-      <View className="absolute left-0 right-0 top-0 z-10 mt-10 h-16 w-full flex-row items-center justify-center px-3">
+      <View className="absolute left-0 right-0 top-0 z-10 mt-10 h-16 w-full flex-col items-center justify-start px-3">
         <Pressable
           className="w-full flex-row items-center gap-2 rounded-md bg-white px-3 py-3 dark:bg-gray-900 dark:text-white"
           onPress={() => {
             setIsSearchViewOpen(!isSearchViewOpen);
           }}>
-          <Search size={20} className="text-foreground" />
+          {showBackButton ? (
+            <Pressable onPress={() => router.back()}>
+              <ChevronLeft size={20} className="text-foreground" />
+            </Pressable>
+          ) : (
+            <Search size={20} className="text-foreground" />
+          )}
+
           <Text
             className={`text-lg ${selectedPlace ? 'text-black dark:text-white' : 'text-muted-foreground'}`}>
             {selectedPlace
@@ -284,6 +298,10 @@ export const SearchLocationView = ({
               : t('whereAreYouGoing')}
           </Text>
         </Pressable>
+
+        <View className="mt-4 h-10 w-full flex-row items-center justify-center rounded-md bg-white/80 px-3 dark:bg-gray-700/50">
+          <Text className="text-sm text-muted-foreground">{t('pressAndHoldToDropPin')}</Text>
+        </View>
       </View>
 
       <CustomMapView
@@ -292,7 +310,7 @@ export const SearchLocationView = ({
         showsUserLocation
         showsMyLocationButton={false}
         onRegionChangeComplete={handleMapChange}
-        onLongPress={handleMapLongPress}
+        onPress={handleMapPress}
         showsCompass={false}>
         {selectedCoordinate && (
           <Marker

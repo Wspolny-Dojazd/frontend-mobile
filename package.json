@@ -12,9 +12,13 @@
     "generate-api": "npx openapi-typescript ./src/api/openapi.json --output src/api/openapi.ts"
   },
   "dependencies": {
-    "@gorhom/bottom-sheet": "^4",
+    "@gorhom/bottom-sheet": "4.6.4",
+    "@monicon/metro": "1.2.2",
+    "@monicon/native": "1.2.2",
     "@react-native-async-storage/async-storage": "1.23.1",
+    "@rn-primitives/avatar": "1.1.0",
     "@rn-primitives/checkbox": "1.1.0",
+    "@rn-primitives/collapsible": "1.1.0",
     "@rn-primitives/label": "1.1.0",
     "@rn-primitives/menubar": "1.1.0",
     "@rn-primitives/select": "1.1.0",
@@ -27,6 +31,7 @@
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "expo": "51.0.39",
+    "expo-clipboard": "6.0.3",
     "expo-constants": "16.0.2",
     "expo-linking": "6.3.1",
     "expo-localization": "15.0.3",
@@ -50,11 +55,11 @@
     "react-native-svg": "15.2.0",
     "react-native-web": "0.19.13",
     "tailwind-merge": "3.0.2",
-    "tailwindcss-animate": "1.0.7",
-    "expo-clipboard": "6.0.3"
+    "tailwindcss-animate": "1.0.7"
   },
   "devDependencies": {
     "@babel/core": "7.26.0",
+    "@iconify/json": "2.2.324",
     "@types/react": "18.2.79",
     "@typescript-eslint/eslint-plugin": "7.18.0",
     "@typescript-eslint/parser": "7.18.0",

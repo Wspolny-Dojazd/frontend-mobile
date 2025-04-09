@@ -66,32 +66,21 @@ export const useLocation = ({ mapRef }: UseLocationProps): UseLocationReturn => 
         if (!permissionGranted) return false;
       }
 
-      // If we already have location, use it
-      if (location && mapRef.current) {
+      // Get a new location and use the returned value immediately
+      // instead of relying on the state update
+      const newLocation = await getUserLocation();
+
+      // Use the new location directly
+      if (newLocation && mapRef.current) {
         mapRef.current.animateToRegion({
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
+          latitude: newLocation.coords.latitude,
+          longitude: newLocation.coords.longitude,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         });
         return true;
-      } else {
-        // Get a new location and use the returned value immediately
-        // instead of relying on the state update
-        const newLocation = await getUserLocation();
-
-        // Use the new location directly
-        if (newLocation && mapRef.current) {
-          mapRef.current.animateToRegion({
-            latitude: newLocation.coords.latitude,
-            longitude: newLocation.coords.longitude,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          });
-          return true;
-        }
-        return false;
       }
+      return false;
     },
     [errorMsg, location, mapRef]
   );

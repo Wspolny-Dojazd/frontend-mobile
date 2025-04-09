@@ -97,7 +97,7 @@ export default function App() {
         {t('yourSharedRides')}
       </Text>
 
-      <Pressable className="mb-4 w-full flex-row items-center gap-2 rounded-md bg-white px-3 py-3 dark:bg-gray-900 dark:text-white">
+      <Pressable className="mb-4 w-full flex-row items-center gap-2 rounded-md bg-gray-50 px-3 py-3 dark:bg-gray-900 dark:text-white">
         <Search size={20} className="text-foreground" />
         <Text className="text-lg text-muted-foreground ">{t('search')}</Text>
       </Pressable>
@@ -106,7 +106,9 @@ export default function App() {
         data={queryGroups.data || []}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <View className="relative mb-2 flex flex-col gap-2 rounded-2xl bg-gray-900 p-4">
+          <Pressable
+            className="relative mb-2 flex flex-col gap-2 rounded-2xl bg-subtle p-4 dark:bg-gray-900"
+            onPress={() => router.push(`/tabs/transits/${item.id}`)}>
             <Text className="mx-auto font-semibold text-foreground">{t('inProgress')}</Text>
 
             <View className="flex-row items-center justify-start gap-2">
@@ -144,15 +146,15 @@ export default function App() {
               <ChevronRight size={28} className="text-foreground" />
             </View>
 
-            <View className="mt-2 flex-row justify-between gap-2">
+            {/* <View className="mt-2 flex-row justify-between gap-2">
               <TouchableOpacity className="flex-1 flex-row items-center justify-center rounded-xl bg-[var(--danger)] py-4">
                 <Text className="text-white">{t('decline')}</Text>
               </TouchableOpacity>
               <TouchableOpacity className="flex-1 flex-row items-center justify-center rounded-xl bg-primary py-4">
                 <Text className="text-white">{t('accept')}</Text>
               </TouchableOpacity>
-            </View>
-          </View>
+            </View> */}
+          </Pressable>
         )}
       />
       <View className="mt-4 flex-row gap-2">

@@ -1,4 +1,5 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import Monicon from '@monicon/native';
 import { Tabs } from 'expo-router';
 
 import { useTheme } from '@/src/lib/useTheme';
@@ -13,7 +14,9 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           headerShown: false,
-          tabBarIcon: ({ color }) => <FontAwesome size={28} name="home" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <Monicon name="heroicons:home-solid" size={28} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
@@ -21,7 +24,7 @@ export default function TabLayout() {
         options={{
           title: 'Transits',
           headerShown: false,
-          tabBarIcon: ({ color }) => <FontAwesome size={28} name="bus" color={color} />,
+          tabBarIcon: ({ color }) => <Monicon name="gis:map-users" size={28} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -29,7 +32,9 @@ export default function TabLayout() {
         options={{
           title: 'Friends',
           headerShown: false,
-          tabBarIcon: ({ color }) => <FontAwesome size={28} name="users" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <Monicon name="material-symbols:group" size={28} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
@@ -37,7 +42,7 @@ export default function TabLayout() {
         options={{
           title: 'Profile',
           headerShown: false,
-          tabBarIcon: ({ color }) => <FontAwesome size={28} name="user" color={color} />,
+          tabBarIcon: ({ color }) => <Monicon name="pajamas:profile" size={28} color={color} />,
         }}
       />
     </Tabs>
