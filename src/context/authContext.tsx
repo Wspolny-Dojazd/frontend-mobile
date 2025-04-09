@@ -233,7 +233,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           await AsyncStorage.setItem(AUTH_TOKEN_KEY, data.token);
           setToken(data.token);
           setUser(data);
-          router.replace('/auth/profile');
+          // router.replace('/auth/profile');
+          router.replace('/tabs');
         } else {
           throw new Error('Login response did not contain a token.');
         }
@@ -259,7 +260,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           await AsyncStorage.setItem(AUTH_TOKEN_KEY, data.token);
           setToken(data.token);
           setUser(data);
-          router.replace('/auth/profile');
+          // router.replace('/auth/profile');
+          router.replace('/tabs');
         } else {
           throw new Error('Registration completed but no token received.');
         }

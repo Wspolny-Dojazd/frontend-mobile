@@ -58,7 +58,8 @@ export default function Register() {
       setIsRedirecting(true);
       redirectTimerRef.current = setTimeout(() => {
         console.log('Register Screen: Redirect timer fired. Redirecting to /auth/profile.');
-        router.replace('/auth/profile');
+        // router.replace('/auth/profile');
+        router.replace('/tabs');
       }, REDIRECT_DELAY_MS);
     } else {
       setIsRedirecting(false);
