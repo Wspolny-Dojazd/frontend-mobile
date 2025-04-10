@@ -1,7 +1,7 @@
 // @ts-expect-error
 import Logo from 'assets/logo.svg';
 import { Link, useRouter } from 'expo-router';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 

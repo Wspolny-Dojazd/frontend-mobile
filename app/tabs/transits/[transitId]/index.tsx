@@ -1,15 +1,14 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Monicon from '@monicon/native';
-import { Link, useLocalSearchParams, useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback } from 'react';
 import {
   View,
   Text,
-  FlatList,
   TouchableOpacity,
   ActivityIndicator,
   Pressable,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { Marker } from 'react-native-maps';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -20,10 +19,8 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/src/components/ui/avatar'
 import { Input } from '@/src/components/ui/input';
 import { useAuth } from '@/src/context/authContext';
 import { CustomMapView } from '@/src/features/map/CustomMapView';
-import { SearchLocationView, Coordinate } from '@/src/features/map/SearchLocationView';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
-import { ChevronRight, ChevronLeft, Plus, XCircle } from '@/src/lib/icons';
-import { useInlineTranslations } from '@/src/lib/useInlineTranslations';
+import { ChevronLeft, Plus, XCircle } from '@/src/lib/icons';
 import { useTheme } from '@/src/lib/useTheme';
 
 const NAMESPACE = 'app/tabs/transits/[transitId]';
@@ -61,21 +58,94 @@ const MEMBERS = [
 
 export default function App() {
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
-  const { transitId } = useLocalSearchParams();
+  const { t: tErrors } = useGroupErrorTranslations();
+  const { transitId } = useLocalSearchParams<{ transitId: string }>();
   const theme = useTheme();
   const router = useRouter();
+  const { token } = useAuth();
+
+  const queryGroup = $api.useQuery(
+    'get',
+    '/api/groups/{id}',
+    {
+      headers: { Authorization: `Bearer ${token}` },
+      params: { path: { id: Number(transitId) } },
+    },
+    {
+      refetchInterval: 1000,
+    }
+  );
+
+  const queryMembers = $api.useQuery(
+    'get',
+    '/api/groups/{id}/members',
+    {
+      headers: { Authorization: `Bearer ${token}` },
+      params: { path: { id: Number(transitId) } },
+    },
+    {
+      refetchInterval: 1000,
+    }
+  );
+
+  const mutationLeaveGroup = $api.useMutation('post', '/api/groups/{id}/leave');
+
+  const handleLeaveGroup = useCallback(() => {
+    mutationLeaveGroup.mutate(
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { path: { id: Number(transitId) } },
+      },
+      {
+        onSuccess(data, variables, context) {
+          router.replace('/tabs/transits');
+        },
+        onError(error, variables, context) {
+          // TODO: Show translated error
+          Alert.alert(error?.code ?? 'Some error occurred');
+        },
+      }
+    );
+  }, [transitId, mutationLeaveGroup, token]);
+
+  const mutationRemoveMember = $api.useMutation('post', '/api/groups/{id}/kick/{userId}');
+
+  const handleRemoveMember = useCallback(
+    (userId: string) => {
+      mutationRemoveMember.mutate({
+        headers: { Authorization: `Bearer ${token}` },
+        params: { path: { id: Number(transitId), userId } },
+      });
+    },
+    [transitId, mutationRemoveMember, token]
+  );
+
+  if (queryGroup.isLoading || queryMembers.isLoading) {
+    return <ActivityIndicator size="small" color={theme.primary} />;
+  }
+
+  if (queryGroup.error || queryMembers.error) {
+    return (
+      <Text>
+        {queryGroup.error?.code && tErrors(queryGroup.error?.code)}
+        {queryMembers.error?.code && tErrors(queryMembers.error?.code)}
+      </Text>
+    );
+  }
 
   return (
     <SafeAreaView className="relative flex-1 p-4">
       <View className="relative mb-4 flex flex-row items-center justify-center">
-        <TouchableOpacity onPress={() => router.back()} className="absolute left-0 top-0">
+        <TouchableOpacity
+          onPress={() => router.replace('/tabs/transits')}
+          className="absolute left-0 top-0">
           <ChevronLeft className="text-gray-400" />
         </TouchableOpacity>
         <Text className="text-xl font-bold text-foreground">
           {t('transit')} #{transitId}
         </Text>
 
-        <Pressable className="absolute right-0 top-0">
+        <Pressable onPress={handleLeaveGroup} className="absolute right-0 top-0">
           <Monicon name="iconamoon:exit-fill" size={24} color={theme.notification} />
         </Pressable>
       </View>
@@ -83,7 +153,7 @@ export default function App() {
       <View className="mb-4 flex-row items-center justify-center gap-1 rounded-2xl bg-subtle py-2">
         <Text className="text-foreground">{t('joinTransit')}:</Text>
         <Text className="ml-2 text-xl font-bold text-foreground">#</Text>
-        <Text className="text-foreground">315 846</Text>
+        <Text className="text-foreground">{queryGroup.data?.joiningCode}</Text>
       </View>
 
       <Pressable onPress={() => router.push(`/tabs/transits/${transitId}/chooseDestination`)}>
@@ -125,18 +195,22 @@ export default function App() {
       <Text className="mb-4 text-lg font-bold text-foreground">{t('groupMembers')}</Text>
 
       <ScrollView>
-        {MEMBERS.map((member) => (
+        {queryMembers.data?.map((member) => (
           <View key={member.id} className="mb-4 flex flex-row items-center justify-start">
-            <Avatar className="h-10 w-10 rounded-full" alt={member.name}>
-              <AvatarImage source={{ uri: member.avatar }} />
+            <Avatar className="h-10 w-10 rounded-full" alt={member.nickname}>
+              <AvatarImage source={{ uri: 'https://via.placeholder.com/150' }} />
               <AvatarFallback>
-                <Text className="text-lg text-foreground">{member.name.charAt(0)}</Text>
+                <Text className="text-lg text-foreground">
+                  {member.nickname.charAt(0) + member.nickname.charAt(1)}
+                </Text>
               </AvatarFallback>
             </Avatar>
 
-            <Text className="ml-2 mr-auto text-lg text-foreground">{member.name}</Text>
+            <Text className="ml-2 mr-auto text-lg text-foreground">{member.nickname}</Text>
 
-            <Pressable className="ml-2 flex h-8 w-8 items-center justify-center">
+            <Pressable
+              className="ml-2 flex h-8 w-8 items-center justify-center"
+              onPress={() => handleRemoveMember(member.id)}>
               <XCircle className="text-gray-400" />
             </Pressable>
           </View>

@@ -19,6 +19,7 @@ export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
     INVALID_TOKEN: 'Your session is invalid. Please log in again.',
     EXPIRED_TOKEN: 'Your session has expired. Please log in again.',
     INTERNAL_ERROR: 'An internal error occurred. Please try again later.',
+    ACCESS_DENIED: 'You do not have permission to access this resource.',
   },
   pl: {
     GROUP_NOT_FOUND: 'Grupa nie znaleziona. Sprawdź czy wpisałeś poprawny kod.',
@@ -29,6 +30,7 @@ export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
     INVALID_TOKEN: 'Twoja sesja jest nieprawidłowa. Proszę zalogować się ponownie.',
     EXPIRED_TOKEN: 'Twoja sesja wygasła. Proszę zalogować się ponownie.',
     INTERNAL_ERROR: 'Wystąpił wewnętrzny błąd. Proszę spróbować ponownie później.',
+    ACCESS_DENIED: 'Nie masz dostępu do tego zasobu.',
   },
 };
 

@@ -10,9 +10,6 @@ import { useAuth } from '@/src/context/authContext';
 import { ChevronLeft } from '@/src/lib/icons';
 import { useInlineTranslations } from '@/src/lib/useInlineTranslations';
 import { cn } from '@/src/lib/utils';
-interface JoinGroupScreenProps {
-  onBack: () => void;
-}
 
 const NAMESPACE = 'app/transit/joinGroup';
 const TRANSLATIONS = {
@@ -30,7 +27,7 @@ const TRANSLATIONS = {
   },
 };
 
-export default function JoinGroupScreen({ onBack }: JoinGroupScreenProps) {
+export default function JoinGroupScreen() {
   const [code, setCode] = useState('');
   const { token } = useAuth();
   const { t } = useInlineTranslations(NAMESPACE, TRANSLATIONS);
@@ -46,10 +43,11 @@ export default function JoinGroupScreen({ onBack }: JoinGroupScreenProps) {
         params: { path: { code } },
       },
       {
-        onSuccess: () => {
-          onBack();
+        onSuccess: (data) => {
+          router.replace(`/tabs/transits/${data.id}`);
         },
         onError: (error) => {
+          // TODO: Show translated error
           console.error('Error creating group:', error);
         },
       }

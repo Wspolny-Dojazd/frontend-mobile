@@ -1,4 +1,3 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Monicon from '@monicon/native';
 import { Tabs } from 'expo-router';
 

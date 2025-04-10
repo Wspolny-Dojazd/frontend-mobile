@@ -1,11 +1,14 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { Search } from 'lucide-react-native';
+import { useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { $api } from '@/src/api/api';
 import { useGroupErrorTranslations } from '@/src/api/errors/groups/groups';
+import { components } from '@/src/api/openapi';
 import { useAuth } from '@/src/context/authContext';
 import { ChevronRight } from '@/src/lib/icons';
 import { useInlineTranslations } from '@/src/lib/useInlineTranslations';
@@ -43,6 +46,8 @@ const TRANSLATIONS = {
   },
 };
 
+type Group = components['schemas']['GroupDto'];
+
 export default function App() {
   const { token } = useAuth();
   const theme = useTheme();
@@ -57,22 +62,45 @@ export default function App() {
 
   const mutationCreateGroup = $api.useMutation('post', '/api/groups');
 
-  const handleCreateGroup = () => {
+  const mutationJoinGroup = $api.useMutation('post', '/api/groups/join/code/{code}');
+
+  const queryClient = useQueryClient();
+  const invalidateQueryGroups = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ['get', '/api/groups'] });
+    queryClient.invalidateQueries({ queryKey: ['get', '/api/groups/{id}'] });
+  }, [queryClient]);
+
+  const handleCreateGroup = useCallback(() => {
     mutationCreateGroup.mutate(
       {
         headers: { Authorization: `Bearer ${token}` },
       },
       {
         onSuccess(data, variables, context) {
-          console.log('Group created successfully:', data);
-          router.push('/tabs/transits');
+          mutationJoinGroup.mutate(
+            {
+              headers: { Authorization: `Bearer ${token}` },
+              params: { path: { code: data.joiningCode } },
+            },
+            {
+              onSuccess(data, variables, context) {
+                router.push(`/tabs/transits/${data.id}`);
+                invalidateQueryGroups();
+              },
+              onError: (error) => {
+                // TODO: Show translated error
+                console.error('Error joining group:', error);
+              },
+            }
+          );
         },
         onError: (error) => {
+          // TODO: Show translated error
           console.error('Error creating group:', error);
         },
       }
     );
-  };
+  }, [mutationCreateGroup, router, token, invalidateQueryGroups]);
 
   if (queryGroups.isLoading) {
     return (
@@ -105,57 +133,7 @@ export default function App() {
       <FlatList
         data={queryGroups.data || []}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <Pressable
-            className="relative mb-2 flex flex-col gap-2 rounded-2xl bg-subtle p-4 dark:bg-gray-900"
-            onPress={() => router.push(`/tabs/transits/${item.id}`)}>
-            <Text className="mx-auto font-semibold text-foreground">{t('inProgress')}</Text>
-
-            <View className="flex-row items-center justify-start gap-2">
-              <View className="flex w-6 items-center justify-center">
-                <FontAwesome size={16} name="group" color={theme.primary} />
-              </View>
-              <Text className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                {t('noMembers')}
-              </Text>
-            </View>
-
-            <View className="flex-row items-center justify-start gap-2">
-              <View className="flex w-6 items-center justify-center">
-                <FontAwesome size={16} name="map-marker" color={theme.primary} />
-              </View>
-              <Text className="text-gray-600 dark:text-gray-400">
-                {t('goal')} {t('noGoal')}
-              </Text>
-            </View>
-
-            <View className="flex-row items-center justify-start gap-2">
-              <View className="flex w-6 items-center justify-center">
-                <FontAwesome size={16} name="id-card" color={theme.primary} />
-              </View>
-              <Text className="text-gray-600 dark:text-gray-400">
-                {t('id')} {item.id}
-              </Text>
-            </View>
-
-            {/* <Text className="text-gray-500 dark:text-gray-300">
-              {t('lastTrip')} wczoraj o 12:00
-            </Text> */}
-
-            <View className="absolute right-4 top-1/2 -translate-y-1/2">
-              <ChevronRight size={28} className="text-foreground" />
-            </View>
-
-            {/* <View className="mt-2 flex-row justify-between gap-2">
-              <TouchableOpacity className="flex-1 flex-row items-center justify-center rounded-xl bg-[var(--danger)] py-4">
-                <Text className="text-white">{t('decline')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity className="flex-1 flex-row items-center justify-center rounded-xl bg-primary py-4">
-                <Text className="text-white">{t('accept')}</Text>
-              </TouchableOpacity>
-            </View> */}
-          </Pressable>
-        )}
+        renderItem={({ item }) => <GroupCard item={item} />}
       />
       <View className="mt-4 flex-row gap-2">
         <TouchableOpacity
@@ -172,3 +150,80 @@ export default function App() {
     </SafeAreaView>
   );
 }
+
+const GroupCard = ({ item }: { item: Group }) => {
+  const router = useRouter();
+  const theme = useTheme();
+  const { t } = useInlineTranslations(NAMESPACE, TRANSLATIONS);
+  const { t: tErrors } = useGroupErrorTranslations();
+  const { token } = useAuth();
+
+  const queryMembers = $api.useQuery('get', '/api/groups/{id}/members', {
+    headers: { Authorization: `Bearer ${token}` },
+    params: { path: { id: item.id } },
+  });
+
+  const MembersList = useCallback(() => {
+    if (queryMembers.isLoading) {
+      return <ActivityIndicator size="small" color={theme.primary} />;
+    }
+
+    if (queryMembers.error) {
+      return <Text>{tErrors(queryMembers.error.code)}</Text>;
+    }
+
+    return <Text>{queryMembers.data?.map((member) => member.nickname).join(', ')}</Text>;
+  }, [queryMembers.data]);
+
+  return (
+    <Pressable
+      className="relative mb-2 flex flex-col gap-2 rounded-2xl bg-subtle p-4 dark:bg-gray-900"
+      onPress={() => router.push(`/tabs/transits/${item.id}`)}>
+      <Text className="mx-auto font-semibold text-foreground">{t('inProgress')}</Text>
+
+      <View className="flex-row items-center justify-start gap-2">
+        <View className="flex w-6 items-center justify-center">
+          <FontAwesome size={16} name="group" color={theme.primary} />
+        </View>
+        <Text className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <MembersList />
+        </Text>
+      </View>
+
+      <View className="flex-row items-center justify-start gap-2">
+        <View className="flex w-6 items-center justify-center">
+          <FontAwesome size={16} name="map-marker" color={theme.primary} />
+        </View>
+        <Text className="text-gray-600 dark:text-gray-400">
+          {t('goal')} {t('noGoal')}
+        </Text>
+      </View>
+
+      <View className="flex-row items-center justify-start gap-2">
+        <View className="flex w-6 items-center justify-center">
+          <FontAwesome size={16} name="id-card" color={theme.primary} />
+        </View>
+        <Text className="text-gray-600 dark:text-gray-400">
+          {t('id')} {item.id}
+        </Text>
+      </View>
+
+      {/* <Text className="text-gray-500 dark:text-gray-300">
+      {t('lastTrip')} wczoraj o 12:00
+    </Text> */}
+
+      <View className="absolute right-4 top-1/2 -translate-y-1/2">
+        <ChevronRight size={28} className="text-foreground" />
+      </View>
+
+      {/* <View className="mt-2 flex-row justify-between gap-2">
+      <TouchableOpacity className="flex-1 flex-row items-center justify-center rounded-xl bg-[var(--danger)] py-4">
+        <Text className="text-white">{t('decline')}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity className="flex-1 flex-row items-center justify-center rounded-xl bg-primary py-4">
+        <Text className="text-white">{t('accept')}</Text>
+      </TouchableOpacity>
+    </View> */}
+    </Pressable>
+  );
+};

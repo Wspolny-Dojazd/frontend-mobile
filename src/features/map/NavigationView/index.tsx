@@ -1,23 +1,15 @@
 import Monicon from '@monicon/native';
 import { useColorScheme } from 'nativewind';
-import { useMemo, useState, useRef, useCallback, useEffect } from 'react';
-import { Text, View, Pressable } from 'react-native';
-import MapView, { Marker, LongPressEvent, Polyline } from 'react-native-maps';
+import { useMemo, useRef } from 'react';
+import { Text, View } from 'react-native';
+import MapView, { Marker, Polyline } from 'react-native-maps';
 
-import { Coordinate } from '../SearchLocationView';
 import { NavigationBottomSheet } from './NavigationBottomSheet';
 
 import { CustomMapView } from '@/src/features/map/CustomMapView';
 import { LocationButton } from '@/src/features/map/LocationButton';
-import {
-  LocationBottomSheet,
-  Place,
-} from '@/src/features/map/SearchLocationView/LocationBottomSheet';
-import { SearchView } from '@/src/features/map/SearchLocationView/SearchView';
 import { useLocation } from '@/src/features/map/useLocation';
-import { Search } from '@/src/lib/icons/Search';
 import { useInlineTranslations } from '@/src/lib/useInlineTranslations';
-import { useTheme } from '@/src/lib/useTheme';
 
 const NAMESPACE = 'src/features/map/SearchLocationView';
 const TRANSLATIONS = {
@@ -43,7 +35,6 @@ export const NavigationView = () => {
   const { t } = useInlineTranslations(NAMESPACE, TRANSLATIONS);
   const { colorScheme } = useColorScheme();
   const mapRef = useRef<MapView>(null);
-  const theme = useTheme();
 
   const { errorMsg, isLocating, isMapCentered, handleMapChange, handleCenterOnUser } = useLocation({
     mapRef,

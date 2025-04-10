@@ -1,19 +1,15 @@
-import BottomSheet, { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import Monicon from '@monicon/native';
-import Clipboard from 'expo-clipboard';
-import React, { useRef, useCallback } from 'react';
-import { Text, View, Pressable } from 'react-native';
+import React, { useRef } from 'react';
+import { Text, View } from 'react-native';
 
 import {
   Collapsible,
   CollapsibleTrigger,
   CollapsibleContent,
 } from '@/src/components/ui/collapsible';
-import { calculateDistance } from '@/src/lib/calculateDistance';
 import { ChevronDown } from '@/src/lib/icons/ChevronDown';
 import { ChevronRight } from '@/src/lib/icons/ChevronRight';
-import { MapPin } from '@/src/lib/icons/MapPin';
-import { X } from '@/src/lib/icons/X';
 import { useInlineTranslations } from '@/src/lib/useInlineTranslations';
 import { useTheme } from '@/src/lib/useTheme';
 import { cn } from '@/src/lib/utils';

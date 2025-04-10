@@ -1,8 +1,8 @@
 import { useRouter } from 'expo-router';
 import { useColorScheme } from 'nativewind';
-import { useMemo, useState, useRef, useCallback, useEffect } from 'react';
-import { Text, View, Pressable, Alert } from 'react-native';
-import MapView, { Marker, LongPressEvent, ClickEvent, MapPressEvent } from 'react-native-maps';
+import { useMemo, useRef, useCallback, useEffect, useState } from 'react';
+import { Text, View, Pressable } from 'react-native';
+import MapView, { Marker, MapPressEvent } from 'react-native-maps';
 
 import { CustomMapView } from '@/src/features/map/CustomMapView';
 import { LocationButton } from '@/src/features/map/LocationButton';
