@@ -14,17 +14,29 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/LoginRequestDto"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/LoginRequestDto"
+                  }
+                ]
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/LoginRequestDto"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/LoginRequestDto"
+                  }
+                ]
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/LoginRequestDto"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/LoginRequestDto"
+                  }
+                ]
               }
             }
           }
@@ -102,17 +114,29 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RegisterRequestDto"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/RegisterRequestDto"
+                  }
+                ]
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/RegisterRequestDto"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/RegisterRequestDto"
+                  }
+                ]
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/RegisterRequestDto"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/RegisterRequestDto"
+                  }
+                ]
               }
             }
           }
@@ -1029,17 +1053,29 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/MessagePayloadDto"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/MessagePayloadDto"
+                  }
+                ]
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/MessagePayloadDto"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/MessagePayloadDto"
+                  }
+                ]
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/MessagePayloadDto"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/MessagePayloadDto"
+                  }
+                ]
               }
             }
           }
@@ -1277,6 +1313,95 @@
         }
       }
     },
+    "/api/routes/shared": {
+      "post": {
+        "tags": ["Routes"],
+        "summary": "Calculates optimized shared routes for a group of users.",
+        "requestBody": {
+          "description": "Request containing user locations and a shared destination.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/PathRequestDto"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/PathRequestDto"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/PathRequestDto"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProposedPathDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProposedPathDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProposedPathDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/user-configuration": {
       "get": {
         "tags": ["UserConfiguration"],
@@ -1372,17 +1497,29 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UserConfigurationDto"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UserConfigurationDto"
+                  }
+                ]
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/UserConfigurationDto"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UserConfigurationDto"
+                  }
+                ]
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/UserConfigurationDto"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UserConfigurationDto"
+                  }
+                ]
               }
             }
           }
@@ -1580,17 +1717,29 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UserLocationRequestDto"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UserLocationRequestDto"
+                  }
+                ]
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/UserLocationRequestDto"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UserLocationRequestDto"
+                  }
+                ]
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/UserLocationRequestDto"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UserLocationRequestDto"
+                  }
+                ]
               }
             }
           }
@@ -1692,7 +1841,12 @@
         "type": "object",
         "properties": {
           "code": {
-            "$ref": "#/components/schemas/AuthErrorCode"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AuthErrorCode"
+              }
+            ],
+            "description": "Gets or sets the machine-readable error code."
           },
           "message": {
             "type": "string",
@@ -1704,12 +1858,16 @@
         "description": "Represents a strongly-typed error response containing a machine-readable error code."
       },
       "AuthResponseDto": {
-        "required": ["email", "id", "nickname", "token"],
+        "required": ["email", "id", "nickname", "token", "username"],
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "username": {
+            "minLength": 1,
+            "type": "string"
           },
           "nickname": {
             "minLength": 1,
@@ -1724,6 +1882,10 @@
             "type": "string"
           }
         },
+        "additionalProperties": false
+      },
+      "BaseSegmentDto": {
+        "type": "object",
         "additionalProperties": false
       },
       "DistanceUnit": {
@@ -1761,7 +1923,12 @@
         "type": "object",
         "properties": {
           "code": {
-            "$ref": "#/components/schemas/GroupErrorCode"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GroupErrorCode"
+              }
+            ],
+            "description": "Gets or sets the machine-readable error code."
           },
           "message": {
             "type": "string",
@@ -1773,19 +1940,51 @@
         "description": "Represents a strongly-typed error response containing a machine-readable error code."
       },
       "GroupMemberDto": {
-        "required": ["id", "nickname"],
+        "required": ["id", "nickname", "username"],
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
             "format": "uuid"
           },
+          "username": {
+            "minLength": 1,
+            "type": "string"
+          },
           "nickname": {
             "minLength": 1,
             "type": "string"
           },
           "location": {
-            "$ref": "#/components/schemas/UserLocationDto"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserLocationDto"
+              }
+            ],
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "GroupMemberLocationRequestDto": {
+        "required": ["latitude", "longitude", "userId"],
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "maximum": 90,
+            "minimum": -90,
+            "type": "number",
+            "format": "double"
+          },
+          "longitude": {
+            "maximum": 180,
+            "minimum": -180,
+            "type": "number",
+            "format": "double"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
           }
         },
         "additionalProperties": false
@@ -1800,7 +1999,12 @@
         "type": "object",
         "properties": {
           "code": {
-            "$ref": "#/components/schemas/InternalErrorCode"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/InternalErrorCode"
+              }
+            ],
+            "description": "Gets or sets the machine-readable error code."
           },
           "message": {
             "type": "string",
@@ -1825,7 +2029,12 @@
         "type": "object",
         "properties": {
           "code": {
-            "$ref": "#/components/schemas/LoginErrorCode"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LoginErrorCode"
+              }
+            ],
+            "description": "Gets or sets the machine-readable error code."
           },
           "message": {
             "type": "string",
@@ -1885,7 +2094,12 @@
         "type": "object",
         "properties": {
           "code": {
-            "$ref": "#/components/schemas/MessageErrorCode"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MessageErrorCode"
+              }
+            ],
+            "description": "Gets or sets the machine-readable error code."
           },
           "message": {
             "type": "string",
@@ -1907,8 +2121,56 @@
         },
         "additionalProperties": false
       },
+      "PathRequestDto": {
+        "required": ["arrivalTime", "destinationLatitude", "destinationLongitude", "userLocations"],
+        "type": "object",
+        "properties": {
+          "destinationLatitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "destinationLongitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "arrivalTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "userLocations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GroupMemberLocationRequestDto"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProposedPathDto": {
+        "required": ["pathId", "paths"],
+        "type": "object",
+        "properties": {
+          "pathId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "paths": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserPathDto"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
       "RegisterErrorCode": {
-        "enum": ["EMAIL_ALREADY_USED", "INVALID_EMAIL_FORMAT", "VALIDATION_ERROR"],
+        "enum": [
+          "EMAIL_ALREADY_USED",
+          "USERNAME_ALREADY_USED",
+          "USERNAME_VALIDATION_ERROR",
+          "INVALID_EMAIL_FORMAT",
+          "VALIDATION_ERROR"
+        ],
         "type": "string",
         "description": "Defines error codes returned by the registration endpoint."
       },
@@ -1917,7 +2179,12 @@
         "type": "object",
         "properties": {
           "code": {
-            "$ref": "#/components/schemas/RegisterErrorCode"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RegisterErrorCode"
+              }
+            ],
+            "description": "Gets or sets the machine-readable error code."
           },
           "message": {
             "type": "string",
@@ -1929,9 +2196,15 @@
         "description": "Represents a strongly-typed error response containing a machine-readable error code."
       },
       "RegisterRequestDto": {
-        "required": ["email", "nickname", "password"],
+        "required": ["email", "nickname", "password", "username"],
         "type": "object",
         "properties": {
+          "username": {
+            "maxLength": 32,
+            "minLength": 3,
+            "pattern": "^[a-z0-9_]+$",
+            "type": "string"
+          },
           "email": {
             "minLength": 1,
             "type": "string",
@@ -1961,16 +2234,32 @@
         "type": "object",
         "properties": {
           "timeSystem": {
-            "$ref": "#/components/schemas/TimeSystem"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TimeSystem"
+              }
+            ]
           },
           "distanceUnit": {
-            "$ref": "#/components/schemas/DistanceUnit"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DistanceUnit"
+              }
+            ]
           },
           "language": {
-            "$ref": "#/components/schemas/Language"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Language"
+              }
+            ]
           },
           "theme": {
-            "$ref": "#/components/schemas/Theme"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Theme"
+              }
+            ]
           }
         },
         "additionalProperties": false
@@ -1985,7 +2274,12 @@
         "type": "object",
         "properties": {
           "code": {
-            "$ref": "#/components/schemas/UserConfigurationErrorCode"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserConfigurationErrorCode"
+              }
+            ],
+            "description": "Gets or sets the machine-readable error code."
           },
           "message": {
             "type": "string",
@@ -2025,7 +2319,12 @@
         "type": "object",
         "properties": {
           "code": {
-            "$ref": "#/components/schemas/UserErrorCode"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserErrorCode"
+              }
+            ],
+            "description": "Gets or sets the machine-readable error code."
           },
           "message": {
             "type": "string",
@@ -2065,7 +2364,12 @@
         "type": "object",
         "properties": {
           "code": {
-            "$ref": "#/components/schemas/UserLocationErrorCode"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserLocationErrorCode"
+              }
+            ],
+            "description": "Gets or sets the machine-readable error code."
           },
           "message": {
             "type": "string",
@@ -2094,6 +2398,23 @@
           }
         },
         "additionalProperties": false
+      },
+      "UserPathDto": {
+        "required": ["segments", "userId"],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "segments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BaseSegmentDto"
+            }
+          }
+        },
+        "additionalProperties": false
       }
     },
     "securitySchemes": {
@@ -2118,6 +2439,10 @@
     {
       "name": "Groups",
       "description": "Provides API endpoints for managing groups and user membership within groups."
+    },
+    {
+      "name": "Routes",
+      "description": "Provides endpoints for calculating shared routes between users."
     },
     {
       "name": "UserConfiguration",

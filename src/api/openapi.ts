@@ -890,6 +890,62 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/routes/shared': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Calculates optimized shared routes for a group of users. */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      /** @description Request containing user locations and a shared destination. */
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['PathRequestDto'];
+          'text/json': components['schemas']['PathRequestDto'];
+          'application/*+json': components['schemas']['PathRequestDto'];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['ProposedPathDto'][];
+            'application/json': components['schemas']['ProposedPathDto'][];
+            'text/json': components['schemas']['ProposedPathDto'][];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/user-configuration': {
     parameters: {
       query?: never;
@@ -1186,6 +1242,7 @@ export interface components {
     AuthErrorCode: 'MISSING_TOKEN' | 'INVALID_TOKEN' | 'EXPIRED_TOKEN';
     /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     AuthErrorCodeErrorResponse: {
+      /** @description Gets or sets the machine-readable error code. */
       code: components['schemas']['AuthErrorCode'];
       /** @description The human-readable error message. */
       message?: string | null;
@@ -1193,10 +1250,12 @@ export interface components {
     AuthResponseDto: {
       /** Format: uuid */
       id: string;
+      username: string;
       nickname: string;
       email: string;
       token: string;
     };
+    BaseSegmentDto: Record<string, never>;
     /** @enum {string} */
     DistanceUnit: 'Kilometers' | 'Miles';
     GroupDto: {
@@ -1216,6 +1275,7 @@ export interface components {
       | 'ACCESS_DENIED';
     /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     GroupErrorCodeErrorResponse: {
+      /** @description Gets or sets the machine-readable error code. */
       code: components['schemas']['GroupErrorCode'];
       /** @description The human-readable error message. */
       message?: string | null;
@@ -1223,8 +1283,17 @@ export interface components {
     GroupMemberDto: {
       /** Format: uuid */
       id: string;
+      username: string;
       nickname: string;
-      location?: components['schemas']['UserLocationDto'];
+      location?: components['schemas']['UserLocationDto'] | null;
+    };
+    GroupMemberLocationRequestDto: {
+      /** Format: double */
+      latitude: number;
+      /** Format: double */
+      longitude: number;
+      /** Format: uuid */
+      userId: string;
     };
     /**
      * @description Defines error codes related to internal errors.
@@ -1233,6 +1302,7 @@ export interface components {
     InternalErrorCode: 'INTERNAL_ERROR';
     /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     InternalErrorCodeErrorResponse: {
+      /** @description Gets or sets the machine-readable error code. */
       code: components['schemas']['InternalErrorCode'];
       /** @description The human-readable error message. */
       message?: string | null;
@@ -1246,6 +1316,7 @@ export interface components {
     LoginErrorCode: 'INVALID_CREDENTIALS' | 'INVALID_EMAIL_FORMAT' | 'VALIDATION_ERROR';
     /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     LoginErrorCodeErrorResponse: {
+      /** @description Gets or sets the machine-readable error code. */
       code: components['schemas']['LoginErrorCode'];
       /** @description The human-readable error message. */
       message?: string | null;
@@ -1271,6 +1342,7 @@ export interface components {
     MessageErrorCode: 'EMPTY_MESSAGE';
     /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     MessageErrorCodeErrorResponse: {
+      /** @description Gets or sets the machine-readable error code. */
       code: components['schemas']['MessageErrorCode'];
       /** @description The human-readable error message. */
       message?: string | null;
@@ -1278,18 +1350,38 @@ export interface components {
     MessagePayloadDto: {
       content: string;
     };
+    PathRequestDto: {
+      /** Format: double */
+      destinationLatitude: number;
+      /** Format: double */
+      destinationLongitude: number;
+      /** Format: date-time */
+      arrivalTime: string;
+      userLocations: components['schemas']['GroupMemberLocationRequestDto'][];
+    };
+    ProposedPathDto: {
+      pathId: string;
+      paths: components['schemas']['UserPathDto'][];
+    };
     /**
      * @description Defines error codes returned by the registration endpoint.
      * @enum {string}
      */
-    RegisterErrorCode: 'EMAIL_ALREADY_USED' | 'INVALID_EMAIL_FORMAT' | 'VALIDATION_ERROR';
+    RegisterErrorCode:
+      | 'EMAIL_ALREADY_USED'
+      | 'USERNAME_ALREADY_USED'
+      | 'USERNAME_VALIDATION_ERROR'
+      | 'INVALID_EMAIL_FORMAT'
+      | 'VALIDATION_ERROR';
     /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     RegisterErrorCodeErrorResponse: {
+      /** @description Gets or sets the machine-readable error code. */
       code: components['schemas']['RegisterErrorCode'];
       /** @description The human-readable error message. */
       message?: string | null;
     };
     RegisterRequestDto: {
+      username: string;
       /** Format: email */
       email: string;
       password: string;
@@ -1312,6 +1404,7 @@ export interface components {
     UserConfigurationErrorCode: 'USER_CONFIGURATION_NOT_FOUND' | 'VALIDATION_ERROR';
     /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     UserConfigurationErrorCodeErrorResponse: {
+      /** @description Gets or sets the machine-readable error code. */
       code: components['schemas']['UserConfigurationErrorCode'];
       /** @description The human-readable error message. */
       message?: string | null;
@@ -1329,6 +1422,7 @@ export interface components {
     UserErrorCode: 'USER_NOT_FOUND';
     /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     UserErrorCodeErrorResponse: {
+      /** @description Gets or sets the machine-readable error code. */
       code: components['schemas']['UserErrorCode'];
       /** @description The human-readable error message. */
       message?: string | null;
@@ -1348,6 +1442,7 @@ export interface components {
     UserLocationErrorCode: 'INVALID_COORDINATES';
     /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     UserLocationErrorCodeErrorResponse: {
+      /** @description Gets or sets the machine-readable error code. */
       code: components['schemas']['UserLocationErrorCode'];
       /** @description The human-readable error message. */
       message?: string | null;
@@ -1357,6 +1452,11 @@ export interface components {
       latitude: number;
       /** Format: double */
       longitude: number;
+    };
+    UserPathDto: {
+      /** Format: uuid */
+      userId: string;
+      segments: components['schemas']['BaseSegmentDto'][];
     };
   };
   responses: never;

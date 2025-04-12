@@ -1,7 +1,9 @@
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import Monicon from '@monicon/native';
-import React, { useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { Text, View } from 'react-native';
+
+import { MOCK_PATHS } from './mocks';
 
 import {
   Collapsible,
@@ -13,6 +15,8 @@ import { ChevronRight } from '@/src/lib/icons/ChevronRight';
 import { useInlineTranslations } from '@/src/lib/useInlineTranslations';
 import { useTheme } from '@/src/lib/useTheme';
 import { cn } from '@/src/lib/utils';
+
+type UserPath = (typeof MOCK_PATHS)[number]['paths'][number];
 
 const NAMESPACE = 'src/features/map/NavigationView/NavigationBottomSheet';
 const TRANSLATIONS = {
@@ -239,9 +243,9 @@ const TransitPartVehicle = ({
           </Text>
         </View>
 
-        <View className="mt-1 flex-row items-center justify-start gap-3">
+        {/* <View className="mt-1 flex-row items-center justify-start gap-3">
           <Text className="mr-auto text-primary">{t('onTime')}</Text>
-        </View>
+        </View> */}
 
         <Divider className="my-2" />
 
@@ -273,10 +277,64 @@ const TransitPartVehicle = ({
   );
 };
 
-export const NavigationBottomSheet = () => {
+type NavigationBottomSheetProps = {
+  path: UserPath;
+};
+
+export const NavigationBottomSheet = ({ path }: NavigationBottomSheetProps) => {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const snapPoints = ['10%', '40%', '80%', '100%'];
   const theme = useTheme();
+
+  const guidelines = () => {
+    const segments = path?.segments;
+
+    const parts =
+      segments?.map((segment, index) => {
+        if (segment.type === 'walk') {
+          return <TransitPartWalk estimatedTime={-1} distance={-1} />;
+        } else if (segment.type === 'route') {
+          return (
+            <TransitPartVehicle
+              vehicleType={segment.line?.type as 'bus' | 'subway' | 'tram'}
+              startStop={segment.stops?.[0]?.name ?? ''}
+              endStop={segment.stops?.[segment.stops.length - 1]?.name ?? ''}
+              lineNumber={segment.line?.shortName ?? ''}
+              lineName={segment.line?.longName ?? ''}
+              scheduledTimeOfDeparture={segment.stops?.[0]?.departureTime ?? ''}
+              stops={segment.stops?.map((stop) => stop.name ?? '') ?? []}
+            />
+          );
+        }
+        return <></>;
+      }) ?? [];
+
+    const start = () => {
+      if (segments?.[0]?.type === 'walk') {
+        return <TransitPartStart label={segments?.[0]?.stops?.[0]?.name ?? ''} />;
+      }
+
+      return <></>;
+    };
+
+    const end = () => {
+      if (segments?.[segments.length - 1]?.type === 'walk') {
+        return (
+          <TransitPartStop
+            label={
+              segments?.[segments.length - 1]?.stops?.[
+                (segments?.[segments.length - 1]?.stops?.length ?? 1) - 1
+              ]?.name ?? ''
+            }
+          />
+        );
+      }
+
+      return <></>;
+    };
+
+    return [start(), ...parts, end()];
+  };
 
   return (
     <BottomSheet
@@ -307,39 +365,7 @@ export const NavigationBottomSheet = () => {
           ]}
         />
 
-        <View className="my-4">
-          <TransitPartStart label="Nowoursynowska 50" />
-
-          <TransitPartWalk estimatedTime={5} distance={300} />
-
-          <TransitPartVehicle
-            vehicleType="bus"
-            startStop="Nowoursynowska 50"
-            endStop="Młociny"
-            lineNumber="401"
-            lineName="Ursus-Niedźwiadek"
-            scheduledTimeOfDeparture="2025-04-14T08:32:00Z"
-            // delayed={true}
-            // actualTimeOfDeparture="2025-04-14T08:35:00Z"
-            stops={['Nowoursynowska 50', 'Młociny']}
-          />
-
-          <TransitPartWalk estimatedTime={2} distance={50} />
-
-          <TransitPartVehicle
-            vehicleType="subway"
-            startStop="Metro Służew"
-            endStop="Metro Centrum"
-            lineNumber="M1"
-            lineName="Młociny"
-            scheduledTimeOfDeparture="2025-04-14T08:32:00Z"
-            stops={['Metro Służew', 'Metro Służew-Młociny', 'Metro Młociny', 'Metro Centrum']}
-          />
-
-          <TransitPartWalk estimatedTime={5} distance={300} />
-
-          <TransitPartStop label="Złote tarasy" />
-        </View>
+        <View className="my-4">{guidelines()}</View>
       </BottomSheetScrollView>
     </BottomSheet>
   );
