@@ -59,9 +59,10 @@ const CustomHandle = () => {
 type TopBarItemProps = {
   type: 'walk' | 'bus' | 'subway' | 'tram';
   label?: string;
+  color?: string;
 };
 
-const TopBarItem = ({ type, label }: TopBarItemProps) => {
+const TopBarItem = ({ type, label, color }: TopBarItemProps) => {
   const theme = useTheme();
 
   const iconMap = {
@@ -76,7 +77,7 @@ const TopBarItem = ({ type, label }: TopBarItemProps) => {
     <View className="flex-row items-center gap-1">
       <Monicon name={icon} size={24} color={theme.text} />
       {label && (
-        <View className="rounded-lg bg-primary px-3 py-1">
+        <View className="rounded-lg px-3 py-1" style={{ backgroundColor: `#${color}` }}>
           <Text className="font-bold text-white">{label}</Text>
         </View>
       )}
@@ -179,7 +180,7 @@ const TransitPartWalk = ({ estimatedTime, distance }: TransitPartWalkProps) => {
 };
 
 type TransitPartVehicleProps = {
-  vehicleType: 'bus' | 'subway' | 'tram';
+  vehicleType: 'Bus' | 'Subway' | 'Tram';
 
   startStop: string;
   endStop: string;
@@ -191,6 +192,7 @@ type TransitPartVehicleProps = {
   // actualTimeOfDeparture?: string; // ISO DATETIME STRING
 
   stops: string[];
+  color: string;
 };
 
 const TransitPartVehicle = ({
@@ -203,14 +205,15 @@ const TransitPartVehicle = ({
   // actualTimeOfDeparture,
   stops,
   // delayed,
+  color,
 }: TransitPartVehicleProps) => {
   const theme = useTheme();
   const { t } = useInlineTranslations(NAMESPACE, TRANSLATIONS);
 
   const iconMap = {
-    bus: 'ion:bus-outline',
-    subway: 'ic:outline-subway',
-    tram: 'ph:tram',
+    Bus: 'ion:bus-outline',
+    Subway: 'ic:outline-subway',
+    Tram: 'ph:tram',
   };
   const icon = iconMap[vehicleType];
 
@@ -220,7 +223,9 @@ const TransitPartVehicle = ({
         <View className="absolute left-1/2 top-0 z-10 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-800">
           <Monicon name={icon} size={24} color={theme.text} />
         </View>
-        <View className="flex w-3 flex-1 items-center justify-end rounded-full bg-primary">
+        <View
+          className="flex w-3 flex-1 items-center justify-end rounded-full"
+          style={{ backgroundColor: `#${color}`, borderRadius: 100 }}>
           <View className="mb-0.5 h-2 w-2 rounded-full bg-white" />
         </View>
       </View>
@@ -231,7 +236,7 @@ const TransitPartVehicle = ({
         </View>
 
         <View className="flex-row items-center justify-start gap-3">
-          <View className="rounded-lg bg-primary px-3 py-1">
+          <View className="rounded-lg px-3 py-1" style={{ backgroundColor: `#${color}` }}>
             <Text className="font-bold text-white">{lineNumber}</Text>
           </View>
           <Text className="mr-auto text-foreground">{lineName}</Text>
@@ -291,18 +296,19 @@ export const NavigationBottomSheet = ({ path }: NavigationBottomSheetProps) => {
 
     const parts =
       segments?.map((segment, index) => {
-        if (segment.type === 'walk') {
+        if (segment.type === 'Walk') {
           return <TransitPartWalk estimatedTime={-1} distance={-1} />;
-        } else if (segment.type === 'route') {
+        } else if (segment.type === 'Route') {
           return (
             <TransitPartVehicle
-              vehicleType={segment.line?.type as 'bus' | 'subway' | 'tram'}
+              vehicleType={segment.line?.type as 'Bus' | 'Subway' | 'Tram'}
               startStop={segment.stops?.[0]?.name ?? ''}
               endStop={segment.stops?.[segment.stops.length - 1]?.name ?? ''}
               lineNumber={segment.line?.shortName ?? ''}
               lineName={segment.line?.longName ?? ''}
               scheduledTimeOfDeparture={segment.stops?.[0]?.departureTime ?? ''}
               stops={segment.stops?.map((stop) => stop.name ?? '') ?? []}
+              color={segment.line?.color ?? ''}
             />
           );
         }
@@ -336,6 +342,16 @@ export const NavigationBottomSheet = ({ path }: NavigationBottomSheetProps) => {
     return [start(), ...parts, end()];
   };
 
+  const summaryItems = path?.segments?.map((segment) => {
+    const type = segment.type === 'Walk' ? 'walk' : segment.line?.type.toLowerCase();
+
+    return {
+      type: type as 'walk' | 'bus' | 'subway' | 'tram',
+      label: segment.line?.shortName,
+      color: segment.line?.color,
+    };
+  });
+
   return (
     <BottomSheet
       ref={bottomSheetRef}
@@ -355,15 +371,7 @@ export const NavigationBottomSheet = ({ path }: NavigationBottomSheetProps) => {
         borderColor: theme.border,
       }}>
       <BottomSheetScrollView>
-        <TopBar
-          className="mx-auto mt-4"
-          items={[
-            { type: 'walk' },
-            { type: 'bus', label: '401' },
-            { type: 'subway', label: 'M1' },
-            { type: 'walk' },
-          ]}
-        />
+        <TopBar className="mx-auto mt-4" items={summaryItems} />
 
         <View className="my-4">{guidelines()}</View>
       </BottomSheetScrollView>

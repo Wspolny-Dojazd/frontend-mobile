@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.0.4",
   "info": {
     "title": "Transport API",
     "version": "v1"
@@ -14,29 +14,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/LoginRequestDto"
-                  }
-                ]
+                "$ref": "#/components/schemas/LoginRequestDto"
               }
             },
             "text/json": {
               "schema": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/LoginRequestDto"
-                  }
-                ]
+                "$ref": "#/components/schemas/LoginRequestDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/LoginRequestDto"
-                  }
-                ]
+                "$ref": "#/components/schemas/LoginRequestDto"
               }
             }
           }
@@ -114,29 +102,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/RegisterRequestDto"
-                  }
-                ]
+                "$ref": "#/components/schemas/RegisterRequestDto"
               }
             },
             "text/json": {
               "schema": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/RegisterRequestDto"
-                  }
-                ]
+                "$ref": "#/components/schemas/RegisterRequestDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/RegisterRequestDto"
-                  }
-                ]
+                "$ref": "#/components/schemas/RegisterRequestDto"
               }
             }
           }
@@ -1053,29 +1029,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/MessagePayloadDto"
-                  }
-                ]
+                "$ref": "#/components/schemas/MessagePayloadDto"
               }
             },
             "text/json": {
               "schema": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/MessagePayloadDto"
-                  }
-                ]
+                "$ref": "#/components/schemas/MessagePayloadDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/MessagePayloadDto"
-                  }
-                ]
+                "$ref": "#/components/schemas/MessagePayloadDto"
               }
             }
           }
@@ -1322,29 +1286,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/PathRequestDto"
-                  }
-                ]
+                "$ref": "#/components/schemas/PathRequestDto"
               }
             },
             "text/json": {
               "schema": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/PathRequestDto"
-                  }
-                ]
+                "$ref": "#/components/schemas/PathRequestDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/PathRequestDto"
-                  }
-                ]
+                "$ref": "#/components/schemas/PathRequestDto"
               }
             }
           }
@@ -1497,29 +1449,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/UserConfigurationDto"
-                  }
-                ]
+                "$ref": "#/components/schemas/UserConfigurationDto"
               }
             },
             "text/json": {
               "schema": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/UserConfigurationDto"
-                  }
-                ]
+                "$ref": "#/components/schemas/UserConfigurationDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/UserConfigurationDto"
-                  }
-                ]
+                "$ref": "#/components/schemas/UserConfigurationDto"
               }
             }
           }
@@ -1717,27 +1657,36 @@
           "content": {
             "application/json": {
               "schema": {
-                "allOf": [
+                "oneOf": [
                   {
                     "$ref": "#/components/schemas/UserLocationRequestDto"
+                  },
+                  {
+                    "$ref": "#/components/schemas/GroupMemberLocationRequestDto"
                   }
                 ]
               }
             },
             "text/json": {
               "schema": {
-                "allOf": [
+                "oneOf": [
                   {
                     "$ref": "#/components/schemas/UserLocationRequestDto"
+                  },
+                  {
+                    "$ref": "#/components/schemas/GroupMemberLocationRequestDto"
                   }
                 ]
               }
             },
             "application/*+json": {
               "schema": {
-                "allOf": [
+                "oneOf": [
                   {
                     "$ref": "#/components/schemas/UserLocationRequestDto"
+                  },
+                  {
+                    "$ref": "#/components/schemas/GroupMemberLocationRequestDto"
                   }
                 ]
               }
@@ -1841,12 +1790,7 @@
         "type": "object",
         "properties": {
           "code": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/AuthErrorCode"
-              }
-            ],
-            "description": "Gets or sets the machine-readable error code."
+            "$ref": "#/components/schemas/AuthErrorCode"
           },
           "message": {
             "type": "string",
@@ -1923,12 +1867,7 @@
         "type": "object",
         "properties": {
           "code": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/GroupErrorCode"
-              }
-            ],
-            "description": "Gets or sets the machine-readable error code."
+            "$ref": "#/components/schemas/GroupErrorCode"
           },
           "message": {
             "type": "string",
@@ -1956,32 +1895,20 @@
             "type": "string"
           },
           "location": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/UserLocationDto"
-              }
-            ],
-            "nullable": true
+            "$ref": "#/components/schemas/UserLocationDto"
           }
         },
         "additionalProperties": false
       },
       "GroupMemberLocationRequestDto": {
-        "required": ["latitude", "longitude", "userId"],
+        "required": ["userId"],
         "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/UserLocationRequestDto"
+          }
+        ],
         "properties": {
-          "latitude": {
-            "maximum": 90,
-            "minimum": -90,
-            "type": "number",
-            "format": "double"
-          },
-          "longitude": {
-            "maximum": 180,
-            "minimum": -180,
-            "type": "number",
-            "format": "double"
-          },
           "userId": {
             "type": "string",
             "format": "uuid"
@@ -1999,12 +1926,7 @@
         "type": "object",
         "properties": {
           "code": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/InternalErrorCode"
-              }
-            ],
-            "description": "Gets or sets the machine-readable error code."
+            "$ref": "#/components/schemas/InternalErrorCode"
           },
           "message": {
             "type": "string",
@@ -2029,12 +1951,7 @@
         "type": "object",
         "properties": {
           "code": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/LoginErrorCode"
-              }
-            ],
-            "description": "Gets or sets the machine-readable error code."
+            "$ref": "#/components/schemas/LoginErrorCode"
           },
           "message": {
             "type": "string",
@@ -2094,12 +2011,7 @@
         "type": "object",
         "properties": {
           "code": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/MessageErrorCode"
-              }
-            ],
-            "description": "Gets or sets the machine-readable error code."
+            "$ref": "#/components/schemas/MessageErrorCode"
           },
           "message": {
             "type": "string",
@@ -2179,12 +2091,7 @@
         "type": "object",
         "properties": {
           "code": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/RegisterErrorCode"
-              }
-            ],
-            "description": "Gets or sets the machine-readable error code."
+            "$ref": "#/components/schemas/RegisterErrorCode"
           },
           "message": {
             "type": "string",
@@ -2221,6 +2128,150 @@
         },
         "additionalProperties": false
       },
+      "RouteLineDto": {
+        "required": ["color", "headSign", "longName", "shortName", "textColor", "type"],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/RouteType"
+          },
+          "shortName": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "longName": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "headSign": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "color": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "textColor": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RouteSegmentDto": {
+        "required": ["line", "shapes", "stops"],
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseSegmentDto"
+          }
+        ],
+        "properties": {
+          "line": {
+            "$ref": "#/components/schemas/RouteLineDto"
+          },
+          "stops": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StopDto"
+            }
+          },
+          "shapes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ShapeSectionDto"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "RouteType": {
+        "enum": [
+          "Tram",
+          "Metro",
+          "Rail",
+          "Bus",
+          "Ferry",
+          "CableCar",
+          "AerialLift",
+          "Funicular",
+          "Trolleybus",
+          "Monorail"
+        ],
+        "type": "string"
+      },
+      "ShapeCoordDto": {
+        "required": ["latitude", "longitude"],
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "longitude": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ShapeSectionDto": {
+        "required": ["coords"],
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "nullable": true
+          },
+          "to": {
+            "type": "string",
+            "nullable": true
+          },
+          "coords": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ShapeCoordDto"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "StopDto": {
+        "required": ["id", "latitude", "longitude", "name", "wheelchairAccessible"],
+        "type": "object",
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "latitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "longitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "wheelchairAccessible": {
+            "type": "boolean"
+          },
+          "arrivalTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "departureTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "Theme": {
         "enum": ["Dark", "Light"],
         "type": "string"
@@ -2234,32 +2285,16 @@
         "type": "object",
         "properties": {
           "timeSystem": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/TimeSystem"
-              }
-            ]
+            "$ref": "#/components/schemas/TimeSystem"
           },
           "distanceUnit": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/DistanceUnit"
-              }
-            ]
+            "$ref": "#/components/schemas/DistanceUnit"
           },
           "language": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Language"
-              }
-            ]
+            "$ref": "#/components/schemas/Language"
           },
           "theme": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Theme"
-              }
-            ]
+            "$ref": "#/components/schemas/Theme"
           }
         },
         "additionalProperties": false
@@ -2274,12 +2309,7 @@
         "type": "object",
         "properties": {
           "code": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/UserConfigurationErrorCode"
-              }
-            ],
-            "description": "Gets or sets the machine-readable error code."
+            "$ref": "#/components/schemas/UserConfigurationErrorCode"
           },
           "message": {
             "type": "string",
@@ -2319,12 +2349,7 @@
         "type": "object",
         "properties": {
           "code": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/UserErrorCode"
-              }
-            ],
-            "description": "Gets or sets the machine-readable error code."
+            "$ref": "#/components/schemas/UserErrorCode"
           },
           "message": {
             "type": "string",
@@ -2364,12 +2389,7 @@
         "type": "object",
         "properties": {
           "code": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/UserLocationErrorCode"
-              }
-            ],
-            "description": "Gets or sets the machine-readable error code."
+            "$ref": "#/components/schemas/UserLocationErrorCode"
           },
           "message": {
             "type": "string",
@@ -2410,7 +2430,61 @@
           "segments": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/BaseSegmentDto"
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/RouteSegmentDto"
+                },
+                {
+                  "$ref": "#/components/schemas/WalkSegmentDto"
+                }
+              ]
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "WalkLocationDto": {
+        "required": ["id", "latitude", "longitude"],
+        "type": "object",
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "latitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "longitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WalkSegmentDto": {
+        "required": ["from", "shapes", "to"],
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseSegmentDto"
+          }
+        ],
+        "properties": {
+          "from": {
+            "$ref": "#/components/schemas/WalkLocationDto"
+          },
+          "to": {
+            "$ref": "#/components/schemas/WalkLocationDto"
+          },
+          "shapes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ShapeSectionDto"
             }
           }
         },
