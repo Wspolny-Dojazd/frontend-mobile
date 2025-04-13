@@ -18,7 +18,8 @@ export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
     INVALID_EMAIL_FORMAT: 'Format adresu email jest nieprawidłowy.',
     VALIDATION_ERROR: 'Błąd walidacji rejestracji. Proszę sprawdzić wprowadzone dane.',
     USERNAME_ALREADY_USED: 'Ta nazwa użytkownika jest już zarejestrowana.',
-    USERNAME_VALIDATION_ERROR: 'Nazwa użytkownika jest nieprawidłowa. Proszę sprawdzić wprowadzone dane.',
+    USERNAME_VALIDATION_ERROR:
+      'Nazwa użytkownika jest nieprawidłowa. Proszę sprawdzić wprowadzone dane.',
   },
 };
 

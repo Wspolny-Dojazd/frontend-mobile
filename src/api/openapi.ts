@@ -220,6 +220,410 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/groups/{groupId}/paths': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Retrieves all proposed paths for the specified group. */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          /** @description The identifier of the group. */
+          groupId: number;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description The paths were successfully retrieved. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['ProposedPathDto'][];
+            'application/json': components['schemas']['ProposedPathDto'][];
+            'text/json': components['schemas']['ProposedPathDto'][];
+          };
+        };
+        /** @description Cannot retrieve paths because one has already been accepted. */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The group was not found. */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    /** Generates multiple proposed path sets for all users in the group
+     *     based on their locations and a desired destination. */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          /** @description The identifier of the group. */
+          groupId: number;
+        };
+        cookie?: never;
+      };
+      /** @description The request containing destination and user locations. */
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['PathRequestDto'];
+          'text/json': components['schemas']['PathRequestDto'];
+          'application/*+json': components['schemas']['PathRequestDto'];
+        };
+      };
+      responses: {
+        /** @description The paths were successfully generated. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['ProposedPathDto'][];
+            'application/json': components['schemas']['ProposedPathDto'][];
+            'text/json': components['schemas']['ProposedPathDto'][];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The group was not found. */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/groups/{groupId}/paths/accepted': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Retrieves the accepted path for the specified group. */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          /** @description The identifier of the group. */
+          groupId: number;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description The accepted path was successfully retrieved. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['ProposedPathDto'];
+            'application/json': components['schemas']['ProposedPathDto'];
+            'text/json': components['schemas']['ProposedPathDto'];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The group or the path was not found. */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/groups/{groupId}/paths/{pathId}/accept': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Accepts a proposed path and removes all other proposed paths for the group. */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          /** @description The identifier of the group. */
+          groupId: number;
+          /** @description The identifier of the path to accept. */
+          pathId: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description The path was successfully accepted. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['ProposedPathDto'];
+            'application/json': components['schemas']['ProposedPathDto'];
+            'text/json': components['schemas']['ProposedPathDto'];
+          };
+        };
+        /** @description The path is already accepted. */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The path does not belong to the group. */
+        403: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The group or the path was not found. */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/groups/{groupId}/paths/reject-all': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Rejects and deletes all proposed paths for the specified group. */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          /** @description The identifier of the group. */
+          groupId: number;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description The paths were successfully rejected. */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Cannot reject paths because one has already been accepted. */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The group was not found. */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/groups/{id}': {
     parameters: {
       query?: never;
@@ -1128,9 +1532,15 @@ export interface paths {
       /** @description The location data containing latitude and longitude. */
       requestBody?: {
         content: {
-          'application/json': components['schemas']['UserLocationRequestDto'];
-          'text/json': components['schemas']['UserLocationRequestDto'];
-          'application/*+json': components['schemas']['UserLocationRequestDto'];
+          'application/json':
+            | components['schemas']['UserLocationRequestDto']
+            | components['schemas']['MemberLocationRequestDto'];
+          'text/json':
+            | components['schemas']['UserLocationRequestDto']
+            | components['schemas']['MemberLocationRequestDto'];
+          'application/*+json':
+            | components['schemas']['UserLocationRequestDto']
+            | components['schemas']['MemberLocationRequestDto'];
         };
       };
       responses: {
@@ -1242,6 +1652,23 @@ export interface components {
       isCreator: boolean;
     };
     /**
+     * @description Defines error codes related to group path operations,
+     *     returned in API error responses.
+     * @enum {string}
+     */
+    GroupPathErrorCode:
+      | 'GROUP_NOT_FOUND'
+      | 'NO_ACCEPTED_PATH'
+      | 'PATH_NOT_FOUND'
+      | 'PATH_NOT_IN_GROUP'
+      | 'PATH_ALREADY_ACCEPTED';
+    /** @description Represents a strongly-typed error response containing a machine-readable error code. */
+    GroupPathErrorCodeErrorResponse: {
+      code: components['schemas']['GroupPathErrorCode'];
+      /** @description The human-readable error message. */
+      message?: string | null;
+    };
+    /**
      * @description Defines error codes related to internal errors.
      * @enum {string}
      */
@@ -1270,6 +1697,10 @@ export interface components {
       email: string;
       password: string;
     };
+    MemberLocationRequestDto: {
+      /** Format: uuid */
+      userId: string;
+    } & components['schemas']['UserLocationRequestDto'];
     MessageDto: {
       /** Format: int32 */
       id: number;
@@ -1293,6 +1724,20 @@ export interface components {
     MessagePayloadDto: {
       content: string;
     };
+    PathRequestDto: {
+      /** Format: double */
+      destinationLatitude: number;
+      /** Format: double */
+      destinationLongitude: number;
+      /** Format: date-time */
+      arrivalTime: string;
+      userLocations: components['schemas']['MemberLocationRequestDto'][];
+    };
+    ProposedPathDto: {
+      /** Format: uuid */
+      id: string;
+      paths: components['schemas']['UserPathDto'][];
+    };
     /**
      * @description Defines error codes returned by the registration endpoint.
      * @enum {string}
@@ -1315,6 +1760,57 @@ export interface components {
       email: string;
       password: string;
       nickname: string;
+    };
+    RouteLineDto: {
+      type: components['schemas']['RouteType'];
+      shortName: string;
+      longName: string;
+      headSign: string;
+      color: string;
+      textColor: string;
+    };
+    RouteSegmentDto: {
+      line: components['schemas']['RouteLineDto'];
+      stops: components['schemas']['StopDto'][];
+      shapes: components['schemas']['ShapeSectionDto'][];
+    } & components['schemas']['SegmentDtoBase'];
+    /** @enum {string} */
+    RouteType:
+      | 'Tram'
+      | 'Metro'
+      | 'Rail'
+      | 'Bus'
+      | 'Ferry'
+      | 'CableCar'
+      | 'AerialLift'
+      | 'Funicular'
+      | 'Trolleybus'
+      | 'Monorail';
+    SegmentDtoBase: Record<string, never>;
+    ShapeCoordDto: {
+      /** Format: double */
+      latitude: number;
+      /** Format: double */
+      longitude: number;
+    };
+    ShapeSectionDto: {
+      from?: string | null;
+      to?: string | null;
+      coords: components['schemas']['ShapeCoordDto'][];
+    };
+    StopDto: {
+      id: string;
+      name: string;
+      code: string;
+      /** Format: double */
+      latitude: number;
+      /** Format: double */
+      longitude: number;
+      wheelchairAccessible: boolean;
+      /** Format: date-time */
+      arrivalTime?: string | null;
+      /** Format: date-time */
+      departureTime?: string | null;
     };
     /** @enum {string} */
     Theme: 'Dark' | 'Light';
@@ -1379,6 +1875,27 @@ export interface components {
       /** Format: double */
       longitude: number;
     };
+    UserPathDto: {
+      /** Format: uuid */
+      userId: string;
+      segments: (
+        | components['schemas']['RouteSegmentDto']
+        | components['schemas']['WalkSegmentDto']
+      )[];
+    };
+    WalkLocationDto: {
+      id: string;
+      /** Format: double */
+      latitude: number;
+      /** Format: double */
+      longitude: number;
+      name?: string | null;
+    };
+    WalkSegmentDto: {
+      from: components['schemas']['WalkLocationDto'];
+      to: components['schemas']['WalkLocationDto'];
+      shapes: components['schemas']['ShapeSectionDto'][];
+    } & components['schemas']['SegmentDtoBase'];
   };
   responses: never;
   parameters: never;

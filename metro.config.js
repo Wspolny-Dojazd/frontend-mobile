@@ -53,6 +53,8 @@ const configureMetro = async () => {
       'circum:edit',
       'famicons:calendar-sharp',
       'iconamoon:exit-fill',
+      'tabler:route-alt-left',
+      'streamline:crown-solid',
     ],
     // Load all icons from the listed collections
     // collections: ['radix-icons'],

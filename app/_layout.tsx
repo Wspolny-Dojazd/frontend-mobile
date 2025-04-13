@@ -1,6 +1,7 @@
 import '@/i18n';
 import '@/global.css';
 
+import { useInterval } from '@mantine/hooks';
 import { Theme, ThemeProvider, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { PortalHost } from '@rn-primitives/portal';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -15,7 +16,11 @@ import {
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import { $api } from '@/src/api/api';
 import { AuthProvider, useAuth } from '@/src/context/authContext';
+import { LiveLocationPoster } from '@/src/features/map/LiveLocationPoster';
+import useLiveLocation from '@/src/features/map/useLiveLocation';
+import { useLocation } from '@/src/features/map/useLocation';
 import { NAV_THEME } from '@/src/lib/constants';
 import { useColorScheme } from '@/src/lib/useColorScheme';
 
@@ -108,6 +113,7 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
           <AuthProvider>
+            <LiveLocationPoster />
             <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
             <AuthRedirector />
             {/* <Stack>

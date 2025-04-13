@@ -3,12 +3,17 @@ import React, { Fragment, useMemo } from 'react';
 import { Text, View } from 'react-native';
 import { Marker, Polyline } from 'react-native-maps';
 
-import { MOCK_PATHS } from './mocks';
+import { components } from '@/src/api/openapi';
+import { cn } from '@/src/lib/utils';
 
-type UserPath = (typeof MOCK_PATHS)[number]['paths'][number];
+// import { MOCK_PATHS } from './mocks';
+
+// type UserPath = (typeof MOCK_PATHS)[number]['paths'][number];
+type ProposedPathDto = components['schemas']['ProposedPathDto'];
+type PathData = ProposedPathDto['paths'][number];
 
 type MapPathProps = {
-  path: UserPath;
+  path: PathData;
   currentLatitudeDelta: number;
   muted: boolean;
 };
@@ -21,48 +26,50 @@ export const MapPath = React.memo(({ path, currentLatitudeDelta, muted }: MapPat
     [currentLatitudeDelta, muted]
   );
 
+  console.log('update map path');
+
   return path.segments?.map((segment, index) => {
     const segmentKey = `${path.userId}-segment-${segment.line?.shortName ?? index}`;
     const segmentColor = `#${segment.line?.color ?? '000000'}`;
     const segmentColorMuted = `${segmentColor}44`;
 
-    const stop1 = segment.stops?.[0];
-    const stop2 = segment.stops?.[1];
-    let avgCoords = null;
-    if (stop1 && stop2) {
-      avgCoords = {
-        latitude: (stop1.latitude + stop2.latitude) / 2,
-        longitude: (stop1.longitude + stop2.longitude) / 2,
-      };
-    } else if (stop1) {
-      avgCoords = { latitude: stop1.latitude, longitude: stop1.longitude };
-    } else if (segment.shapes?.[0]?.coords?.[0]) {
-      avgCoords = segment.shapes[0].coords[0];
-    }
-
     return (
       <Fragment key={segmentKey}>
         {showDetailedStops &&
-          segment.stops?.map((stop, stopIndex) => (
-            <Marker
-              key={`${segmentKey}-stop-${stop.id}-${stopIndex}`}
-              coordinate={stop}
-              anchor={{ x: 0.5, y: 0.5 }}
-              style={{ zIndex: 5 }}>
-              <View className="flex items-center justify-center rounded border border-gray-100 bg-white px-2 py-0.5 dark:border-gray-800 dark:bg-gray-900">
-                <Text className="text-[0.5rem]" style={{ color: segmentColor }}>
-                  {stopIndex + 1}
-                </Text>
-              </View>
-            </Marker>
-          ))}
+          segment.stops?.map(
+            (stop, stopIndex) =>
+              stopIndex !== 0 && (
+                <Marker
+                  key={`${segmentKey}-stop-${stop.id}-${stopIndex}`}
+                  coordinate={stop}
+                  anchor={{ x: 0.5, y: 0.5 }}
+                  style={{ zIndex: stopIndex === 0 ? 100 : 2 + stopIndex }}>
+                  <View
+                    className={cn(
+                      'flex items-center justify-center rounded border border-gray-100 bg-white px-2 py-0.5 dark:border-gray-800 dark:bg-gray-900',
+                      stopIndex === 0 && 'px-3'
+                    )}>
+                    <Text
+                      className={cn(
+                        'text-[0.5rem]',
+                        stopIndex === 0 && 'text-sm font-bold text-black dark:text-white'
+                      )}
+                      style={{
+                        ...(stopIndex !== 0 && { color: segmentColor }),
+                      }}>
+                      {stopIndex + 1}
+                    </Text>
+                  </View>
+                </Marker>
+              )
+          )}
 
-        {!muted && avgCoords && segment.type === 'Route' && (
+        {!muted && segment.type === 'Route' && (
           <Marker
             key={`${segmentKey}-marker`}
-            coordinate={avgCoords}
+            coordinate={segment.stops![0]!}
             anchor={{ x: 0.5, y: 0.5 }}
-            style={{ overflow: 'visible', zIndex: 10 }}>
+            style={{ overflow: 'visible', zIndex: 100 }}>
             <View
               className="flex-row items-center justify-center gap-1 rounded border border-gray-800 px-1 py-0.5"
               style={{ backgroundColor: segmentColor }}>

@@ -225,7 +225,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     async (credentials: LoginCredentials) => {
       setError(null);
       try {
+        console.log('Logging in', credentials);
         const data = await loginMutation.mutateAsync({ body: credentials });
+        console.log('Login response', data);
         if (data?.token) {
           await AsyncStorage.setItem(AUTH_TOKEN_KEY, data.token);
           setToken(data.token);

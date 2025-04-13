@@ -5,6 +5,7 @@ import { Text, View } from 'react-native';
 
 import { MOCK_PATHS } from './mocks';
 
+import { components } from '@/src/api/openapi';
 import {
   Collapsible,
   CollapsibleTrigger,
@@ -16,7 +17,10 @@ import { useInlineTranslations } from '@/src/lib/useInlineTranslations';
 import { useTheme } from '@/src/lib/useTheme';
 import { cn } from '@/src/lib/utils';
 
-type UserPath = (typeof MOCK_PATHS)[number]['paths'][number];
+// type UserPath = (typeof MOCK_PATHS)[number]['paths'][number];
+
+type ProposedPathDto = components['schemas']['ProposedPathDto'];
+type PathData = ProposedPathDto['paths'][number];
 
 const NAMESPACE = 'src/features/map/NavigationView/NavigationBottomSheet';
 const TRANSLATIONS = {
@@ -92,11 +96,11 @@ type TopBarProps = {
 
 const TopBar = ({ items, className }: TopBarProps) => {
   return (
-    <View className={cn('flex flex-row items-center', className)}>
+    <View className={cn('flex-row flex-wrap items-center justify-center gap-1', className)}>
       {items.map((item, index) => (
         <React.Fragment key={index}>
           <TopBarItem {...item} />
-          {index < items.length - 1 && <ChevronRight className="text-foreground" />}
+          {index < items.length - 1 && <ChevronRight className="h-4 w-4 text-foreground" />}
         </React.Fragment>
       ))}
     </View>
@@ -281,7 +285,7 @@ const TransitPartVehicle = ({
 };
 
 type NavigationBottomSheetProps = {
-  path: UserPath;
+  path: PathData;
 };
 
 export const NavigationBottomSheet = React.memo(({ path }: NavigationBottomSheetProps) => {

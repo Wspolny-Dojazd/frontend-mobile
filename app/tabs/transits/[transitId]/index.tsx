@@ -1,6 +1,8 @@
 import Monicon from '@monicon/native';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import {
   View,
   Text,
@@ -12,6 +14,8 @@ import {
 } from 'react-native';
 import { Marker } from 'react-native-maps';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { useCoordinateContext } from './_layout';
 
 import { $api } from '@/src/api/api';
 import { useGroupErrorTranslations } from '@/src/api/errors/groups/groups';
@@ -43,13 +47,50 @@ const TRANSLATIONS = {
   },
 };
 
-export default function App() {
+export default function TransitGroup() {
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
   const { t: tErrors } = useGroupErrorTranslations();
   const { transitId } = useLocalSearchParams<{ transitId: string }>();
   const theme = useTheme();
   const router = useRouter();
   const { token } = useAuth();
+  const { destinationCoordinate } = useCoordinateContext();
+
+  const [selectedDateTime, setSelectedDateTime] = useState<Date>(new Date());
+  const [dateTimeISO, setDateTimeISO] = useState<string>(new Date().toISOString());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+
+  const onDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(false);
+
+    if (selectedDate) {
+      setSelectedDateTime(selectedDate);
+      setDateTimeISO(selectedDate.toISOString());
+      setShowTimePicker(true);
+    }
+  };
+
+  const onTimeChange = (event: any, selectedTime?: Date) => {
+    setShowTimePicker(false);
+
+    if (selectedTime) {
+      const newDateTime = new Date(selectedDateTime);
+      newDateTime.setHours(selectedTime.getHours());
+      newDateTime.setMinutes(selectedTime.getMinutes());
+
+      setSelectedDateTime(newDateTime);
+      setDateTimeISO(newDateTime.toISOString());
+    }
+  };
+
+  const handleOpenDateTimePicker = () => {
+    setShowDatePicker(true);
+  };
+
+  const formatDateTime = (date: Date) => {
+    return date.toLocaleString();
+  };
 
   const queryGroup = $api.useQuery(
     'get',
@@ -107,6 +148,57 @@ export default function App() {
     [transitId, mutationRemoveMember, token]
   );
 
+  const queryClient = useQueryClient();
+
+  const mutationFindPaths = $api.useMutation('post', '/api/groups/{groupId}/paths');
+
+  const handleFindPaths = useCallback(() => {
+    if (!destinationCoordinate) {
+      Alert.alert('Please select a destination first');
+      return;
+    }
+
+    if (!queryMembers.data) {
+      Alert.alert('No members found');
+      return;
+    }
+
+    if (!queryMembers.data.every((member) => member.location)) {
+      Alert.alert('Not every member has a location');
+      return;
+    }
+
+    mutationFindPaths.mutate(
+      {
+        body: {
+          arrivalTime: dateTimeISO,
+          destinationLatitude: destinationCoordinate.latitude,
+          destinationLongitude: destinationCoordinate.longitude,
+          userLocations: queryMembers.data.map((member) => ({
+            userId: member.id,
+            latitude: member.location!.latitude,
+            longitude: member.location!.longitude,
+          })),
+        },
+        headers: { Authorization: `Bearer ${token}` },
+        params: { path: { groupId: Number(transitId) } },
+      },
+      {
+        onSettled(data, error, variables, context) {
+          queryClient.invalidateQueries({ queryKey: ['get', '/api/groups/{groupId}/paths'] });
+        },
+        onSuccess(data, variables, context) {
+          router.push(`/tabs`);
+        },
+      }
+    );
+  }, [transitId, mutationFindPaths, token, dateTimeISO, destinationCoordinate, queryMembers.data]);
+
+  const queryPaths = $api.useQuery('get', '/api/groups/{groupId}/paths', {
+    headers: { Authorization: `Bearer ${token}` },
+    params: { path: { groupId: Number(transitId) } },
+  });
+
   if (queryGroup.isLoading || queryMembers.isLoading) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center">
@@ -153,27 +245,54 @@ export default function App() {
         <Input
           containerClassName="mb-4"
           readOnly
-          value="Pałac Kultury i Nauki"
+          value={
+            destinationCoordinate
+              ? `Lat: ${destinationCoordinate.latitude.toFixed(6)}, Lng: ${destinationCoordinate.longitude.toFixed(6)}`
+              : 'Select destination'
+          }
           leftSection={<Monicon name="uil:map-marker" size={24} color={theme.text} />}
           rightSection={<Monicon name="circum:edit" size={24} color={theme.text} />}
         />
       </Pressable>
 
-      <Input
-        containerClassName="mb-4"
-        readOnly
-        value={t('chooseDateAndTime')}
-        leftSection={<Monicon name="famicons:calendar-sharp" size={24} color={theme.text} />}
-        rightSection={<Monicon name="circum:edit" size={24} color={theme.text} />}
-      />
+      <Pressable onPress={handleOpenDateTimePicker}>
+        <Input
+          containerClassName="mb-4"
+          readOnly
+          value={selectedDateTime ? formatDateTime(selectedDateTime) : t('chooseDateAndTime')}
+          leftSection={<Monicon name="famicons:calendar-sharp" size={24} color={theme.text} />}
+          rightSection={<Monicon name="circum:edit" size={24} color={theme.text} />}
+        />
+      </Pressable>
+
+      {/* TODO: Support dark/light mode */}
+      {showDatePicker && (
+        <DateTimePicker
+          testID="datePicker"
+          value={selectedDateTime}
+          mode="date"
+          display="default"
+          onChange={onDateChange}
+        />
+      )}
+
+      {showTimePicker && (
+        <DateTimePicker
+          testID="timePicker"
+          value={selectedDateTime}
+          mode="time"
+          display="default"
+          onChange={onTimeChange}
+        />
+      )}
 
       <Pressable
         className="mb-4 h-[200px] w-full overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800"
         onPress={() => router.push(`/tabs/transits/${transitId}/chooseDestination`)}>
         <CustomMapView
           region={{
-            latitude: 52.231958,
-            longitude: 21.006725,
+            latitude: destinationCoordinate?.latitude || 52.231958,
+            longitude: destinationCoordinate?.longitude || 21.006725,
             latitudeDelta: 0.01,
             longitudeDelta: 0.01,
           }}
@@ -181,7 +300,14 @@ export default function App() {
           zoomEnabled={false}
           rotateEnabled={false}
           pitchEnabled={false}>
-          <Marker coordinate={{ latitude: 52.231958, longitude: 21.006725 }} />
+          {destinationCoordinate && (
+            <Marker
+              coordinate={{
+                latitude: destinationCoordinate.latitude,
+                longitude: destinationCoordinate.longitude,
+              }}
+            />
+          )}
         </CustomMapView>
       </Pressable>
 
@@ -199,7 +325,18 @@ export default function App() {
               </AvatarFallback>
             </Avatar>
 
-            <Text className="ml-2 mr-auto text-lg text-foreground">{member.nickname}</Text>
+            <View className="flex flex-row items-center justify-center gap-2">
+              <Text className="text-lg text-foreground">{member.nickname}</Text>
+              {member.isCreator && (
+                <Monicon name="streamline:crown-solid" size={24} color="#FFD700" />
+              )}
+            </View>
+
+            {member.location && (
+              <Text className="ml-2 mr-auto text-sm text-muted-foreground">
+                {member.location.latitude.toFixed(6)}, {member.location.longitude.toFixed(6)}
+              </Text>
+            )}
 
             <Pressable
               className="ml-2 flex h-8 w-8 items-center justify-center"
@@ -217,8 +354,26 @@ export default function App() {
         </Pressable>
       </ScrollView>
 
-      <Pressable className="mb-4 flex flex-row items-center justify-center rounded-2xl bg-primary py-4">
-        <Text className="text-lg text-white">{t('findRoute')}</Text>
+      <Pressable
+        disabled={mutationFindPaths.isPending}
+        className="mb-4 flex flex-row items-center justify-center rounded-2xl bg-primary py-4"
+        onPress={handleFindPaths}>
+        {mutationFindPaths.isPending ? (
+          <View className="flex-row items-center justify-center">
+            <ActivityIndicator size="small" color="#ffffff" className="mr-2" />
+            {/* TODO: Add to dictionary */}
+            <Text className="text-lg font-semibold text-white">Wait...</Text>
+          </View>
+        ) : (
+          <>
+            {queryPaths.data?.length && queryPaths.data.length > 0 ? (
+              // TODO: Add to dictionary
+              <Text className="text-lg text-white">Find again</Text>
+            ) : (
+              <Text className="text-lg text-white">{t('findRoute')}</Text>
+            )}
+          </>
+        )}
       </Pressable>
 
       <Pressable

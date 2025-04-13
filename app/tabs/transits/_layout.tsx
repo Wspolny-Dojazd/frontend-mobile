@@ -10,19 +10,7 @@ export default function TransitsLayout() {
         }}
       />
       <Stack.Screen
-        name="[transitId]/index"
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="[transitId]/chat"
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="[transitId]/chooseDestination"
+        name="[transitId]"
         options={{
           headerShown: false,
         }}

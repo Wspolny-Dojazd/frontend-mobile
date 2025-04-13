@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.0.4",
   "info": {
     "title": "Transport API",
     "version": "v1"
@@ -242,6 +242,615 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/groups/{groupId}/paths": {
+      "post": {
+        "tags": ["GroupPaths"],
+        "summary": "Generates multiple proposed path sets for all users in the group\r\nbased on their locations and a desired destination.",
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "description": "The identifier of the group.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The request containing destination and user locations.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PathRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PathRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PathRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The paths were successfully generated.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProposedPathDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProposedPathDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProposedPathDto"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The group was not found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": ["GroupPaths"],
+        "summary": "Retrieves all proposed paths for the specified group.",
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "description": "The identifier of the group.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The paths were successfully retrieved.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProposedPathDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProposedPathDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProposedPathDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Cannot retrieve paths because one has already been accepted.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The group was not found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/groups/{groupId}/paths/accepted": {
+      "get": {
+        "tags": ["GroupPaths"],
+        "summary": "Retrieves the accepted path for the specified group.",
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "description": "The identifier of the group.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The accepted path was successfully retrieved.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposedPathDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposedPathDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposedPathDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The group or the path was not found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/groups/{groupId}/paths/{pathId}/accept": {
+      "post": {
+        "tags": ["GroupPaths"],
+        "summary": "Accepts a proposed path and removes all other proposed paths for the group.",
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "description": "The identifier of the group.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pathId",
+            "in": "path",
+            "description": "The identifier of the path to accept.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The path was successfully accepted.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposedPathDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposedPathDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposedPathDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The path is already accepted.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The path does not belong to the group.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The group or the path was not found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/groups/{groupId}/paths/reject-all": {
+      "post": {
+        "tags": ["GroupPaths"],
+        "summary": "Rejects and deletes all proposed paths for the specified group.",
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "description": "The identifier of the group.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The paths were successfully rejected."
+          },
+          "400": {
+            "description": "Cannot reject paths because one has already been accepted.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The group was not found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
                 }
               }
             }
@@ -1600,17 +2209,38 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UserLocationRequestDto"
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/UserLocationRequestDto"
+                  },
+                  {
+                    "$ref": "#/components/schemas/MemberLocationRequestDto"
+                  }
+                ]
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/UserLocationRequestDto"
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/UserLocationRequestDto"
+                  },
+                  {
+                    "$ref": "#/components/schemas/MemberLocationRequestDto"
+                  }
+                ]
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/UserLocationRequestDto"
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/UserLocationRequestDto"
+                  },
+                  {
+                    "$ref": "#/components/schemas/MemberLocationRequestDto"
+                  }
+                ]
               }
             }
           }
@@ -1827,6 +2457,33 @@
         },
         "additionalProperties": false
       },
+      "GroupPathErrorCode": {
+        "enum": [
+          "GROUP_NOT_FOUND",
+          "NO_ACCEPTED_PATH",
+          "PATH_NOT_FOUND",
+          "PATH_NOT_IN_GROUP",
+          "PATH_ALREADY_ACCEPTED"
+        ],
+        "type": "string",
+        "description": "Defines error codes related to group path operations,\r\nreturned in API error responses."
+      },
+      "GroupPathErrorCodeErrorResponse": {
+        "required": ["code"],
+        "type": "object",
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/GroupPathErrorCode"
+          },
+          "message": {
+            "type": "string",
+            "description": "The human-readable error message.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents a strongly-typed error response containing a machine-readable error code."
+      },
       "InternalErrorCode": {
         "enum": ["INTERNAL_ERROR"],
         "type": "string",
@@ -1889,6 +2546,22 @@
         },
         "additionalProperties": false
       },
+      "MemberLocationRequestDto": {
+        "required": ["userId"],
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/UserLocationRequestDto"
+          }
+        ],
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
       "MessageDto": {
         "required": ["content", "createdAt", "id", "userId"],
         "type": "object",
@@ -1944,6 +2617,48 @@
         },
         "additionalProperties": false
       },
+      "PathRequestDto": {
+        "required": ["arrivalTime", "destinationLatitude", "destinationLongitude", "userLocations"],
+        "type": "object",
+        "properties": {
+          "destinationLatitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "destinationLongitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "arrivalTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "userLocations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MemberLocationRequestDto"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProposedPathDto": {
+        "required": ["id", "paths"],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "paths": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserPathDto"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
       "RegisterErrorCode": {
         "enum": [
           "EMAIL_ALREADY_USED",
@@ -1993,6 +2708,158 @@
           "nickname": {
             "minLength": 1,
             "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RouteLineDto": {
+        "required": ["color", "headSign", "longName", "shortName", "textColor", "type"],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/RouteType"
+          },
+          "shortName": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "longName": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "headSign": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "color": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "textColor": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RouteSegmentDto": {
+        "required": ["line", "shapes", "stops"],
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SegmentDtoBase"
+          }
+        ],
+        "properties": {
+          "line": {
+            "$ref": "#/components/schemas/RouteLineDto"
+          },
+          "stops": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StopDto"
+            }
+          },
+          "shapes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ShapeSectionDto"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "RouteType": {
+        "enum": [
+          "Tram",
+          "Metro",
+          "Rail",
+          "Bus",
+          "Ferry",
+          "CableCar",
+          "AerialLift",
+          "Funicular",
+          "Trolleybus",
+          "Monorail"
+        ],
+        "type": "string"
+      },
+      "SegmentDtoBase": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "ShapeCoordDto": {
+        "required": ["latitude", "longitude"],
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "longitude": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ShapeSectionDto": {
+        "required": ["coords"],
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "nullable": true
+          },
+          "to": {
+            "type": "string",
+            "nullable": true
+          },
+          "coords": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ShapeCoordDto"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "StopDto": {
+        "required": ["code", "id", "latitude", "longitude", "name", "wheelchairAccessible"],
+        "type": "object",
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "code": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "latitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "longitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "wheelchairAccessible": {
+            "type": "boolean"
+          },
+          "arrivalTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "departureTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -2143,6 +3010,77 @@
           }
         },
         "additionalProperties": false
+      },
+      "UserPathDto": {
+        "required": ["segments", "userId"],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "segments": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/RouteSegmentDto"
+                },
+                {
+                  "$ref": "#/components/schemas/WalkSegmentDto"
+                }
+              ]
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "WalkLocationDto": {
+        "required": ["id", "latitude", "longitude"],
+        "type": "object",
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "latitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "longitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WalkSegmentDto": {
+        "required": ["from", "shapes", "to"],
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SegmentDtoBase"
+          }
+        ],
+        "properties": {
+          "from": {
+            "$ref": "#/components/schemas/WalkLocationDto"
+          },
+          "to": {
+            "$ref": "#/components/schemas/WalkLocationDto"
+          },
+          "shapes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ShapeSectionDto"
+            }
+          }
+        },
+        "additionalProperties": false
       }
     },
     "securitySchemes": {
@@ -2163,6 +3101,10 @@
     {
       "name": "Auth",
       "description": "Provides authentication endpoints for user login, registration, and profile."
+    },
+    {
+      "name": "GroupPaths",
+      "description": "Provides API endpoints for managing proposed paths within groups."
     },
     {
       "name": "Groups",

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 
+import { $api } from '@/src/api/api';
+import { useAuth } from '@/src/context/authContext';
 import { NavigationView } from '@/src/features/map/NavigationView';
 import { Coordinate, SearchLocationView } from '@/src/features/map/SearchLocationView';
-import { useAuth } from '@/src/context/authContext';
-import { $api } from '@/src/api/api';
 
 export default function App() {
   const { token } = useAuth();
@@ -13,10 +13,12 @@ export default function App() {
     },
   });
 
+  const currentGroup = queryGroups.data?.at(0);
+
   const [selectedCoordinate, setSelectedCoordinate] = useState<Coordinate | null>(null);
 
-  if (queryGroups.data?.length && queryGroups.data.length > 0) {
-    return <NavigationView />;
+  if (currentGroup) {
+    return <NavigationView groupId={currentGroup.id} />;
   }
 
   return (
