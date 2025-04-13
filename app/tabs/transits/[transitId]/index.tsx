@@ -43,19 +43,6 @@ const TRANSLATIONS = {
   },
 };
 
-const MEMBERS = [
-  {
-    id: 1,
-    name: 'John Doe',
-    avatar: 'https://via.placeholder.com/150',
-  },
-  {
-    id: 2,
-    name: 'Jane Doe',
-    avatar: 'https://via.placeholder.com/150',
-  },
-];
-
 export default function App() {
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
   const { t: tErrors } = useGroupErrorTranslations();
@@ -121,15 +108,21 @@ export default function App() {
   );
 
   if (queryGroup.isLoading || queryMembers.isLoading) {
-    return <ActivityIndicator size="small" color={theme.primary} />;
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center">
+        <ActivityIndicator size="small" color={theme.primary} />
+      </SafeAreaView>
+    );
   }
 
   if (queryGroup.error || queryMembers.error) {
     return (
-      <Text>
-        {queryGroup.error?.code && tErrors(queryGroup.error?.code)}
-        {queryMembers.error?.code && tErrors(queryMembers.error?.code)}
-      </Text>
+      <SafeAreaView className="flex-1 items-center justify-center">
+        <Text>
+          {queryGroup.error?.code && tErrors(queryGroup.error?.code)}
+          {queryMembers.error?.code && tErrors(queryMembers.error?.code)}
+        </Text>
+      </SafeAreaView>
     );
   }
 

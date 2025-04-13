@@ -1,11 +1,9 @@
 import Monicon from '@monicon/native';
+import React, { Fragment, useMemo } from 'react';
 import { Text, View } from 'react-native';
 import { Marker, Polyline } from 'react-native-maps';
 
 import { MOCK_PATHS } from './mocks';
-
-const COLORS = ['#ff595e', '#ffca3a', '#8ac926', '#1982c4', '#6a4c93', '#000000'];
-const MUTED_COLORS = COLORS.map((color) => `${color}66`);
 
 type UserPath = (typeof MOCK_PATHS)[number]['paths'][number];
 
@@ -17,85 +15,75 @@ type MapPathProps = {
 
 const DELTA_THRESHOLD = 0.24;
 
-export const MapPath = ({ path, currentLatitudeDelta, muted }: MapPathProps) => {
-  const segments = path.segments;
+export const MapPath = React.memo(({ path, currentLatitudeDelta, muted }: MapPathProps) => {
+  const showDetailedStops = useMemo(
+    () => currentLatitudeDelta < DELTA_THRESHOLD && !muted,
+    [currentLatitudeDelta, muted]
+  );
 
-  return segments?.map((segment, index) => {
-    const stops = segment.stops?.map((stop, stopIndex) => {
-      if (currentLatitudeDelta < DELTA_THRESHOLD) {
-        return (
-          <Marker
-            key={`${path.userId}-${stop.id}-${stopIndex}`}
-            coordinate={{ latitude: stop.latitude, longitude: stop.longitude }}
-            anchor={{ x: 0.5, y: 0.5 }}
-            style={{ overflow: 'visible', zIndex: 5 }}>
-            <View className="flex items-center justify-center rounded border border-gray-800 bg-gray-900 px-2 py-0.5">
-              <Text
-                className="text-[0.5rem]"
-                //   style={{ color: COLORS[index] }}
-                style={{ color: `#${segment.line?.color}` }}>
-                {stopIndex + 1}
-              </Text>
-            </View>
-          </Marker>
-        );
-      }
-
-      return <></>;
-    });
+  return path.segments?.map((segment, index) => {
+    const segmentKey = `${path.userId}-segment-${segment.line?.shortName ?? index}`;
+    const segmentColor = `#${segment.line?.color ?? '000000'}`;
+    const segmentColorMuted = `${segmentColor}44`;
 
     const stop1 = segment.stops?.[0];
     const stop2 = segment.stops?.[1];
-
-    const avgCoordsBetweenStop1AndStop2 =
-      stop1 && stop2
-        ? {
-            latitude: (stop1.latitude + stop2.latitude) / 2,
-            longitude: (stop1.longitude + stop2.longitude) / 2,
-          }
-        : null;
-
-    const segment_marker = (
-      <Marker
-        key={`${path.userId}-${segment.line?.shortName}-segment-${index}`}
-        coordinate={{
-          latitude: avgCoordsBetweenStop1AndStop2?.latitude ?? 0,
-          longitude: avgCoordsBetweenStop1AndStop2?.longitude ?? 0,
-        }}
-        anchor={{ x: 0.5, y: 0.5 }}
-        style={{ overflow: 'visible', zIndex: 10 }}>
-        <View
-          className="flex-row items-center justify-center gap-1 rounded border border-gray-800 px-1 py-0.5"
-          //   style={{ backgroundColor: COLORS[index] }}
-          style={{ backgroundColor: `#${segment.line?.color}` }}>
-          <Monicon name="ion:bus-outline" size={16} color="#FFF" />
-          <Text className="text-sm font-bold text-white">{segment.line?.shortName}</Text>
-        </View>
-      </Marker>
-    );
-
-    const polyline = segment.shapes.map((shape, shapeIndex) => {
-      return (
-        <Polyline
-          key={`${path.userId}-${segment.line?.shortName}-${index}-${shapeIndex}`}
-          coordinates={shape.coords.map((coord) => ({
-            latitude: coord.latitude,
-            longitude: coord.longitude,
-          }))}
-          strokeWidth={3}
-          //   strokeColor={muted ? MUTED_COLORS[index] : COLORS[index]}
-          strokeColor={muted ? `#${segment.line?.color}66` : `#${segment.line?.color}`}
-          style={{ zIndex: 1 }}
-        />
-      );
-    });
+    let avgCoords = null;
+    if (stop1 && stop2) {
+      avgCoords = {
+        latitude: (stop1.latitude + stop2.latitude) / 2,
+        longitude: (stop1.longitude + stop2.longitude) / 2,
+      };
+    } else if (stop1) {
+      avgCoords = { latitude: stop1.latitude, longitude: stop1.longitude };
+    } else if (segment.shapes?.[0]?.coords?.[0]) {
+      avgCoords = segment.shapes[0].coords[0];
+    }
 
     return (
-      <>
-        {!muted && stops}
-        {!muted && segment_marker}
-        {polyline}
-      </>
+      <Fragment key={segmentKey}>
+        {showDetailedStops &&
+          segment.stops?.map((stop, stopIndex) => (
+            <Marker
+              key={`${segmentKey}-stop-${stop.id}-${stopIndex}`}
+              coordinate={stop}
+              anchor={{ x: 0.5, y: 0.5 }}
+              style={{ zIndex: 5 }}>
+              <View className="flex items-center justify-center rounded border border-gray-100 bg-white px-2 py-0.5 dark:border-gray-800 dark:bg-gray-900">
+                <Text className="text-[0.5rem]" style={{ color: segmentColor }}>
+                  {stopIndex + 1}
+                </Text>
+              </View>
+            </Marker>
+          ))}
+
+        {!muted && avgCoords && segment.type === 'Route' && (
+          <Marker
+            key={`${segmentKey}-marker`}
+            coordinate={avgCoords}
+            anchor={{ x: 0.5, y: 0.5 }}
+            style={{ overflow: 'visible', zIndex: 10 }}>
+            <View
+              className="flex-row items-center justify-center gap-1 rounded border border-gray-800 px-1 py-0.5"
+              style={{ backgroundColor: segmentColor }}>
+              <Monicon name="ion:bus-outline" size={16} color="#FFF" />
+              <Text className="text-sm font-bold text-white">{segment.line?.shortName ?? '?'}</Text>
+            </View>
+          </Marker>
+        )}
+
+        {segment.shapes.map((shape, shapeIndex) => (
+          <Polyline
+            key={`${segmentKey}-shape-${shapeIndex}`}
+            coordinates={shape.coords}
+            strokeWidth={3}
+            strokeColor={muted ? segmentColorMuted : segmentColor}
+            style={{ zIndex: 1 }}
+          />
+        ))}
+      </Fragment>
     );
   });
-};
+});
+
+MapPath.displayName = 'MapPath';

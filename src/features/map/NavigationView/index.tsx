@@ -1,62 +1,20 @@
 import { useDebouncedState } from '@mantine/hooks';
-import Monicon from '@monicon/native';
 import { useColorScheme } from 'nativewind';
-import { useCallback, useMemo, useRef, useState } from 'react';
-import { Pressable, FlatList, Text, TouchableOpacity, View } from 'react-native';
-import MapView, { Details, Marker, Polyline, Region } from 'react-native-maps';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { FlatList, Pressable, Text, View } from 'react-native';
+import MapView, { Details, Marker, Region } from 'react-native-maps';
 
 import { MapPath } from './MapPath';
 import { NavigationBottomSheet } from './NavigationBottomSheet';
 import { MOCK_PATHS } from './mocks';
-
-import { components } from '@/src/api/openapi';
 import { CustomMapView } from '@/src/features/map/CustomMapView';
 import { LocationButton } from '@/src/features/map/LocationButton';
 import { useLocation } from '@/src/features/map/useLocation';
-import { useInlineTranslations } from '@/src/lib/useInlineTranslations';
 import { cn } from '@/src/lib/utils';
 
-const NAMESPACE = 'src/features/map/SearchLocationView';
-const TRANSLATIONS = {
-  en: {
-    whereAreYouGoing: 'Search the place you want to go...',
-    selectedPlace: 'Selected Place',
-    newRide: 'New Ride',
-    meters: 'm',
-    kilometers: 'km',
-    pressAndHoldToDropPin: 'Or press and hold on the map to drop a pin',
-  },
-  pl: {
-    whereAreYouGoing: 'Wyszukaj miejsce, do którego chcesz się dostać...',
-    selectedPlace: 'Wybrane miejsce',
-    newRide: 'Nowy Przejazd',
-    meters: 'm',
-    kilometers: 'km',
-    pressAndHoldToDropPin: 'Lub naciśnij i przytrzymaj na mapie, aby upuścić pinezkę',
-  },
-};
-
-type UserLocationMarkerProps = {
-  latitude: number;
-  longitude: number;
-  userName: string;
-};
-
-const UserLocationMarker = ({ latitude, longitude, userName }: UserLocationMarkerProps) => {
-  return (
-    <Marker
-      coordinate={{ latitude, longitude }}
-      anchor={{ x: 0.5, y: 0.5 }}
-      style={{ overflow: 'visible', zIndex: 20 }}>
-      <View className="h-10 w-10 flex-row items-center justify-center rounded-full border border-gray-700 bg-gray-800">
-        <Text className="font-bold text-white">{userName.slice(0, 2)}</Text>
-      </View>
-    </Marker>
-  );
-};
+type PathData = (typeof MOCK_PATHS)[0]['paths'][number];
 
 export const NavigationView = () => {
-  const { t } = useInlineTranslations(NAMESPACE, TRANSLATIONS);
   const { colorScheme } = useColorScheme();
   const mapRef = useRef<MapView>(null);
 
@@ -74,16 +32,60 @@ export const NavigationView = () => {
     []
   );
 
-  const [currentLatitudeDelta, setCurrentLatitudeDelta] = useDebouncedState(0.0922, 100); // Initial delta
+  const [currentLatitudeDelta, setCurrentLatitudeDelta] = useDebouncedState(
+    initialRegion.latitudeDelta,
+    100
+  );
 
-  const handleRegionChangeComplete = useCallback((region: Region, details: Details) => {
-    setCurrentLatitudeDelta(region.latitudeDelta);
-    // console.log('Current Latitude Delta:', region.latitudeDelta); // For debugging
+  const handleRegionChangeComplete = useCallback(
+    (region: Region, _details: Details) => {
+      setCurrentLatitudeDelta(region.latitudeDelta);
+    },
+    [setCurrentLatitudeDelta]
+  );
+
+  const availablePaths = useMemo(() => MOCK_PATHS[0]?.paths ?? [], []);
+
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(
+    availablePaths[0]?.userId ?? null
+  );
+
+  const selectedUserPath = useMemo(() => {
+    if (!selectedUserId) return null;
+    return availablePaths.find((path) => path.userId === selectedUserId) ?? null;
+  }, [availablePaths, selectedUserId]);
+
+  const userPathsComponents = useMemo(() => {
+    return availablePaths.map((path) => (
+      <MapPath
+        key={`map-path-${path.userId}`}
+        path={path}
+        currentLatitudeDelta={Number(currentLatitudeDelta.toFixed(3))}
+        muted={path.userId !== selectedUserId}
+      />
+    ));
+  }, [availablePaths, currentLatitudeDelta, selectedUserId]);
+
+  const handleSelectUser = useCallback((userId: string) => {
+    setSelectedUserId(userId);
   }, []);
 
-  const [selectedUser, setSelectedUser] = useState<string>(MOCK_PATHS[0]?.paths[0]?.userId ?? '');
+  const renderUserPathSelectorItem = useCallback(
+    ({ item }: { item: PathData }) => {
+      return (
+        <UserPathSelectorItem
+          path={item}
+          isSelected={item.userId === selectedUserId}
+          onSelect={handleSelectUser}
+        />
+      );
+    },
+    [selectedUserId, handleSelectUser]
+  );
 
-  const selectedUserPath = MOCK_PATHS[0]?.paths.find((path) => path.userId === selectedUser);
+  const keyExtractor = useCallback((item: PathData) => item.userId, []);
+
+  const ItemSeparator = useCallback(() => <View className="w-3" />, []);
 
   return (
     <>
@@ -95,42 +97,25 @@ export const NavigationView = () => {
         onRegionChangeComplete={handleMapChange}
         showsCompass={false}
         onRegionChange={handleRegionChangeComplete}>
-        {MOCK_PATHS[0]?.paths.map((path) => {
-          const muted = path.userId !== selectedUser;
-          return <MapPath path={path} currentLatitudeDelta={currentLatitudeDelta} muted={muted} />;
-        })}
-
-        <UserLocationMarker latitude={52.237049} longitude={21.017532} userName="ke" />
+        {userPathsComponents}
+        <UserLocationMarker latitude={52.237049} longitude={21.017532} userName="KE" />
       </CustomMapView>
 
-      {/* <View className="elevation absolute left-0 right-0 top-0 mx-8 mt-10 h-14 flex-1 flex-row items-center justify-center gap-2 rounded-2xl bg-primary px-3">
-        <Monicon name="bx:walk" size={24} color="white" />
-        <Text className="text-lg font-bold text-white">
-          Kieruj się na przystanek: SGGW Rektorat
-        </Text>
-      </View> */}
-
-      <FlatList
-        horizontal
-        data={MOCK_PATHS[0]?.paths}
-        keyExtractor={(item) => item.userId}
-        ItemSeparatorComponent={() => <View className="w-2" />}
-        renderItem={({ item: path }) => {
-          const muted = path.userId !== selectedUser;
-          return (
-            <Pressable
-              key={path.userId}
-              className={cn(
-                'flex-row items-center justify-center rounded-lg px-3 py-2',
-                muted ? 'bg-subtle' : 'bg-primary'
-              )}
-              onPress={() => setSelectedUser(path.userId)}>
-              <Text className="text-lg font-bold text-white">USER {path.userId.slice(0, 6)}</Text>
-            </Pressable>
-          );
-        }}
-        className="elevation absolute left-0 right-0 top-0 mx-8 mt-12"
-      />
+      {availablePaths.length > 0 && (
+        <FlatList<PathData>
+          horizontal
+          data={availablePaths}
+          keyExtractor={keyExtractor}
+          renderItem={renderUserPathSelectorItem}
+          ItemSeparatorComponent={ItemSeparator}
+          className="absolute left-0 right-0 top-0 mx-8 mt-12 shadow-lg"
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 2 }}
+          initialNumToRender={7}
+          maxToRenderPerBatch={5}
+          windowSize={11}
+        />
+      )}
 
       <LocationButton
         isLocating={isLocating}
@@ -138,10 +123,77 @@ export const NavigationView = () => {
         errorMsg={errorMsg}
         colorScheme={colorScheme}
         onPress={handleCenterOnUser}
-        className="absolute bottom-36 right-5"
+        className="absolute bottom-36 right-5 z-10"
       />
 
-      <NavigationBottomSheet path={selectedUserPath!} />
+      {selectedUserPath && <NavigationBottomSheet path={selectedUserPath} />}
     </>
   );
 };
+
+type UserLocationMarkerProps = {
+  latitude: number;
+  longitude: number;
+  userName: string;
+};
+
+const UserLocationMarker = React.memo(
+  ({ latitude, longitude, userName }: UserLocationMarkerProps) => {
+    const initials = userName.slice(0, 2);
+
+    return (
+      <Marker
+        key={`user-location-marker-${userName}`}
+        coordinate={{ latitude, longitude }}
+        anchor={{ x: 0.5, y: 0.5 }}
+        style={{ overflow: 'visible', zIndex: 20 }}>
+        <View className="h-10 w-10 flex-row items-center justify-center rounded-full border border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800">
+          <Text className="font-bold text-foreground">{initials}</Text>
+        </View>
+      </Marker>
+    );
+  }
+);
+UserLocationMarker.displayName = 'UserLocationMarker';
+
+type UserPathSelectorItemProps = {
+  path: PathData;
+  isSelected: boolean;
+  onSelect: (userId: string) => void;
+};
+
+const UserPathSelectorItem = React.memo(
+  ({ path, isSelected, onSelect }: UserPathSelectorItemProps) => {
+    const handlePress = useCallback(() => {
+      onSelect(path.userId);
+    }, [onSelect, path.userId]);
+
+    const muted = !isSelected;
+
+    return (
+      <Pressable
+        className={cn(
+          'flex-row items-center justify-center rounded-xl px-4 py-2.5 shadow-sm',
+          muted ? 'bg-gray-100 dark:bg-gray-800' : 'bg-primary shadow-md'
+        )}
+        onPress={handlePress}>
+        <View className="flex-row items-center gap-2">
+          <View
+            className={cn(
+              'h-2 w-2 rounded-full',
+              muted ? 'bg-gray-400 dark:bg-gray-600' : 'bg-white'
+            )}
+          />
+          <Text
+            className={cn(
+              'text-base font-semibold',
+              muted ? 'text-gray-600 dark:text-gray-300' : 'text-white'
+            )}>
+            User {path.userId.slice(0, 6)}
+          </Text>
+        </View>
+      </Pressable>
+    );
+  }
+);
+UserPathSelectorItem.displayName = 'UserPathSelectorItem';

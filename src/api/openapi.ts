@@ -390,6 +390,17 @@ export interface paths {
             'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
           };
         };
+        /** @description The user was not found. */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupErrorCodeErrorResponse'];
+          };
+        };
         /** @description Internal Server Error */
         500: {
           headers: {
@@ -453,7 +464,7 @@ export interface paths {
             'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
           };
         };
-        /** @description The group was not found. */
+        /** @description The group or the user was not found. */
         404: {
           headers: {
             [name: string]: unknown;
@@ -527,7 +538,7 @@ export interface paths {
             'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
           };
         };
-        /** @description The group was not found. */
+        /** @description The group or the user was not found. */
         404: {
           headers: {
             [name: string]: unknown;
@@ -614,7 +625,7 @@ export interface paths {
             'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
           };
         };
-        /** @description The group was not found. */
+        /** @description The group or the user was not found. */
         404: {
           headers: {
             [name: string]: unknown;
@@ -890,62 +901,6 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/routes/shared': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Calculates optimized shared routes for a group of users. */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      /** @description Request containing user locations and a shared destination. */
-      requestBody?: {
-        content: {
-          'application/json': components['schemas']['PathRequestDto'];
-          'text/json': components['schemas']['PathRequestDto'];
-          'application/*+json': components['schemas']['PathRequestDto'];
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'text/plain': components['schemas']['ProposedPathDto'][];
-            'application/json': components['schemas']['ProposedPathDto'][];
-            'text/json': components['schemas']['ProposedPathDto'][];
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
-            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
-            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
   '/api/user-configuration': {
     parameters: {
       query?: never;
@@ -1173,15 +1128,9 @@ export interface paths {
       /** @description The location data containing latitude and longitude. */
       requestBody?: {
         content: {
-          'application/json':
-            | components['schemas']['UserLocationRequestDto']
-            | components['schemas']['GroupMemberLocationRequestDto'];
-          'text/json':
-            | components['schemas']['UserLocationRequestDto']
-            | components['schemas']['GroupMemberLocationRequestDto'];
-          'application/*+json':
-            | components['schemas']['UserLocationRequestDto']
-            | components['schemas']['GroupMemberLocationRequestDto'];
+          'application/json': components['schemas']['UserLocationRequestDto'];
+          'text/json': components['schemas']['UserLocationRequestDto'];
+          'application/*+json': components['schemas']['UserLocationRequestDto'];
         };
       };
       responses: {
@@ -1260,13 +1209,13 @@ export interface components {
       email: string;
       token: string;
     };
-    BaseSegmentDto: Record<string, never>;
     /** @enum {string} */
     DistanceUnit: 'Kilometers' | 'Miles';
     GroupDto: {
       /** Format: int32 */
       id: number;
       joiningCode: string;
+      groupMembers: components['schemas']['GroupMemberDto'][];
     };
     /**
      * @description Defines error codes related to group operations, returned in API error responses.
@@ -1290,11 +1239,8 @@ export interface components {
       username: string;
       nickname: string;
       location?: components['schemas']['UserLocationDto'];
+      isCreator: boolean;
     };
-    GroupMemberLocationRequestDto: {
-      /** Format: uuid */
-      userId: string;
-    } & components['schemas']['UserLocationRequestDto'];
     /**
      * @description Defines error codes related to internal errors.
      * @enum {string}
@@ -1347,19 +1293,6 @@ export interface components {
     MessagePayloadDto: {
       content: string;
     };
-    PathRequestDto: {
-      /** Format: double */
-      destinationLatitude: number;
-      /** Format: double */
-      destinationLongitude: number;
-      /** Format: date-time */
-      arrivalTime: string;
-      userLocations: components['schemas']['GroupMemberLocationRequestDto'][];
-    };
-    ProposedPathDto: {
-      pathId: string;
-      paths: components['schemas']['UserPathDto'][];
-    };
     /**
      * @description Defines error codes returned by the registration endpoint.
      * @enum {string}
@@ -1382,55 +1315,6 @@ export interface components {
       email: string;
       password: string;
       nickname: string;
-    };
-    RouteLineDto: {
-      type: components['schemas']['RouteType'];
-      shortName: string;
-      longName: string;
-      headSign: string;
-      color: string;
-      textColor: string;
-    };
-    RouteSegmentDto: {
-      line: components['schemas']['RouteLineDto'];
-      stops: components['schemas']['StopDto'][];
-      shapes: components['schemas']['ShapeSectionDto'][];
-    } & components['schemas']['BaseSegmentDto'];
-    /** @enum {string} */
-    RouteType:
-      | 'Tram'
-      | 'Metro'
-      | 'Rail'
-      | 'Bus'
-      | 'Ferry'
-      | 'CableCar'
-      | 'AerialLift'
-      | 'Funicular'
-      | 'Trolleybus'
-      | 'Monorail';
-    ShapeCoordDto: {
-      /** Format: double */
-      latitude: number;
-      /** Format: double */
-      longitude: number;
-    };
-    ShapeSectionDto: {
-      from?: string | null;
-      to?: string | null;
-      coords: components['schemas']['ShapeCoordDto'][];
-    };
-    StopDto: {
-      id: string;
-      name: string;
-      /** Format: double */
-      latitude: number;
-      /** Format: double */
-      longitude: number;
-      wheelchairAccessible: boolean;
-      /** Format: date-time */
-      arrivalTime?: string | null;
-      /** Format: date-time */
-      departureTime?: string | null;
     };
     /** @enum {string} */
     Theme: 'Dark' | 'Light';
@@ -1495,27 +1379,6 @@ export interface components {
       /** Format: double */
       longitude: number;
     };
-    UserPathDto: {
-      /** Format: uuid */
-      userId: string;
-      segments: (
-        | components['schemas']['RouteSegmentDto']
-        | components['schemas']['WalkSegmentDto']
-      )[];
-    };
-    WalkLocationDto: {
-      id: string;
-      /** Format: double */
-      latitude: number;
-      /** Format: double */
-      longitude: number;
-      name?: string | null;
-    };
-    WalkSegmentDto: {
-      from: components['schemas']['WalkLocationDto'];
-      to: components['schemas']['WalkLocationDto'];
-      shapes: components['schemas']['ShapeSectionDto'][];
-    } & components['schemas']['BaseSegmentDto'];
   };
   responses: never;
   parameters: never;

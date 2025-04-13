@@ -144,8 +144,8 @@ const TransitPartStop = ({ label }: TransitPartStopProps) => {
 };
 
 type TransitPartWalkProps = {
-  estimatedTime: number; // in minutes
-  distance: number; // in meters
+  estimatedTime: number;
+  distance: number;
 };
 
 const TransitPartWalk = ({ estimatedTime, distance }: TransitPartWalkProps) => {
@@ -187,9 +187,7 @@ type TransitPartVehicleProps = {
   lineNumber: string;
   lineName: string;
 
-  scheduledTimeOfDeparture: string; // ISO DATETIME STRING
-  // delayed: boolean;
-  // actualTimeOfDeparture?: string; // ISO DATETIME STRING
+  scheduledTimeOfDeparture: string;
 
   stops: string[];
   color: string;
@@ -202,9 +200,9 @@ const TransitPartVehicle = ({
   lineNumber,
   lineName,
   scheduledTimeOfDeparture,
-  // actualTimeOfDeparture,
+
   stops,
-  // delayed,
+
   color,
 }: TransitPartVehicleProps) => {
   const theme = useTheme();
@@ -286,71 +284,103 @@ type NavigationBottomSheetProps = {
   path: UserPath;
 };
 
-export const NavigationBottomSheet = ({ path }: NavigationBottomSheetProps) => {
+export const NavigationBottomSheet = React.memo(({ path }: NavigationBottomSheetProps) => {
+  console.log('NavigationBottomSheet render');
+
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = ['10%', '40%', '80%', '100%'];
+
+  const snapPoints = useMemo(() => ['10%', '40%', '80%', '100%'], []);
   const theme = useTheme();
 
-  const guidelines = () => {
+  const memoizedGuidelines = useMemo(() => {
     const segments = path?.segments;
+    if (!segments) return [];
 
     const parts =
       segments?.map((segment, index) => {
         if (segment.type === 'Walk') {
-          return <TransitPartWalk estimatedTime={-1} distance={-1} />;
+          const key = `walk-${segment.from?.id ?? index}`;
+          return <TransitPartWalk key={key} estimatedTime={-1} distance={-1} />;
         } else if (segment.type === 'Route') {
+          const key = `vehicle-${segment.line?.type}-${segment.line?.shortName ?? index}`;
+
+          const startStopName = segment.stops?.[0]?.name ?? '';
+          const endStopName = segment.stops?.[segment.stops.length - 1]?.name ?? '';
+          const stopNames = segment.stops?.map((stop) => stop.name ?? '') ?? [];
+
           return (
             <TransitPartVehicle
+              key={key}
               vehicleType={segment.line?.type as 'Bus' | 'Subway' | 'Tram'}
-              startStop={segment.stops?.[0]?.name ?? ''}
-              endStop={segment.stops?.[segment.stops.length - 1]?.name ?? ''}
+              startStop={startStopName}
+              endStop={endStopName}
               lineNumber={segment.line?.shortName ?? ''}
               lineName={segment.line?.longName ?? ''}
               scheduledTimeOfDeparture={segment.stops?.[0]?.departureTime ?? ''}
-              stops={segment.stops?.map((stop) => stop.name ?? '') ?? []}
+              stops={stopNames}
               color={segment.line?.color ?? ''}
             />
           );
         }
-        return <></>;
+        return null;
       }) ?? [];
 
     const start = () => {
-      if (segments?.[0]?.type === 'walk') {
-        return <TransitPartStart label={segments?.[0]?.stops?.[0]?.name ?? ''} />;
+      if (segments?.[0]?.type === 'Walk') {
+        const key = `start-${segments[0]?.stops?.[0]?.id ?? 'start'}`;
+        return <TransitPartStart key={key} label={segments[0]?.stops?.[0]?.name ?? ''} />;
       }
-
-      return <></>;
+      return null;
     };
 
     const end = () => {
-      if (segments?.[segments.length - 1]?.type === 'walk') {
-        return (
-          <TransitPartStop
-            label={
-              segments?.[segments.length - 1]?.stops?.[
-                (segments?.[segments.length - 1]?.stops?.length ?? 1) - 1
-              ]?.name ?? ''
-            }
-          />
-        );
+      const lastSegment = segments?.[segments.length - 1];
+      if (lastSegment?.type === 'Walk') {
+        const lastStopIndex = (lastSegment.stops?.length ?? 1) - 1;
+        const lastStop = lastSegment.stops?.[lastStopIndex];
+        const key = `end-${lastStop?.id ?? 'end'}`;
+        return <TransitPartStop key={key} label={lastStop?.name ?? ''} />;
       }
-
-      return <></>;
+      return null;
     };
 
-    return [start(), ...parts, end()];
-  };
+    return [start(), ...parts, end()].filter(Boolean);
+  }, [path]);
 
-  const summaryItems = path?.segments?.map((segment) => {
-    const type = segment.type === 'Walk' ? 'walk' : segment.line?.type.toLowerCase();
+  const memoizedSummaryItems = useMemo(() => {
+    console.log('Recalculating summary items');
+    return (
+      path?.segments?.map((segment) => {
+        const type = segment.type === 'Walk' ? 'walk' : segment.line?.type.toLowerCase();
 
-    return {
-      type: type as 'walk' | 'bus' | 'subway' | 'tram',
-      label: segment.line?.shortName,
-      color: segment.line?.color,
-    };
-  });
+        return {
+          type: type as 'walk' | 'bus' | 'subway' | 'tram',
+          label: segment.line?.shortName,
+          color: segment.line?.color,
+        };
+      }) ?? []
+    );
+  }, [path]);
+
+  const backgroundStyle = useMemo(
+    () => ({
+      backgroundColor: theme.background,
+    }),
+    [theme.background]
+  );
+
+  const sheetStyle = useMemo(
+    () => ({
+      borderWidth: 1,
+      borderLeftWidth: 0,
+      borderRightWidth: 0,
+      borderBottomWidth: 0,
+      borderTopLeftRadius: 16,
+      borderTopRightRadius: 16,
+      borderColor: theme.border,
+    }),
+    [theme.border]
+  );
 
   return (
     <BottomSheet
@@ -358,23 +388,15 @@ export const NavigationBottomSheet = ({ path }: NavigationBottomSheetProps) => {
       snapPoints={snapPoints}
       index={0}
       handleComponent={CustomHandle}
-      backgroundStyle={{
-        backgroundColor: theme.background,
-      }}
-      style={{
-        borderWidth: 1,
-        borderLeftWidth: 0,
-        borderRightWidth: 0,
-        borderBottomWidth: 0,
-        borderTopLeftRadius: 16,
-        borderTopRightRadius: 16,
-        borderColor: theme.border,
-      }}>
+      backgroundStyle={backgroundStyle}
+      style={sheetStyle}>
       <BottomSheetScrollView>
-        <TopBar className="mx-auto mt-4" items={summaryItems} />
+        <TopBar className="mx-auto mt-4" items={memoizedSummaryItems} />
 
-        <View className="my-4">{guidelines()}</View>
+        <View className="my-4">{memoizedGuidelines}</View>
       </BottomSheetScrollView>
     </BottomSheet>
   );
-};
+});
+
+NavigationBottomSheet.displayName = 'NavigationBottomSheet';

@@ -60,9 +60,10 @@ export default function App() {
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  const mutationCreateGroup = $api.useMutation('post', '/api/groups');
+  const numberOfGroupsInProgress = queryGroups.data?.length;
+  const shouldShowCreateGroupButton = numberOfGroupsInProgress === 0;
 
-  const mutationJoinGroup = $api.useMutation('post', '/api/groups/join/code/{code}');
+  const mutationCreateGroup = $api.useMutation('post', '/api/groups');
 
   const queryClient = useQueryClient();
   const invalidateQueryGroups = useCallback(() => {
@@ -77,22 +78,8 @@ export default function App() {
       },
       {
         onSuccess(data, variables, context) {
-          mutationJoinGroup.mutate(
-            {
-              headers: { Authorization: `Bearer ${token}` },
-              params: { path: { code: data.joiningCode } },
-            },
-            {
-              onSuccess(data, variables, context) {
-                router.push(`/tabs/transits/${data.id}`);
-                invalidateQueryGroups();
-              },
-              onError: (error) => {
-                // TODO: Show translated error
-                console.error('Error joining group:', error);
-              },
-            }
-          );
+          router.push(`/tabs/transits/${data.id}`);
+          invalidateQueryGroups();
         },
         onError: (error) => {
           // TODO: Show translated error
@@ -135,18 +122,29 @@ export default function App() {
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => <GroupCard item={item} />}
       />
-      <View className="mt-4 flex-row gap-2">
-        <TouchableOpacity
-          className="flex-1 flex-row items-center justify-center rounded-2xl bg-subtle p-4"
-          onPress={handleCreateGroup}>
-          <Text className="text-primary">{t('newGroup')}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          className="flex-1 flex-row items-center justify-center rounded-2xl bg-primary p-4"
-          onPress={() => router.push('/transit/join-group')}>
-          <Text className="text-white">{t('joinGroup')}</Text>
-        </TouchableOpacity>
-      </View>
+
+      {shouldShowCreateGroupButton ? (
+        <>
+          <View className="mt-4 flex-row gap-2">
+            <TouchableOpacity
+              className="flex-1 flex-row items-center justify-center rounded-2xl bg-subtle p-4"
+              onPress={handleCreateGroup}>
+              <Text className="text-primary">{t('newGroup')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="flex-1 flex-row items-center justify-center rounded-2xl bg-primary p-4"
+              onPress={() => router.push('/transit/join-group')}>
+              <Text className="text-white">{t('joinGroup')}</Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      ) : (
+        <View className="mt-4 flex-row gap-2 rounded-2xl bg-subtle p-4 dark:bg-gray-900">
+          <Text className="text-center text-gray-600 dark:text-gray-400">
+            To create or join a new group, you need to leave your current group
+          </Text>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
