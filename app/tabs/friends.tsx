@@ -194,7 +194,7 @@ const FriendChatItem = ({
   onProfilePress: () => void;
 }) => (
   <TouchableOpacity
-    className={`border-b border-gray-100 px-7 py-3 ${isUnread && 'bg-subtle'}`}
+    className={`border-b border-muted px-7 py-3 ${isUnread && 'bg-subtle'}`}
     onPress={onPress}
     activeOpacity={0.7}
     accessibilityRole="button">
@@ -207,7 +207,7 @@ const FriendChatItem = ({
             <Image source={imageSource} className="mr-3 h-12 w-12 rounded-full" />
             {/* Status indicator */}
             <View
-              className={`absolute bottom-0 right-2 h-4 w-4 rounded-full border-2 border-white ${statusColors[status]}`}
+              className={`absolute bottom-0 right-2 h-4 w-4 rounded-full border-2 border-background ${statusColors[status]}`}
             />
           </View>
         </TouchableOpacity>
@@ -219,7 +219,7 @@ const FriendChatItem = ({
         </View>
       </View>
 
-      {/* Updated time display with indicator */}
+      {/* Time display and unread message indicator */}
       <View className="items-end gap-1">
         <View className={`h-3 w-3 rounded-full ${isUnread ? 'bg-primary' : 'bg-background'}`} />
         <Text className="text-sm text-gray-400">{time}</Text>
@@ -309,7 +309,7 @@ export default function App() {
                     imageSource={request.imageSource}
                     className="border-t border-muted">
                     <Button className="rounded-2xl" size="sm" variant="muted">
-                      <Text className="text-secondary">{t('decline')}</Text>
+                      <Text className="text-destructive">{t('decline')}</Text>
                     </Button>
                     <Button className="rounded-2xl" size="sm">
                       <Text>{t('accept')}</Text>
@@ -327,7 +327,7 @@ export default function App() {
                     imageSource={request.imageSource}
                     className="border-t border-muted">
                     <Button className="rounded-2xl" size="sm" variant="muted">
-                      <Text className="text-secondary">{t('cancel')}</Text>
+                      <Text className="text-destructive">{t('cancel')}</Text>
                     </Button>
                   </UserBar>
                 )

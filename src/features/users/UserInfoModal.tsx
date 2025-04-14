@@ -78,7 +78,7 @@ export function FriendInfoDialog({ visible, onClose, friend, onRemove }: FriendI
       </Animated.View>
 
       <Animated.View
-        className="absolute w-full rounded-t-3xl bg-white p-6"
+        className="absolute w-full rounded-t-3xl bg-background dark:bg-secondary p-6"
         style={{
           height: MODAL_HEIGHT,
           transform: [{ translateY: slideAnim }],
@@ -137,10 +137,10 @@ export function FriendInfoDialog({ visible, onClose, friend, onRemove }: FriendI
           <TouchableOpacity
             className="b-2 mt-auto w-full flex-row items-center justify-between border-t border-muted px-4 py-3"
             onPress={onRemove}>
-            {/* Left side with X icon and text */}
+            {/* Left side icon and text */}
             <View className="flex-row items-center gap-4">
-              <View className="rounded-xl bg-red-50 p-2">
-                <X size={16} color="#e37590" />
+              <View className="rounded-xl bg-red-50 dark:bg-red-200 p-2">
+                <X size={16} className="text-destructive" />
               </View>
               <Text>{t('removeFriend')}</Text>
             </View>
