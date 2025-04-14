@@ -41,8 +41,15 @@ export const useLocation = ({ mapRef }: UseLocationProps): UseLocationReturn => 
         const currentLocation = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.High,
         });
-        setLocation(currentLocation);
-        return currentLocation;
+
+        // Validate location data before setting
+        if (currentLocation && currentLocation.coords) {
+          setLocation(currentLocation);
+          return currentLocation;
+        } else {
+          console.log('Invalid location data received');
+          return null;
+        }
       } catch (error) {
         console.log('Error getting location:', error);
 
@@ -55,34 +62,39 @@ export const useLocation = ({ mapRef }: UseLocationProps): UseLocationReturn => 
         return null;
       }
     },
-    [location]
+    []
   );
 
   const centerOnUserLocation = useCallback(
     async (mapRef: React.RefObject<MapView>): Promise<boolean> => {
-      // If we don't have permission yet, request it
-      if (errorMsg) {
-        const permissionGranted = await requestLocationPermission();
-        if (!permissionGranted) return false;
-      }
+      try {
+        // If we don't have permission yet, request it
+        if (errorMsg) {
+          const permissionGranted = await requestLocationPermission();
+          if (!permissionGranted) return false;
+        }
 
-      // Get a new location and use the returned value immediately
-      // instead of relying on the state update
-      const newLocation = await getUserLocation();
+        // Get a new location and use the returned value immediately
+        // instead of relying on the state update
+        const newLocation = await getUserLocation();
 
-      // Use the new location directly
-      if (newLocation && mapRef.current) {
-        mapRef.current.animateToRegion({
-          latitude: newLocation.coords.latitude,
-          longitude: newLocation.coords.longitude,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        });
-        return true;
+        // Use the new location directly
+        if (newLocation && mapRef.current && newLocation.coords) {
+          mapRef.current.animateToRegion({
+            latitude: newLocation.coords.latitude,
+            longitude: newLocation.coords.longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          });
+          return true;
+        }
+        return false;
+      } catch (error) {
+        console.error('Error centering on user location:', error);
+        return false;
       }
-      return false;
     },
-    [errorMsg, location, mapRef]
+    [errorMsg, getUserLocation, requestLocationPermission]
   );
 
   // Reset centered status when map is moved by user
@@ -100,6 +112,9 @@ export const useLocation = ({ mapRef }: UseLocationProps): UseLocationReturn => 
       if (success) {
         setIsMapCentered(true);
       }
+    } catch (error) {
+      console.error('Error in handleCenterOnUser:', error);
+      // Don't rethrow the error to prevent app crashes
     } finally {
       setIsLocating(false);
     }

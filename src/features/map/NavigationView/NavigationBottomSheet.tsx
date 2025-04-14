@@ -3,8 +3,6 @@ import Monicon from '@monicon/native';
 import React, { useMemo, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
 
-import { MOCK_PATHS } from './mocks';
-
 import { components } from '@/src/api/openapi';
 import {
   Collapsible,
@@ -16,8 +14,6 @@ import { ChevronRight } from '@/src/lib/icons/ChevronRight';
 import { useInlineTranslations } from '@/src/lib/useInlineTranslations';
 import { useTheme } from '@/src/lib/useTheme';
 import { cn } from '@/src/lib/utils';
-
-// type UserPath = (typeof MOCK_PATHS)[number]['paths'][number];
 
 type ProposedPathDto = components['schemas']['ProposedPathDto'];
 type PathData = ProposedPathDto['paths'][number];
@@ -241,11 +237,13 @@ const TransitPartVehicle = ({
           </Text>
         </View>
 
-        <View className="flex-row items-center justify-start gap-3">
+        <View className="flex-row items-center justify-between gap-3">
           <View className="rounded-lg px-3 py-1" style={{ backgroundColor: `#${color}` }}>
             <Text className="font-bold text-white">{lineNumber}</Text>
           </View>
-          <Text className="mr-auto text-foreground">{lineName}</Text>
+          <Text className="mr-auto text-foreground">
+            {lineName.length > 28 ? `${lineName.substring(0, 28)}...` : lineName}
+          </Text>
           <Text className="font-semibold text-foreground">
             {new Date(scheduledTimeOfDeparture).toLocaleTimeString('pl-PL', {
               hour: '2-digit',
@@ -298,7 +296,9 @@ const TransitPartVehicle = ({
         <Divider className="my-2" />
 
         <View className="h-10 flex-col items-start justify-center">
-          <Text className="text-lg font-bold text-foreground">{endStop}</Text>
+          <Text className="text-lg font-bold text-foreground">
+            {endStop} ({stops?.[stops.length - 1]?.code})
+          </Text>
         </View>
       </View>
     </View>
@@ -310,8 +310,6 @@ type NavigationBottomSheetProps = {
 };
 
 export const NavigationBottomSheet = React.memo(({ path }: NavigationBottomSheetProps) => {
-  console.log('NavigationBottomSheet render');
-
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   const snapPoints = useMemo(() => ['10%', '40%', '80%', '100%'], []);
@@ -325,7 +323,7 @@ export const NavigationBottomSheet = React.memo(({ path }: NavigationBottomSheet
       segments?.map((segment, index) => {
         if (segment.type === 'Walk') {
           const key = `walk-${segment.from?.id ?? index}`;
-          return <TransitPartWalk key={key} estimatedTime={-1} distance={-1} />;
+          return <TransitPartWalk key={key} estimatedTime={1} distance={100} />;
         } else if (segment.type === 'Route') {
           const key = `vehicle-${segment.line?.type}-${segment.line?.shortName ?? index}`;
 
