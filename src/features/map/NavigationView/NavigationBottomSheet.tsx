@@ -1,9 +1,7 @@
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import Monicon from '@monicon/native';
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
-
-import { MOCK_PATHS } from './mocks';
 
 import { components } from '@/src/api/openapi';
 import {
@@ -16,8 +14,6 @@ import { ChevronRight } from '@/src/lib/icons/ChevronRight';
 import { useInlineTranslations } from '@/src/lib/useInlineTranslations';
 import { useTheme } from '@/src/lib/useTheme';
 import { cn } from '@/src/lib/utils';
-
-// type UserPath = (typeof MOCK_PATHS)[number]['paths'][number];
 
 type ProposedPathDto = components['schemas']['ProposedPathDto'];
 type PathData = ProposedPathDto['paths'][number];
@@ -193,7 +189,7 @@ type TransitPartVehicleProps = {
 
   scheduledTimeOfDeparture: string;
 
-  stops: string[];
+  stops: components['schemas']['StopDto'][];
   color: string;
 };
 
@@ -211,6 +207,8 @@ const TransitPartVehicle = ({
 }: TransitPartVehicleProps) => {
   const theme = useTheme();
   const { t } = useInlineTranslations(NAMESPACE, TRANSLATIONS);
+
+  const [open, setOpen] = useState(false);
 
   const iconMap = {
     Bus: 'ion:bus-outline',
@@ -234,14 +232,18 @@ const TransitPartVehicle = ({
 
       <View className="flex-1 flex-col">
         <View className="h-10 flex-col items-start justify-center">
-          <Text className="text-lg font-bold text-foreground">{startStop}</Text>
+          <Text className="text-lg font-bold text-foreground">
+            {startStop} ({stops?.[0]?.code})
+          </Text>
         </View>
 
-        <View className="flex-row items-center justify-start gap-3">
+        <View className="flex-row items-center justify-between gap-3">
           <View className="rounded-lg px-3 py-1" style={{ backgroundColor: `#${color}` }}>
             <Text className="font-bold text-white">{lineNumber}</Text>
           </View>
-          <Text className="mr-auto text-foreground">{lineName}</Text>
+          <Text className="mr-auto text-foreground">
+            {lineName.length > 28 ? `${lineName.substring(0, 28)}...` : lineName}
+          </Text>
           <Text className="font-semibold text-foreground">
             {new Date(scheduledTimeOfDeparture).toLocaleTimeString('pl-PL', {
               hour: '2-digit',
@@ -256,7 +258,10 @@ const TransitPartVehicle = ({
 
         <Divider className="my-2" />
 
-        <Collapsible>
+        <Collapsible
+          key={`collapsible-${startStop}-${lineNumber}`}
+          open={open}
+          onOpenChange={setOpen}>
           <CollapsibleTrigger className="flex-row items-center justify-start gap-3">
             <ChevronDown className="text-foreground" />
             <Text className="text-foreground">
@@ -264,11 +269,25 @@ const TransitPartVehicle = ({
             </Text>
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <View className="ml-10 flex-col items-start justify-start gap-2">
+            <View className="ml-10 flex-1 flex-col items-start justify-start gap-2">
               {stops.map((stop, index) => (
-                <Text key={index} className="text-foreground">
-                  {stop}
-                </Text>
+                <View
+                  key={index}
+                  className="flex w-full flex-row items-center justify-between gap-2">
+                  <Text className="text-foreground">{`${stop.name} (${stop.code})`}</Text>
+                  <Text className="text-sm text-muted-foreground">
+                    {stop.departureTime
+                      ? new Date(stop.departureTime).toLocaleTimeString('pl-PL', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })
+                      : stop.arrivalTime &&
+                        new Date(stop.arrivalTime).toLocaleTimeString('pl-PL', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                  </Text>
+                </View>
               ))}
             </View>
           </CollapsibleContent>
@@ -277,7 +296,9 @@ const TransitPartVehicle = ({
         <Divider className="my-2" />
 
         <View className="h-10 flex-col items-start justify-center">
-          <Text className="text-lg font-bold text-foreground">{endStop}</Text>
+          <Text className="text-lg font-bold text-foreground">
+            {endStop} ({stops?.[stops.length - 1]?.code})
+          </Text>
         </View>
       </View>
     </View>
@@ -289,8 +310,6 @@ type NavigationBottomSheetProps = {
 };
 
 export const NavigationBottomSheet = React.memo(({ path }: NavigationBottomSheetProps) => {
-  console.log('NavigationBottomSheet render');
-
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   const snapPoints = useMemo(() => ['10%', '40%', '80%', '100%'], []);
@@ -304,13 +323,12 @@ export const NavigationBottomSheet = React.memo(({ path }: NavigationBottomSheet
       segments?.map((segment, index) => {
         if (segment.type === 'Walk') {
           const key = `walk-${segment.from?.id ?? index}`;
-          return <TransitPartWalk key={key} estimatedTime={-1} distance={-1} />;
+          return <TransitPartWalk key={key} estimatedTime={1} distance={100} />;
         } else if (segment.type === 'Route') {
           const key = `vehicle-${segment.line?.type}-${segment.line?.shortName ?? index}`;
 
           const startStopName = segment.stops?.[0]?.name ?? '';
           const endStopName = segment.stops?.[segment.stops.length - 1]?.name ?? '';
-          const stopNames = segment.stops?.map((stop) => stop.name ?? '') ?? [];
 
           return (
             <TransitPartVehicle
@@ -321,7 +339,7 @@ export const NavigationBottomSheet = React.memo(({ path }: NavigationBottomSheet
               lineNumber={segment.line?.shortName ?? ''}
               lineName={segment.line?.longName ?? ''}
               scheduledTimeOfDeparture={segment.stops?.[0]?.departureTime ?? ''}
-              stops={stopNames}
+              stops={segment.stops}
               color={segment.line?.color ?? ''}
             />
           );

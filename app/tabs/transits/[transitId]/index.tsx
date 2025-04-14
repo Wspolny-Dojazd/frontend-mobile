@@ -1,8 +1,7 @@
 import Monicon from '@monicon/native';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, memo } from 'react';
 import {
   View,
   Text,
@@ -19,7 +18,7 @@ import { useCoordinateContext } from './_layout';
 
 import { $api } from '@/src/api/api';
 import { useGroupErrorTranslations } from '@/src/api/errors/groups/groups';
-import { Avatar, AvatarImage, AvatarFallback } from '@/src/components/ui/avatar';
+import DateTimeInput from '@/src/components/DateTimeInput';
 import { Input } from '@/src/components/ui/input';
 import { useAuth } from '@/src/context/authContext';
 import { CustomMapView } from '@/src/features/map/CustomMapView';
@@ -47,6 +46,60 @@ const TRANSLATIONS = {
   },
 };
 
+interface MembersListProps {
+  groupId: string;
+  handleRemoveMember: (userId: string) => void;
+  inviteText: string;
+}
+
+const MembersList = memo(({ groupId, handleRemoveMember, inviteText }: MembersListProps) => {
+  const { token } = useAuth();
+  const { data: members } = $api.useQuery('get', '/api/groups/{id}/members', {
+    headers: { Authorization: `Bearer ${token}` },
+    params: { path: { id: Number(groupId) } },
+  });
+
+  return (
+    <ScrollView>
+      {members?.map((member) => (
+        <View key={member.id} className="mb-4 flex flex-row items-center justify-start gap-2">
+          <View className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-gray-100">
+            <Text className="text-lg text-foreground">
+              {member.nickname.charAt(0) + member.nickname.charAt(1)}
+            </Text>
+          </View>
+
+          <View className="flex flex-row items-center justify-center gap-2">
+            <Text className="text-lg text-foreground">{member.nickname}</Text>
+            {member.isCreator && (
+              <Monicon name="streamline:crown-solid" size={24} color="#FFD700" />
+            )}
+          </View>
+
+          {member.location && (
+            <Text className="ml-2 mr-auto text-sm text-muted-foreground">
+              {member.location.latitude.toFixed(6)}, {member.location.longitude.toFixed(6)}
+            </Text>
+          )}
+
+          <Pressable
+            className="ml-2 flex h-8 w-8 items-center justify-center"
+            onPress={() => handleRemoveMember(member.id)}>
+            <XCircle className="text-gray-400" />
+          </Pressable>
+        </View>
+      ))}
+
+      <Pressable className="mb-4 flex flex-row items-center justify-start">
+        <View className="flex h-10 w-10 items-center justify-center rounded-full bg-subtle">
+          <Plus className="text-primary" />
+        </View>
+        <Text className="ml-2 text-lg text-primary">{inviteText}</Text>
+      </Pressable>
+    </ScrollView>
+  );
+});
+
 export default function TransitGroup() {
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
   const { t: tErrors } = useGroupErrorTranslations();
@@ -58,39 +111,11 @@ export default function TransitGroup() {
 
   const [selectedDateTime, setSelectedDateTime] = useState<Date>(new Date());
   const [dateTimeISO, setDateTimeISO] = useState<string>(new Date().toISOString());
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showTimePicker, setShowTimePicker] = useState(false);
 
-  const onDateChange = (event: any, selectedDate?: Date) => {
-    setShowDatePicker(false);
-
-    if (selectedDate) {
-      setSelectedDateTime(selectedDate);
-      setDateTimeISO(selectedDate.toISOString());
-      setShowTimePicker(true);
-    }
-  };
-
-  const onTimeChange = (event: any, selectedTime?: Date) => {
-    setShowTimePicker(false);
-
-    if (selectedTime) {
-      const newDateTime = new Date(selectedDateTime);
-      newDateTime.setHours(selectedTime.getHours());
-      newDateTime.setMinutes(selectedTime.getMinutes());
-
-      setSelectedDateTime(newDateTime);
-      setDateTimeISO(newDateTime.toISOString());
-    }
-  };
-
-  const handleOpenDateTimePicker = () => {
-    setShowDatePicker(true);
-  };
-
-  const formatDateTime = (date: Date) => {
-    return date.toLocaleString();
-  };
+  const handleDateTimeChange = useCallback((date: Date, dateIso: string) => {
+    setSelectedDateTime(date);
+    setDateTimeISO(dateIso);
+  }, []);
 
   const queryGroup = $api.useQuery(
     'get',
@@ -255,36 +280,7 @@ export default function TransitGroup() {
         />
       </Pressable>
 
-      <Pressable onPress={handleOpenDateTimePicker}>
-        <Input
-          containerClassName="mb-4"
-          readOnly
-          value={selectedDateTime ? formatDateTime(selectedDateTime) : t('chooseDateAndTime')}
-          leftSection={<Monicon name="famicons:calendar-sharp" size={24} color={theme.text} />}
-          rightSection={<Monicon name="circum:edit" size={24} color={theme.text} />}
-        />
-      </Pressable>
-
-      {/* TODO: Support dark/light mode */}
-      {showDatePicker && (
-        <DateTimePicker
-          testID="datePicker"
-          value={selectedDateTime}
-          mode="date"
-          display="default"
-          onChange={onDateChange}
-        />
-      )}
-
-      {showTimePicker && (
-        <DateTimePicker
-          testID="timePicker"
-          value={selectedDateTime}
-          mode="time"
-          display="default"
-          onChange={onTimeChange}
-        />
-      )}
+      <DateTimeInput selectedDateTime={selectedDateTime} onDateTimeChange={handleDateTimeChange} />
 
       <Pressable
         className="mb-4 h-[200px] w-full overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800"
@@ -313,46 +309,11 @@ export default function TransitGroup() {
 
       <Text className="mb-4 text-lg font-bold text-foreground">{t('groupMembers')}</Text>
 
-      <ScrollView>
-        {queryMembers.data?.map((member) => (
-          <View key={member.id} className="mb-4 flex flex-row items-center justify-start">
-            <Avatar className="h-10 w-10 rounded-full" alt={member.nickname}>
-              <AvatarImage source={{ uri: 'https://via.placeholder.com/150' }} />
-              <AvatarFallback>
-                <Text className="text-lg text-foreground">
-                  {member.nickname.charAt(0) + member.nickname.charAt(1)}
-                </Text>
-              </AvatarFallback>
-            </Avatar>
-
-            <View className="flex flex-row items-center justify-center gap-2">
-              <Text className="text-lg text-foreground">{member.nickname}</Text>
-              {member.isCreator && (
-                <Monicon name="streamline:crown-solid" size={24} color="#FFD700" />
-              )}
-            </View>
-
-            {member.location && (
-              <Text className="ml-2 mr-auto text-sm text-muted-foreground">
-                {member.location.latitude.toFixed(6)}, {member.location.longitude.toFixed(6)}
-              </Text>
-            )}
-
-            <Pressable
-              className="ml-2 flex h-8 w-8 items-center justify-center"
-              onPress={() => handleRemoveMember(member.id)}>
-              <XCircle className="text-gray-400" />
-            </Pressable>
-          </View>
-        ))}
-
-        <Pressable className="mb-4 flex flex-row items-center justify-start">
-          <View className="flex h-10 w-10 items-center justify-center rounded-full bg-subtle">
-            <Plus className="text-primary" />
-          </View>
-          <Text className="ml-2 text-lg text-primary">{t('inviteToGroup')}</Text>
-        </Pressable>
-      </ScrollView>
+      <MembersList
+        groupId={transitId}
+        handleRemoveMember={handleRemoveMember}
+        inviteText={t('inviteToGroup')}
+      />
 
       <Pressable
         disabled={mutationFindPaths.isPending}

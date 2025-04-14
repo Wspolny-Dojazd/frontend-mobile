@@ -1,31 +1,81 @@
 import { useDebouncedState } from '@mantine/hooks';
-import { Monicon } from '@monicon/native';
 import { useQueryClient } from '@tanstack/react-query';
 import { useColorScheme } from 'nativewind';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native';
-import MapView, { Details, Marker, Region } from 'react-native-maps';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import MapView, { Details, Region } from 'react-native-maps';
 
 import { MapPath } from './MapPath';
 import { NavigationBottomSheet } from './NavigationBottomSheet';
+import { PathOptions } from './PathOptions';
+import UserLocationMarker from './UserLocationMarker';
+import { UserPathOptions } from './UserPathOptions';
 
 import { $api } from '@/src/api/api';
-import { components } from '@/src/api/openapi';
 import { useAuth } from '@/src/context/authContext';
 import { CustomMapView } from '@/src/features/map/CustomMapView';
 import { LocationButton } from '@/src/features/map/LocationButton';
 import { useLocation } from '@/src/features/map/useLocation';
-import { useTheme } from '@/src/lib/useTheme';
-import { cn } from '@/src/lib/utils';
+import { useInlineTranslations } from '@/src/lib/useInlineTranslations';
 
-type ProposedPathDto = components['schemas']['ProposedPathDto'];
-type PathData = ProposedPathDto['paths'][number];
+const NAMESPACE = 'src/features/map/NavigationView';
+const TRANSLATIONS = {
+  en: {
+    acceptPath: 'Accept path',
+    acceptingPath: 'Accepting path...',
+  },
+  pl: {
+    acceptPath: 'Akceptuj trasę',
+    acceptingPath: 'Akceptowanie trasy...',
+  },
+};
 
 type NavigationViewProps = {
   groupId: number;
 };
 
+// Threshold for showing detailed stops on the map
+const DELTA_THRESHOLD = 0.24;
+
+type MemberMarkersProps = {
+  groupId: number;
+  selectedUserId: string | null;
+};
+
+const MemberMarkers = React.memo(({ groupId, selectedUserId }: MemberMarkersProps) => {
+  const { token } = useAuth();
+
+  const { data: members } = $api.useQuery(
+    'get',
+    '/api/groups/{id}/members',
+    {
+      headers: { Authorization: `Bearer ${token}` },
+      params: { path: { id: groupId } },
+    },
+    {
+      enabled: !!token,
+      refetchInterval: 1000,
+    }
+  );
+
+  return members?.map(
+    (member) =>
+      member.location && (
+        <UserLocationMarker
+          key={member.id}
+          latitude={member.location?.latitude}
+          longitude={member.location?.longitude}
+          userName={member.nickname}
+          isSelected={member.id === selectedUserId}
+        />
+      )
+  );
+});
+
+MemberMarkers.displayName = 'MemberMarkers'; // Helpful for debugging
+
 export const NavigationView = ({ groupId }: NavigationViewProps) => {
+  const { t } = useInlineTranslations(NAMESPACE, TRANSLATIONS);
   const { colorScheme } = useColorScheme();
   const mapRef = useRef<MapView>(null);
 
@@ -41,15 +91,10 @@ export const NavigationView = ({ groupId }: NavigationViewProps) => {
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  const queryProposedPaths = $api.useQuery(
-    'get',
-    '/api/groups/{groupId}/paths',
-    {
-      headers: { Authorization: `Bearer ${token}` },
-      params: { path: { groupId } },
-    },
-    {}
-  );
+  const queryProposedPaths = $api.useQuery('get', '/api/groups/{groupId}/paths', {
+    headers: { Authorization: `Bearer ${token}` },
+    params: { path: { groupId } },
+  });
 
   const queryAcceptedPath = $api.useQuery('get', '/api/groups/{groupId}/paths/accepted', {
     headers: { Authorization: `Bearer ${token}` },
@@ -86,10 +131,7 @@ export const NavigationView = ({ groupId }: NavigationViewProps) => {
     }
   }, [mutationAcceptPath, token, groupId, selectedPathId]);
 
-  const queryMembers = $api.useQuery('get', '/api/groups/{id}/members', {
-    headers: { Authorization: `Bearer ${token}` },
-    params: { path: { id: groupId } },
-  });
+  // const members = useMembers(groupId);
 
   useEffect(() => {
     if (queryProposedPaths.data && queryProposedPaths.data.length > 0) {
@@ -107,16 +149,16 @@ export const NavigationView = ({ groupId }: NavigationViewProps) => {
     []
   );
 
-  const [currentLatitudeDelta, setCurrentLatitudeDelta] = useDebouncedState(
-    initialRegion.latitudeDelta,
+  const [showDetailedStops, setShowDetailedStops] = useDebouncedState(
+    initialRegion.latitudeDelta < DELTA_THRESHOLD,
     100
   );
 
   const handleRegionChangeComplete = useCallback(
     (region: Region, _details: Details) => {
-      setCurrentLatitudeDelta(region.latitudeDelta);
+      setShowDetailedStops(region.latitudeDelta < DELTA_THRESHOLD);
     },
-    [setCurrentLatitudeDelta]
+    [setShowDetailedStops]
   );
 
   const proposedPaths = useMemo(() => queryProposedPaths.data || [], [queryProposedPaths.data]);
@@ -153,11 +195,11 @@ export const NavigationView = ({ groupId }: NavigationViewProps) => {
       <MapPath
         key={`map-path-${path.userId}`}
         path={path}
-        currentLatitudeDelta={Number(currentLatitudeDelta.toFixed(3))}
+        showDetailedStops={showDetailedStops}
         muted={path.userId !== selectedUserId}
       />
     ));
-  }, [usersPaths, currentLatitudeDelta, selectedUserId]);
+  }, [usersPaths, showDetailedStops, selectedUserId]);
 
   const handleSelectUser = useCallback((userId: string) => {
     setSelectedUserId(userId);
@@ -177,38 +219,6 @@ export const NavigationView = ({ groupId }: NavigationViewProps) => {
     [proposedPaths, user?.id]
   );
 
-  const renderUserPathSelectorItem = useCallback(
-    ({ item }: { item: PathData & { nickname?: string } }) => {
-      return (
-        <UserPathSelectorItem
-          path={item}
-          isSelected={item.userId === selectedUserId}
-          onSelect={handleSelectUser}
-        />
-      );
-    },
-    [selectedUserId, handleSelectUser]
-  );
-
-  const renderPathOptionItem = useCallback(
-    ({ item, index }: { item: ProposedPathDto; index: number }) => {
-      return (
-        <PathOptionSelectorItem
-          pathOption={item}
-          pathIndex={index}
-          isSelected={item.id === selectedPathId}
-          onSelect={handleSelectPathOption}
-        />
-      );
-    },
-    [selectedPathId, handleSelectPathOption]
-  );
-
-  const keyExtractor = useCallback((item: PathData) => item.userId, []);
-  const pathOptionKeyExtractor = useCallback((item: ProposedPathDto) => item.id, []);
-
-  const ItemSeparator = useCallback(() => <View className="w-3" />, []);
-
   return (
     <>
       <CustomMapView
@@ -220,61 +230,25 @@ export const NavigationView = ({ groupId }: NavigationViewProps) => {
         showsCompass={false}
         onRegionChange={handleRegionChangeComplete}>
         {userPathsComponents}
-        {queryMembers.data?.map(
-          (member) =>
-            member.location && (
-              <UserLocationMarker
-                key={member.id}
-                latitude={member.location?.latitude}
-                longitude={member.location?.longitude}
-                userName={member.nickname}
-                isSelected={member.id === selectedUserId}
-              />
-            )
-        )}
+        <MemberMarkers groupId={groupId} selectedUserId={selectedUserId} />
       </CustomMapView>
 
       {/* TODO: This should be like on mockups */}
       <View className="absolute left-0 right-0 top-0 mx-8 mt-12 shadow-lg">
         {!isPathAccepted && proposedPaths.length > 0 && (
-          <FlatList<ProposedPathDto>
-            horizontal
-            data={proposedPaths}
-            keyExtractor={pathOptionKeyExtractor}
-            renderItem={renderPathOptionItem}
-            ItemSeparatorComponent={ItemSeparator}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{
-              paddingHorizontal: 2,
-              flexGrow: 1,
-              justifyContent: 'center',
-            }}
-            initialNumToRender={5}
-            maxToRenderPerBatch={3}
-            windowSize={9}
+          <PathOptions
+            proposedPaths={proposedPaths}
+            selectedPathId={selectedPathId}
+            onSelectPath={handleSelectPathOption}
           />
         )}
 
         {usersPaths && usersPaths.length > 0 && (
-          <FlatList<PathData & { nickname?: string }>
-            horizontal
-            data={usersPaths.map((path) => ({
-              ...path,
-              nickname: queryMembers.data?.find((member) => member.id === path.userId)?.nickname,
-            }))}
-            keyExtractor={keyExtractor}
-            renderItem={renderUserPathSelectorItem}
-            ItemSeparatorComponent={ItemSeparator}
-            className="mt-4"
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{
-              paddingHorizontal: 2,
-              flexGrow: 1,
-              justifyContent: 'center',
-            }}
-            initialNumToRender={7}
-            maxToRenderPerBatch={5}
-            windowSize={11}
+          <UserPathOptions
+            usersPaths={usersPaths}
+            groupId={groupId}
+            selectedUserId={selectedUserId}
+            onSelectUser={handleSelectUser}
           />
         )}
       </View>
@@ -288,8 +262,6 @@ export const NavigationView = ({ groupId }: NavigationViewProps) => {
         className="absolute bottom-44 right-5"
       />
 
-      {selectedUserPath && <NavigationBottomSheet path={selectedUserPath} />}
-
       {!queryAcceptedPath.isLoading && !isPathAccepted && (
         <Pressable
           className="absolute bottom-28 left-0 right-0 mx-8 flex-row items-center justify-center rounded-lg bg-primary py-2"
@@ -298,134 +270,15 @@ export const NavigationView = ({ groupId }: NavigationViewProps) => {
           {mutationAcceptPath.isPending ? (
             <View className="flex-row items-center justify-center">
               <ActivityIndicator size="small" color="#ffffff" className="mr-2" />
-              {/* TODO: Translation */}
-              <Text className="text-lg font-semibold text-white">Accepting path...</Text>
+              <Text className="text-lg font-semibold text-white">{t('acceptingPath')}</Text>
             </View>
           ) : (
-            // TODO: Translation
-            <Text className="text-lg font-semibold text-white">Accept path</Text>
+            <Text className="text-lg font-semibold text-white">{t('acceptPath')}</Text>
           )}
         </Pressable>
       )}
+
+      {selectedUserPath && <NavigationBottomSheet path={selectedUserPath} />}
     </>
   );
 };
-
-type UserLocationMarkerProps = {
-  latitude: number;
-  longitude: number;
-  userName: string;
-  isSelected?: boolean;
-};
-
-const UserLocationMarker = React.memo(
-  ({ latitude, longitude, userName, isSelected = false }: UserLocationMarkerProps) => {
-    const initials = userName.slice(0, 2);
-
-    return (
-      <Marker
-        key={`user-location-marker-${userName}`}
-        coordinate={{ latitude, longitude }}
-        anchor={{ x: 0.5, y: 0.5 }}
-        style={{ overflow: 'visible', zIndex: 200 }}>
-        <View
-          className={cn(
-            'h-10 w-10 flex-row items-center justify-center rounded-full border-2 border-gray-200 dark:border-gray-700',
-            isSelected ? 'border-white bg-primary dark:text-white' : ' bg-white dark:bg-gray-800'
-          )}>
-          <Text
-            className={cn(
-              'font-bold',
-              isSelected ? 'text-primary-foreground' : 'text-foreground dark:text-gray-300'
-            )}>
-            {initials}
-          </Text>
-        </View>
-      </Marker>
-    );
-  }
-);
-UserLocationMarker.displayName = 'UserLocationMarker';
-
-type PathOptionSelectorItemProps = {
-  pathOption: ProposedPathDto;
-  pathIndex: number;
-  isSelected: boolean;
-  onSelect: (pathId: string) => void;
-};
-
-const PathOptionSelectorItem = React.memo(
-  ({ pathOption, pathIndex, isSelected, onSelect }: PathOptionSelectorItemProps) => {
-    const theme = useTheme();
-    const handlePress = useCallback(() => {
-      onSelect(pathOption.id);
-    }, [onSelect, pathOption.id]);
-
-    return (
-      <Pressable
-        className={cn(
-          'flex-row items-center justify-center rounded-xl px-4 py-2.5 shadow-sm',
-          isSelected ? 'bg-primary shadow-md' : 'bg-gray-100 dark:bg-gray-800'
-        )}
-        onPress={handlePress}>
-        <View className="flex-row items-center gap-2">
-          <Monicon
-            name="tabler:route-alt-left"
-            size={16}
-            color={isSelected ? 'white' : theme.border}
-          />
-          <Text
-            className={cn(
-              'text-base font-semibold',
-              isSelected ? 'text-white' : 'text-gray-600 dark:text-gray-300'
-            )}>
-            Path {pathIndex + 1}
-          </Text>
-        </View>
-      </Pressable>
-    );
-  }
-);
-PathOptionSelectorItem.displayName = 'PathOptionSelectorItem';
-
-type UserPathSelectorItemProps = {
-  path: PathData & { nickname?: string };
-  isSelected: boolean;
-  onSelect: (userId: string) => void;
-};
-
-const UserPathSelectorItem = React.memo(
-  ({ path, isSelected, onSelect }: UserPathSelectorItemProps) => {
-    const handlePress = useCallback(() => {
-      onSelect(path.userId);
-    }, [onSelect, path.userId]);
-
-    const muted = !isSelected;
-
-    return (
-      <Pressable
-        className={cn(
-          'flex-row items-center justify-center rounded-xl px-4 py-2.5 shadow-sm',
-          muted ? 'bg-gray-100 dark:bg-gray-800' : 'bg-primary shadow-md'
-        )}
-        onPress={handlePress}>
-        <View className="flex-row items-center gap-2">
-          <View
-            className={cn(
-              'h-2 w-2 rounded-full',
-              muted ? 'bg-gray-400 dark:bg-gray-600' : 'bg-white'
-            )}
-          />
-          <Text
-            className={cn(
-              'text-base font-semibold',
-              muted ? 'text-gray-600 dark:text-gray-300' : 'text-white'
-            )}>
-            {path.nickname ?? path.userId.slice(0, 6)}
-          </Text>
-        </View>
-      </Pressable>
-    );
-  }
-);
-UserPathSelectorItem.displayName = 'UserPathSelectorItem';

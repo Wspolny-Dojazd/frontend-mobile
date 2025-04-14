@@ -185,6 +185,7 @@ export type SearchLocationViewProps = {
   setSelectedCoordinate: (coordinate: Coordinate | null) => void;
   showBackButton?: boolean;
   onAccept?: () => void;
+  acceptButtonText?: string;
 };
 
 export const SearchLocationView = ({
@@ -192,6 +193,7 @@ export const SearchLocationView = ({
   setSelectedCoordinate,
   showBackButton = false,
   onAccept,
+  acceptButtonText,
 }: SearchLocationViewProps) => {
   const { t } = useInlineTranslations(NAMESPACE, TRANSLATIONS);
   const { colorScheme } = useColorScheme();
@@ -339,6 +341,7 @@ export const SearchLocationView = ({
         onClose={handleClosePress}
         index={bottomSheetIndex}
         onAccept={onAccept}
+        acceptButtonText={acceptButtonText}
       />
     </>
   );
