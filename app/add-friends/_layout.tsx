@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 
-export default function AddFriendsLayout() {
+export default function MapTestLayout() {
   return (
     <Stack>
       <Stack.Screen
