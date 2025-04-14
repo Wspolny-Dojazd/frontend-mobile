@@ -78,7 +78,7 @@ export function FriendInfoDialog({ visible, onClose, friend, onRemove }: FriendI
       </Animated.View>
 
       <Animated.View
-        className="absolute w-full rounded-t-3xl bg-background dark:bg-secondary p-6"
+        className="absolute w-full rounded-t-3xl bg-background p-6 dark:bg-secondary"
         style={{
           height: MODAL_HEIGHT,
           transform: [{ translateY: slideAnim }],
@@ -139,7 +139,7 @@ export function FriendInfoDialog({ visible, onClose, friend, onRemove }: FriendI
             onPress={onRemove}>
             {/* Left side icon and text */}
             <View className="flex-row items-center gap-4">
-              <View className="rounded-xl bg-red-50 dark:bg-red-200 p-2">
+              <View className="rounded-xl bg-red-50 p-2 dark:bg-red-200">
                 <X size={16} className="text-destructive" />
               </View>
               <Text>{t('removeFriend')}</Text>
