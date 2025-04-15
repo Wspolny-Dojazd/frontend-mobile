@@ -4,6 +4,10 @@ import { useMemo, useRef, useCallback, useEffect, useState } from 'react';
 import { Text, View, Pressable } from 'react-native';
 import MapView, { Marker, MapPressEvent } from 'react-native-maps';
 
+import UserLocationMarker from '../UserLocationMarker';
+
+import { $api } from '@/src/api/api';
+import { useAuth } from '@/src/context/authContext';
 import { CustomMapView } from '@/src/features/map/CustomMapView';
 import { LocationButton } from '@/src/features/map/LocationButton';
 import {
@@ -175,6 +179,48 @@ const MOCK_PLACES: Place[] = [
   },
 ];
 
+// const UserLocationMarkers = () => {
+//   const { token } = useAuth();
+//   const queryGroups = $api.useQuery('get', '/api/groups', {
+//     headers: {
+//       Authorization: `Bearer ${token}`,
+//     },
+//   });
+
+//   const group = queryGroups.data?.at(0);
+
+//   const queryMembers = $api.useQuery(
+//     'get',
+//     '/api/groups/{id}/members',
+//     {
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//       },
+//       params: {
+//         path: { id: group!.id },
+//       },
+//     },
+//     {
+//       enabled: !!group?.id,
+//     }
+//   );
+
+//   const members = queryMembers.data;
+
+//   return members?.map(
+//     (member) =>
+//       member.location && (
+//         <UserLocationMarker
+//           key={member.id}
+//           latitude={member.location.latitude}
+//           longitude={member.location.longitude}
+//           userName={member.username}
+//           isSelected={false}
+//         />
+//       )
+//   );
+// };
+
 export type Coordinate = {
   latitude: number;
   longitude: number;
@@ -186,6 +232,7 @@ export type SearchLocationViewProps = {
   showBackButton?: boolean;
   onAccept?: () => void;
   acceptButtonText?: string;
+  mapComponents?: React.ReactNode;
 };
 
 export const SearchLocationView = ({
@@ -194,6 +241,7 @@ export const SearchLocationView = ({
   showBackButton = false,
   onAccept,
   acceptButtonText,
+  mapComponents,
 }: SearchLocationViewProps) => {
   const { t } = useInlineTranslations(NAMESPACE, TRANSLATIONS);
   const { colorScheme } = useColorScheme();
@@ -311,7 +359,6 @@ export const SearchLocationView = ({
       <CustomMapView
         ref={mapRef}
         initialRegion={initialRegion}
-        showsUserLocation
         showsMyLocationButton={false}
         onRegionChangeComplete={handleMapChange}
         onPress={handleMapPress}
@@ -324,6 +371,8 @@ export const SearchLocationView = ({
             pinColor={theme.primary}
           />
         )}
+
+        {mapComponents}
       </CustomMapView>
 
       <LocationButton

@@ -1,8 +1,11 @@
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 
 import { useCoordinateContext } from './_layout';
 
+import { $api } from '@/src/api/api';
+import { useAuth } from '@/src/context/authContext';
 import { SearchLocationView } from '@/src/features/map/SearchLocationView';
+import UserLocationMarker from '@/src/features/map/UserLocationMarker';
 import { useInlineTranslations } from '@/src/lib/useInlineTranslations';
 
 const NAMESPACE = 'app/tabs/transits/[transitId]/chooseDestination';
@@ -26,6 +29,33 @@ export default function ChooseDestination() {
     }
   };
 
+  const { transitId } = useLocalSearchParams<{ transitId: string }>();
+  const { token } = useAuth();
+
+  const { data: members } = $api.useQuery('get', '/api/groups/{id}/members', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    params: {
+      path: { id: Number(transitId) },
+    },
+  });
+
+  const UserLocationMarkers = () => {
+    return members?.map(
+      (member) =>
+        member.location && (
+          <UserLocationMarker
+            key={member.id}
+            latitude={member.location.latitude}
+            longitude={member.location.longitude}
+            userName={member.username}
+            isSelected={false}
+          />
+        )
+    );
+  };
+
   return (
     <SearchLocationView
       selectedCoordinate={destinationCoordinate}
@@ -33,6 +63,7 @@ export default function ChooseDestination() {
       showBackButton
       onAccept={handleCoordinateSelection}
       acceptButtonText={t('acceptButtonText')}
+      mapComponents={<UserLocationMarkers />}
     />
   );
 }

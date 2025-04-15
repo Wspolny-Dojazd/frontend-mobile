@@ -63,7 +63,7 @@ const MembersList = memo(({ groupId, handleRemoveMember, inviteText }: MembersLi
     <ScrollView>
       {members?.map((member) => (
         <View key={member.id} className="mb-4 flex flex-row items-center justify-start gap-2">
-          <View className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-gray-100">
+          <View className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-gray-900">
             <Text className="text-lg text-foreground">
               {member.nickname.charAt(0) + member.nickname.charAt(1)}
             </Text>
@@ -224,6 +224,13 @@ export default function TransitGroup() {
     params: { path: { groupId: Number(transitId) } },
   });
 
+  const queryAcceptedPath = $api.useQuery('get', '/api/groups/{groupId}/paths/accepted', {
+    headers: { Authorization: `Bearer ${token}` },
+    params: { path: { groupId: Number(transitId) } },
+  });
+
+  const isPathAccepted = !!queryAcceptedPath.data;
+
   if (queryGroup.isLoading || queryMembers.isLoading) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center">
@@ -266,7 +273,9 @@ export default function TransitGroup() {
         <Text className="text-foreground">{queryGroup.data?.joiningCode}</Text>
       </View>
 
-      <Pressable onPress={() => router.push(`/tabs/transits/${transitId}/chooseDestination`)}>
+      <Pressable
+        disabled={isPathAccepted}
+        onPress={() => router.push(`/tabs/transits/${transitId}/chooseDestination`)}>
         <Input
           containerClassName="mb-4"
           readOnly
@@ -280,9 +289,14 @@ export default function TransitGroup() {
         />
       </Pressable>
 
-      <DateTimeInput selectedDateTime={selectedDateTime} onDateTimeChange={handleDateTimeChange} />
+      <DateTimeInput
+        selectedDateTime={selectedDateTime}
+        onDateTimeChange={handleDateTimeChange}
+        disabled={isPathAccepted}
+      />
 
       <Pressable
+        disabled={isPathAccepted}
         className="mb-4 h-[200px] w-full overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800"
         onPress={() => router.push(`/tabs/transits/${transitId}/chooseDestination`)}>
         <CustomMapView

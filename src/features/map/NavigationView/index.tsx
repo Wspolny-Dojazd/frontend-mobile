@@ -8,7 +8,7 @@ import MapView, { Details, Region } from 'react-native-maps';
 import { MapPath } from './MapPath';
 import { NavigationBottomSheet } from './NavigationBottomSheet';
 import { PathOptions } from './PathOptions';
-import UserLocationMarker from './UserLocationMarker';
+import UserLocationMarker from '../UserLocationMarker';
 import { UserPathOptions } from './UserPathOptions';
 
 import { $api } from '@/src/api/api';
