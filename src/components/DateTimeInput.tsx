@@ -1,10 +1,19 @@
 import Monicon from '@monicon/native';
-import React, { memo, useState } from 'react';
+import { memo, useState } from 'react';
 import { Pressable, useColorScheme } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 import { useTheme } from '../lib/useTheme';
 import { Input } from './ui/input';
+
+const formatDateTime = (date: Date) =>
+  date.toLocaleString('pl-PL', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 
 interface DateTimeInputProps {
   selectedDateTime: Date;
@@ -20,8 +29,6 @@ const DateTimeInput = memo(
     const [dateTimeState, setDateTimeState] = useState<Date>(selectedDateTime);
     const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
     const [isTimePickerVisible, setIsTimePickerVisible] = useState(false);
-
-    const formatDateTime = (date: Date) => date.toLocaleString();
 
     const handleOpenDatePicker = () => {
       setIsDatePickerVisible(true);
@@ -62,7 +69,7 @@ const DateTimeInput = memo(
             readOnly
             value={formatDateTime(dateTimeState)}
             leftSection={<Monicon name="famicons:calendar-sharp" size={24} color={theme.text} />}
-            rightSection={<Monicon name="circum:edit" size={24} color={theme.text} />}
+            rightSection={!disabled && <Monicon name="circum:edit" size={24} color={theme.text} />}
           />
         </Pressable>
 

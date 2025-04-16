@@ -4,6 +4,12 @@ export default function MapTestLayout() {
   return (
     <Stack>
       <Stack.Screen
+        name="index"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
         name="my-profile"
         options={{
           headerShown: false,

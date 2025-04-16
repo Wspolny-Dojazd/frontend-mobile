@@ -91,15 +91,31 @@ export const NavigationView = ({ groupId }: NavigationViewProps) => {
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  const queryProposedPaths = $api.useQuery('get', '/api/groups/{groupId}/paths', {
-    headers: { Authorization: `Bearer ${token}` },
-    params: { path: { groupId } },
-  });
+  const queryProposedPaths = $api.useQuery(
+    'get',
+    '/api/groups/{groupId}/paths',
+    {
+      headers: { Authorization: `Bearer ${token}` },
+      params: { path: { groupId } },
+    },
+    {
+      enabled: !!token,
+      refetchInterval: 5000,
+    }
+  );
 
-  const queryAcceptedPath = $api.useQuery('get', '/api/groups/{groupId}/paths/accepted', {
-    headers: { Authorization: `Bearer ${token}` },
-    params: { path: { groupId } },
-  });
+  const queryAcceptedPath = $api.useQuery(
+    'get',
+    '/api/groups/{groupId}/paths/accepted',
+    {
+      headers: { Authorization: `Bearer ${token}` },
+      params: { path: { groupId } },
+    },
+    {
+      enabled: !!token,
+      refetchInterval: 5000,
+    }
+  );
 
   const isPathAccepted = useMemo(
     () => queryAcceptedPath.data !== undefined,

@@ -20,10 +20,10 @@ import {
 } from '@/src/lib/icons';
 
 // handling dummy image, and fallback image
-const avatarImage = require('../../assets/dummy-avatar.png'); // Import the image dynamically
+const avatarImage = require('../../../assets/dummy-avatar.png'); // Import the image dynamically
 const DEFAULT_IMAGE = avatarImage
   ? Image.resolveAssetSource(avatarImage).uri
-  : Image.resolveAssetSource(require('../../assets/fallback-avatar.png')).uri;
+  : Image.resolveAssetSource(require('../../../assets/fallback-avatar.png')).uri;
 
 const NAMESPACE = 'tabs/profile';
 const TRANSLATIONS = {
@@ -105,7 +105,7 @@ export default function App({ username }: { username: string }) {
         id: '2',
         icon: <Settings size={20} className="text-gray-500 dark:text-gray-400" />,
         title: t('preferences'),
-        onPress: () => router.push('/profile/preferences'),
+        onPress: () => router.push('/tabs/profile/preferences'),
       },
       {
         id: '3',
@@ -169,7 +169,7 @@ export default function App({ username }: { username: string }) {
           className="h-12 w-12 items-center justify-center rounded-full"
           onPress={() => {
             router.push({
-              pathname: '/profile/my-profile',
+              pathname: '/tabs/profile/my-profile',
               params: { username, image: DEFAULT_IMAGE }, // passing the image URI
             });
           }}>

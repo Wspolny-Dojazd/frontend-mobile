@@ -25,6 +25,7 @@ import { CustomMapView } from '@/src/features/map/CustomMapView';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 import { ChevronLeft, Plus, XCircle } from '@/src/lib/icons';
 import { useTheme } from '@/src/lib/useTheme';
+import { cn } from '@/src/lib/utils';
 
 const NAMESPACE = 'app/tabs/transits/[transitId]';
 const TRANSLATIONS = {
@@ -50,55 +51,81 @@ interface MembersListProps {
   groupId: string;
   handleRemoveMember: (userId: string) => void;
   inviteText: string;
+  invitingEnabled: boolean;
 }
 
-const MembersList = memo(({ groupId, handleRemoveMember, inviteText }: MembersListProps) => {
-  const { token } = useAuth();
-  const { data: members } = $api.useQuery('get', '/api/groups/{id}/members', {
-    headers: { Authorization: `Bearer ${token}` },
-    params: { path: { id: Number(groupId) } },
-  });
+const MembersList = memo(
+  ({ groupId, handleRemoveMember, inviteText, invitingEnabled }: MembersListProps) => {
+    const { token } = useAuth();
+    const { data: members } = $api.useQuery('get', '/api/groups/{id}/members', {
+      headers: { Authorization: `Bearer ${token}` },
+      params: { path: { id: Number(groupId) } },
+    });
 
-  return (
-    <ScrollView>
-      {members?.map((member) => (
-        <View key={member.id} className="mb-4 flex flex-row items-center justify-start gap-2">
-          <View className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-gray-900">
-            <Text className="text-lg text-foreground">
-              {member.nickname.charAt(0) + member.nickname.charAt(1)}
-            </Text>
-          </View>
+    const { data: me } = $api.useQuery('get', '/api/auth/me', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-          <View className="flex flex-row items-center justify-center gap-2">
-            <Text className="text-lg text-foreground">{member.nickname}</Text>
-            {member.isCreator && (
-              <Monicon name="streamline:crown-solid" size={24} color="#FFD700" />
-            )}
-          </View>
+    const isUserCreator = members?.find((member) => member.id === me?.id)?.isCreator;
 
-          {member.location && (
+    return (
+      <ScrollView>
+        {members?.map((member) => (
+          <View key={member.id} className="mb-4 flex flex-row items-center justify-start gap-4">
+            <View
+              className={cn(
+                'relative flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-gray-900',
+                member.id === me?.id && 'bg-primary'
+              )}>
+              <Text
+                className={cn(
+                  'text-lg font-extrabold text-foreground',
+                  member.id === me?.id && 'text-primary-foreground'
+                )}>
+                {member.nickname.charAt(0) + member.nickname.charAt(1)}
+              </Text>
+              {member.isCreator && (
+                <View
+                  className={cn(
+                    'absolute -right-2 -top-2 flex items-center justify-center rounded-full border border-[#FFD700] bg-gray-100 p-1 dark:border-gray-800 dark:bg-gray-900'
+                  )}>
+                  <Monicon name="streamline:crown-solid" size={12} color="#FFD700" />
+                </View>
+              )}
+            </View>
+
+            <View className="flex flex-row items-center justify-center gap-2">
+              <Text className="text-lg text-foreground">{member.nickname}</Text>
+            </View>
+
+            {/* {member.location && (
             <Text className="ml-2 mr-auto text-sm text-muted-foreground">
               {member.location.latitude.toFixed(6)}, {member.location.longitude.toFixed(6)}
             </Text>
-          )}
+          )} */}
 
-          <Pressable
-            className="ml-2 flex h-8 w-8 items-center justify-center"
-            onPress={() => handleRemoveMember(member.id)}>
-            <XCircle className="text-gray-400" />
+            {isUserCreator && !member.isCreator && member.id !== me?.id && (
+              <Pressable
+                className="ml-auto flex h-8 w-8 items-center justify-center"
+                onPress={() => handleRemoveMember(member.id)}>
+                <XCircle className="text-gray-400" />
+              </Pressable>
+            )}
+          </View>
+        ))}
+
+        {invitingEnabled && (
+          <Pressable className="mb-4 flex flex-row items-center justify-start">
+            <View className="flex h-10 w-10 items-center justify-center rounded-full bg-subtle">
+              <Plus className="text-primary" />
+            </View>
+            <Text className="ml-2 text-lg text-primary">{inviteText}</Text>
           </Pressable>
-        </View>
-      ))}
-
-      <Pressable className="mb-4 flex flex-row items-center justify-start">
-        <View className="flex h-10 w-10 items-center justify-center rounded-full bg-subtle">
-          <Plus className="text-primary" />
-        </View>
-        <Text className="ml-2 text-lg text-primary">{inviteText}</Text>
-      </Pressable>
-    </ScrollView>
-  );
-});
+        )}
+      </ScrollView>
+    );
+  }
+);
 
 export default function TransitGroup() {
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
@@ -230,6 +257,10 @@ export default function TransitGroup() {
   });
 
   const isPathAccepted = !!queryAcceptedPath.data;
+  const destinationName = queryAcceptedPath.data?.paths
+    ?.at(0)
+    ?.segments?.at(-1)
+    ?.stops?.at(-1)?.name;
 
   if (queryGroup.isLoading || queryMembers.isLoading) {
     return (
@@ -280,12 +311,16 @@ export default function TransitGroup() {
           containerClassName="mb-4"
           readOnly
           value={
-            destinationCoordinate
-              ? `Lat: ${destinationCoordinate.latitude.toFixed(6)}, Lng: ${destinationCoordinate.longitude.toFixed(6)}`
-              : 'Select destination'
+            isPathAccepted
+              ? destinationName
+              : destinationCoordinate
+                ? `Lat: ${destinationCoordinate.latitude.toFixed(6)}, Lng: ${destinationCoordinate.longitude.toFixed(6)}`
+                : 'Select destination'
           }
           leftSection={<Monicon name="uil:map-marker" size={24} color={theme.text} />}
-          rightSection={<Monicon name="circum:edit" size={24} color={theme.text} />}
+          rightSection={
+            !isPathAccepted && <Monicon name="circum:edit" size={24} color={theme.text} />
+          }
         />
       </Pressable>
 
@@ -327,29 +362,32 @@ export default function TransitGroup() {
         groupId={transitId}
         handleRemoveMember={handleRemoveMember}
         inviteText={t('inviteToGroup')}
+        invitingEnabled={!isPathAccepted}
       />
 
-      <Pressable
-        disabled={mutationFindPaths.isPending}
-        className="mb-4 flex flex-row items-center justify-center rounded-2xl bg-primary py-4"
-        onPress={handleFindPaths}>
-        {mutationFindPaths.isPending ? (
-          <View className="flex-row items-center justify-center">
-            <ActivityIndicator size="small" color="#ffffff" className="mr-2" />
-            {/* TODO: Add to dictionary */}
-            <Text className="text-lg font-semibold text-white">Wait...</Text>
-          </View>
-        ) : (
-          <>
-            {queryPaths.data?.length && queryPaths.data.length > 0 ? (
-              // TODO: Add to dictionary
-              <Text className="text-lg text-white">Find again</Text>
-            ) : (
-              <Text className="text-lg text-white">{t('findRoute')}</Text>
-            )}
-          </>
-        )}
-      </Pressable>
+      {!isPathAccepted && (
+        <Pressable
+          disabled={mutationFindPaths.isPending}
+          className="mb-4 flex flex-row items-center justify-center rounded-2xl bg-primary py-4"
+          onPress={handleFindPaths}>
+          {mutationFindPaths.isPending ? (
+            <View className="flex-row items-center justify-center">
+              <ActivityIndicator size="small" color="#ffffff" className="mr-2" />
+              {/* TODO: Add to dictionary */}
+              <Text className="text-lg font-semibold text-white">Wait...</Text>
+            </View>
+          ) : (
+            <>
+              {queryPaths.data?.length && queryPaths.data.length > 0 ? (
+                // TODO: Add to dictionary
+                <Text className="text-lg text-white">Find again</Text>
+              ) : (
+                <Text className="text-lg text-white">{t('findRoute')}</Text>
+              )}
+            </>
+          )}
+        </Pressable>
+      )}
 
       <Pressable
         onPress={() => router.push(`/tabs/transits/${transitId}/chat`)}

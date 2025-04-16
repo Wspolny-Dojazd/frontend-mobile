@@ -4,8 +4,8 @@ import { $api } from '@/src/api/api';
 import { useAuth } from '@/src/context/authContext';
 import { NavigationView } from '@/src/features/map/NavigationView';
 import { Coordinate, SearchLocationView } from '@/src/features/map/SearchLocationView';
-import useLiveLocation from '@/src/features/map/useLiveLocation';
 import UserLocationMarker from '@/src/features/map/UserLocationMarker';
+import useLiveLocation from '@/src/features/map/useLiveLocation';
 
 export default function App() {
   const { token } = useAuth();

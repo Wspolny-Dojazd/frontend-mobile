@@ -269,13 +269,12 @@ const TransitPartVehicle = ({
             </Text>
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <View className="ml-10 flex-1 flex-col items-start justify-start gap-2">
+            <View className="flex-1 flex-col items-start justify-start gap-2">
               {stops.map((stop, index) => (
-                <View
-                  key={index}
-                  className="flex w-full flex-row items-center justify-between gap-2">
+                <View key={index} className="flex w-full flex-row items-center justify-start gap-2">
+                  <Text className="text-sm text-muted-foreground">{`${index + 1}.`}</Text>
                   <Text className="text-foreground">{`${stop.name} (${stop.code})`}</Text>
-                  <Text className="text-sm text-muted-foreground">
+                  <Text className="ml-auto text-sm text-muted-foreground">
                     {stop.departureTime
                       ? new Date(stop.departureTime).toLocaleTimeString('pl-PL', {
                           hour: '2-digit',

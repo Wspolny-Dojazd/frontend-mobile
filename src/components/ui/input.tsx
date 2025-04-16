@@ -21,10 +21,15 @@ const Input = React.forwardRef<React.ElementRef<typeof TextInput>, InputPropsWit
       leftSectionClassName,
       rightSectionClassName,
       containerClassName,
+      secureTextEntry,
+      autoCapitalize,
       ...props
     },
     ref
   ) => {
+    // For password fields, set autoCapitalize to 'none' if not explicitly set
+    const inputAutoCapitalize = autoCapitalize || (secureTextEntry ? 'none' : undefined);
+
     return (
       <View
         className={cn(
@@ -40,6 +45,8 @@ const Input = React.forwardRef<React.ElementRef<typeof TextInput>, InputPropsWit
             className
           )}
           placeholderClassName={cn('text-muted-foreground', placeholderClassName)}
+          secureTextEntry={secureTextEntry}
+          autoCapitalize={inputAutoCapitalize}
           {...props}
         />
         {rightSection && <View className={cn('px-2', rightSectionClassName)}>{rightSection}</View>}

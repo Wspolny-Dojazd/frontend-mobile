@@ -1,4 +1,5 @@
 import Monicon from '@monicon/native';
+import hash, { HashName } from 'object-hash';
 import React, { Fragment, useMemo } from 'react';
 import { Text, View } from 'react-native';
 import { Marker, Polyline } from 'react-native-maps';
@@ -18,19 +19,14 @@ type MapPathProps = {
 const Stop = React.memo(
   ({
     coordinate,
-    segmentKey,
-    stop,
     segmentColor,
     stopIndex,
   }: {
     coordinate: any;
-    segmentKey: string;
-    stop: any;
     segmentColor: string;
     stopIndex: number;
   }) => (
     <Marker
-      key={`${segmentKey}-stop-${stop.id}-${stopIndex}`}
       coordinate={coordinate}
       anchor={{ x: 0.5, y: 0.5 }}
       style={{ zIndex: stopIndex === 0 ? 100 : 2 + stopIndex }}
@@ -55,18 +51,15 @@ const Stop = React.memo(
 
 const RouteMarker = React.memo(
   ({
-    segmentKey,
     coordinate,
     segmentColor,
     shortName,
   }: {
-    segmentKey: string;
-    coordinate: any;
+    coordinate: { latitude: number; longitude: number };
     segmentColor: string;
     shortName: string;
   }) => (
     <Marker
-      key={`${segmentKey}-marker`}
       coordinate={coordinate}
       anchor={{ x: 0.5, y: 0.5 }}
       style={{ overflow: 'visible', zIndex: 100 }}
@@ -83,20 +76,15 @@ const RouteMarker = React.memo(
 
 const PathShape = React.memo(
   ({
-    segmentKey,
-    shapeIndex,
     coords,
     color,
     muted,
   }: {
-    segmentKey: string;
-    shapeIndex: number;
-    coords: any[];
+    coords: PathData['segments'][number]['shapes'][number]['coords'];
     color: string;
     muted: boolean;
   }) => (
     <Polyline
-      key={`${segmentKey}-shape-${shapeIndex}`}
       coordinates={coords}
       strokeWidth={3}
       strokeColor={muted ? `${color}44` : color}
@@ -108,84 +96,74 @@ const PathShape = React.memo(
 const PathSegment = React.memo(
   ({
     segment,
-    index,
-    pathUserId,
     showDetailedStops,
     muted,
   }: {
-    segment: any;
-    index: number;
-    pathUserId: string;
+    segment: PathData['segments'][number];
     showDetailedStops: boolean;
     muted: boolean;
   }) => {
-    const segmentKey = useMemo(
-      () => `${pathUserId}-segment-${segment.line?.shortName ?? index}`,
-      [pathUserId, segment.line?.shortName, index]
-    );
-
     const segmentColor = useMemo(
       () => `#${segment.line?.color ?? '000000'}`,
       [segment.line?.color]
     );
 
+    const firstStop = segment.stops?.[0];
+
     return (
-      <Fragment key={segmentKey}>
+      <>
         {showDetailedStops &&
           !muted &&
           segment.stops?.map(
-            (stop: any, stopIndex: number) =>
+            (stop: PathData['segments'][number]['stops'][number], stopIndex: number) =>
               stopIndex !== 0 && (
                 <Stop
-                  key={`${segmentKey}-stop-${stop.id}-${stopIndex}`}
+                  key={`stop-${stop.id}-${stopIndex}`}
                   coordinate={stop}
-                  segmentKey={segmentKey}
-                  stop={stop}
                   segmentColor={segmentColor}
                   stopIndex={stopIndex}
                 />
               )
           )}
 
-        {!muted && segment.type === 'Route' && segment.stops?.length && (
+        {!muted && segment.type === 'Route' && segment.stops?.length && firstStop && (
+          // TODO: If this is a walk segment then we should take average of two stops and show walk marker
           <RouteMarker
-            segmentKey={segmentKey}
-            coordinate={segment.stops[0]}
+            coordinate={firstStop}
             segmentColor={segmentColor}
             shortName={segment.line?.shortName ?? '?'}
           />
         )}
 
-        {segment.shapes.map((shape: any, shapeIndex: number) => (
-          <PathShape
-            key={`${segmentKey}-shape-${shapeIndex}`}
-            segmentKey={segmentKey}
-            shapeIndex={shapeIndex}
-            coords={shape.coords}
-            color={segmentColor}
-            muted={muted}
-          />
-        ))}
-      </Fragment>
+        {segment.shapes.map(
+          (shape: PathData['segments'][number]['shapes'][number], shapeIndex: number) => (
+            <PathShape
+              key={`shape-${shapeIndex}`}
+              coords={shape.coords}
+              color={segmentColor}
+              muted={muted}
+            />
+          )
+        )}
+      </>
     );
   }
 );
 
 export const MapPath = React.memo(({ path, showDetailedStops, muted }: MapPathProps) => {
-  const segments = useMemo(() => {
-    return path.segments || [];
-  }, [path.segments]);
+  const segments = path.segments ?? [];
 
   if (!segments.length) return null;
 
+  const calculateKey = (segment: PathData['segments'][number]) =>
+    `${segment.line?.shortName}-${segment.stops?.[0]?.id}-${segment.stops?.[segment.stops.length - 1]?.id}-${segment.shapes.length}-${segment.type}-${segment.from?.id}-${segment.to?.id}`;
+
   return (
     <>
-      {segments.map((segment, index) => (
+      {segments.map((segment) => (
         <PathSegment
-          key={`${path.userId}-segment-${segment.line?.shortName ?? index}`}
+          key={calculateKey(segment)}
           segment={segment}
-          index={index}
-          pathUserId={path.userId}
           showDetailedStops={showDetailedStops}
           muted={muted}
         />
@@ -193,5 +171,3 @@ export const MapPath = React.memo(({ path, showDetailedStops, muted }: MapPathPr
     </>
   );
 });
-
-MapPath.displayName = 'MapPath';
