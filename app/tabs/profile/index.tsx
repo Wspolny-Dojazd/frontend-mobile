@@ -25,6 +25,8 @@ const DEFAULT_IMAGE = avatarImage
   ? Image.resolveAssetSource(avatarImage).uri
   : Image.resolveAssetSource(require('../../../assets/fallback-avatar.png')).uri;
 
+const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
+
 const NAMESPACE = 'tabs/profile';
 const TRANSLATIONS = {
   en: {
@@ -194,6 +196,10 @@ export default function App({ username }: { username: string }) {
           }
           contentContainerStyle={{ paddingHorizontal: 8, paddingBottom: 8 }}
         />
+
+        <View className="flex-row items-center justify-center">
+          <Text className="text-foreground">Backend URL: {BACKEND_URL}</Text>
+        </View>
       </SafeAreaView>
     </SafeAreaProvider>
   );

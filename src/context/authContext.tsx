@@ -41,7 +41,7 @@ const isTokenExpired = (token: string): boolean => {
 };
 
 // Types
-type User = components['schemas']['AuthResponseDto'];
+type User = components['schemas']['UserDto'];
 type LoginCredentials = components['schemas']['LoginRequestDto'];
 type RegisterData = components['schemas']['RegisterRequestDto'];
 type LoginErrorCode = components['schemas']['LoginErrorCode'];

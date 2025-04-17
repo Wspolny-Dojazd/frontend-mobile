@@ -204,24 +204,24 @@
     "/api/auth/me": {
       "get": {
         "tags": ["Auth"],
-        "summary": "Retrieves the currently authenticated user's profile and JWT token.",
+        "summary": "Retrieves the currently authenticated user's profile.",
         "responses": {
           "200": {
             "description": "The user profile has been retrieved successfully.",
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthResponseDto"
+                  "$ref": "#/components/schemas/UserDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthResponseDto"
+                  "$ref": "#/components/schemas/UserDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthResponseDto"
+                  "$ref": "#/components/schemas/UserDto"
                 }
               }
             }
@@ -289,10 +289,118 @@
         }
       }
     },
+    "/api/auth/refresh": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Refreshes the access token using the provided refresh token.",
+        "requestBody": {
+          "description": "The request containing token and refresh token.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The token has been refreshed successfully.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The user was not found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/groups/{groupId}/paths": {
       "post": {
         "tags": ["GroupPaths"],
-        "summary": "Generates multiple proposed path sets for all users in the group\r\nbased on their locations and a desired destination.",
+        "summary": "Generates multiple proposed path sets for all users in the group\nbased on their locations and a desired destination.",
         "parameters": [
           {
             "name": "groupId",
@@ -351,6 +459,26 @@
                   "items": {
                     "$ref": "#/components/schemas/ProposedPathDto"
                   }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Cannot generate paths because one has already been accepted.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
                 }
               }
             }
@@ -712,131 +840,8 @@
               }
             }
           },
-          "403": {
-            "description": "The path does not belong to the group.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
-                }
-              }
-            }
-          },
           "404": {
             "description": "The group or the path was not found.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/groups/{groupId}/paths/reject-all": {
-      "post": {
-        "tags": ["GroupPaths"],
-        "summary": "Rejects and deletes all proposed paths for the specified group.",
-        "parameters": [
-          {
-            "name": "groupId",
-            "in": "path",
-            "description": "The identifier of the group.",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "The paths were successfully rejected."
-          },
-          "400": {
-            "description": "Cannot reject paths because one has already been accepted.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "The group was not found.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -2333,7 +2338,7 @@
   "components": {
     "schemas": {
       "AuthErrorCode": {
-        "enum": ["MISSING_TOKEN", "INVALID_TOKEN", "EXPIRED_TOKEN"],
+        "enum": ["MISSING_TOKEN", "INVALID_TOKEN", "INVALID_REFRESH_TOKEN", "EXPIRED_TOKEN"],
         "type": "string",
         "description": "Defines error codes related to authentication operations, returned in API error responses."
       },
@@ -2354,7 +2359,7 @@
         "description": "Represents a strongly-typed error response containing a machine-readable error code."
       },
       "AuthResponseDto": {
-        "required": ["email", "id", "nickname", "token", "username"],
+        "required": ["email", "id", "nickname", "refreshToken", "token", "username"],
         "type": "object",
         "properties": {
           "id": {
@@ -2374,6 +2379,10 @@
             "type": "string"
           },
           "token": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "refreshToken": {
             "minLength": 1,
             "type": "string"
           }
@@ -2458,15 +2467,9 @@
         "additionalProperties": false
       },
       "GroupPathErrorCode": {
-        "enum": [
-          "GROUP_NOT_FOUND",
-          "NO_ACCEPTED_PATH",
-          "PATH_NOT_FOUND",
-          "PATH_NOT_IN_GROUP",
-          "PATH_ALREADY_ACCEPTED"
-        ],
+        "enum": ["GROUP_NOT_FOUND", "PATH_NOT_FOUND", "PATH_NOT_IN_GROUP", "PATH_ALREADY_ACCEPTED"],
         "type": "string",
-        "description": "Defines error codes related to group path operations,\r\nreturned in API error responses."
+        "description": "Defines error codes related to group path operations,\nreturned in API error responses."
       },
       "GroupPathErrorCodeErrorResponse": {
         "required": ["code"],
@@ -2655,6 +2658,21 @@
             "items": {
               "$ref": "#/components/schemas/UserPathDto"
             }
+          }
+        },
+        "additionalProperties": false
+      },
+      "RefreshTokenRequestDto": {
+        "required": ["refreshToken", "token"],
+        "type": "object",
+        "properties": {
+          "token": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "refreshToken": {
+            "minLength": 1,
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -2913,12 +2931,16 @@
         "description": "Represents a strongly-typed error response containing a machine-readable error code."
       },
       "UserDto": {
-        "required": ["email", "id", "nickname"],
+        "required": ["email", "id", "nickname", "username"],
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "minLength": 1,
+            "type": "string"
           },
           "nickname": {
             "minLength": 1,

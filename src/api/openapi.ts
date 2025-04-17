@@ -156,7 +156,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Retrieves the currently authenticated user's profile and JWT token. */
+    /** Retrieves the currently authenticated user's profile. */
     get: {
       parameters: {
         query?: never;
@@ -172,9 +172,9 @@ export interface paths {
             [name: string]: unknown;
           };
           content: {
-            'text/plain': components['schemas']['AuthResponseDto'];
-            'application/json': components['schemas']['AuthResponseDto'];
-            'text/json': components['schemas']['AuthResponseDto'];
+            'text/plain': components['schemas']['UserDto'];
+            'application/json': components['schemas']['UserDto'];
+            'text/json': components['schemas']['UserDto'];
           };
         };
         /** @description Unauthorized */
@@ -214,6 +214,84 @@ export interface paths {
     };
     put?: never;
     post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/auth/refresh': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Refreshes the access token using the provided refresh token. */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      /** @description The request containing token and refresh token. */
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['RefreshTokenRequestDto'];
+          'text/json': components['schemas']['RefreshTokenRequestDto'];
+          'application/*+json': components['schemas']['RefreshTokenRequestDto'];
+        };
+      };
+      responses: {
+        /** @description The token has been refreshed successfully. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthResponseDto'];
+            'application/json': components['schemas']['AuthResponseDto'];
+            'text/json': components['schemas']['AuthResponseDto'];
+          };
+        };
+        /** @description The request payload is invalid. */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The user was not found. */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
     delete?: never;
     options?: never;
     head?: never;
@@ -328,6 +406,17 @@ export interface paths {
             'text/plain': components['schemas']['ProposedPathDto'][];
             'application/json': components['schemas']['ProposedPathDto'][];
             'text/json': components['schemas']['ProposedPathDto'][];
+          };
+        };
+        /** @description Cannot generate paths because one has already been accepted. */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
           };
         };
         /** @description Unauthorized */
@@ -502,99 +591,7 @@ export interface paths {
             'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
           };
         };
-        /** @description The path does not belong to the group. */
-        403: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'text/plain': components['schemas']['GroupPathErrorCodeErrorResponse'];
-            'application/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
-            'text/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
-          };
-        };
         /** @description The group or the path was not found. */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'text/plain': components['schemas']['GroupPathErrorCodeErrorResponse'];
-            'application/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
-            'text/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
-            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
-            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/groups/{groupId}/paths/reject-all': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Rejects and deletes all proposed paths for the specified group. */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** @description The identifier of the group. */
-          groupId: number;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description The paths were successfully rejected. */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Cannot reject paths because one has already been accepted. */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'text/plain': components['schemas']['GroupPathErrorCodeErrorResponse'];
-            'application/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
-            'text/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
-            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
-            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
-          };
-        };
-        /** @description The group was not found. */
         404: {
           headers: {
             [name: string]: unknown;
@@ -1604,7 +1601,7 @@ export interface components {
      * @description Defines error codes related to authentication operations, returned in API error responses.
      * @enum {string}
      */
-    AuthErrorCode: 'MISSING_TOKEN' | 'INVALID_TOKEN' | 'EXPIRED_TOKEN';
+    AuthErrorCode: 'MISSING_TOKEN' | 'INVALID_TOKEN' | 'INVALID_REFRESH_TOKEN' | 'EXPIRED_TOKEN';
     /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     AuthErrorCodeErrorResponse: {
       code: components['schemas']['AuthErrorCode'];
@@ -1618,6 +1615,7 @@ export interface components {
       nickname: string;
       email: string;
       token: string;
+      refreshToken: string;
     };
     /** @enum {string} */
     DistanceUnit: 'Kilometers' | 'Miles';
@@ -1658,7 +1656,6 @@ export interface components {
      */
     GroupPathErrorCode:
       | 'GROUP_NOT_FOUND'
-      | 'NO_ACCEPTED_PATH'
       | 'PATH_NOT_FOUND'
       | 'PATH_NOT_IN_GROUP'
       | 'PATH_ALREADY_ACCEPTED';
@@ -1737,6 +1734,10 @@ export interface components {
       /** Format: uuid */
       id: string;
       paths: components['schemas']['UserPathDto'][];
+    };
+    RefreshTokenRequestDto: {
+      token: string;
+      refreshToken: string;
     };
     /**
      * @description Defines error codes returned by the registration endpoint.
@@ -1834,8 +1835,9 @@ export interface components {
       message?: string | null;
     };
     UserDto: {
-      /** Format: int32 */
-      id: number;
+      /** Format: uuid */
+      id: string;
+      username: string;
       nickname: string;
       email: string;
     };

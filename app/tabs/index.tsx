@@ -41,7 +41,7 @@ export default function App() {
           <UserLocationMarker
             latitude={location.coords.latitude}
             longitude={location.coords.longitude}
-            userName={me.username}
+            userName={me.nickname}
             isSelected={false}
           />
         )
