@@ -1,8 +1,10 @@
 import { useRouter } from 'expo-router';
-import { useMemo } from 'react';
+import { useMemo, useState, useCallback, useEffect } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useAuth } from '@/src/context/authContext';
+import { $api } from '@/src/api/api';
 import i18n, { Language } from '@/i18n';
 import { Label } from '@/src/components/ui/label';
 import {
@@ -16,6 +18,7 @@ import {
 } from '@/src/components/ui/select';
 import { Separator } from '@/src/components/ui/separator';
 import { Text } from '@/src/components/ui/text';
+import { Button } from '@/src/components/ui/button';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 import { ChevronLeft } from '@/src/lib/icons';
 import { useColorScheme } from '@/src/lib/useColorScheme';
@@ -33,7 +36,8 @@ const TRANSLATIONS = {
       imperial: 'Imperial',
     },
     hourLabels: {
-      GGMM: 'GG:MM',
+      TwelveHour: '12 Hour',
+      TwentyFourHour: '24 Hour',
     },
     themeLabels: {
       light: 'Light',
@@ -44,6 +48,9 @@ const TRANSLATIONS = {
       en: 'English',
       pl: 'Polish',
     },
+    saveButton: 'Save changes',
+    saveSuccess: 'Preferences saved successfully',
+    saveError: 'Error saving preferences, try again later...',
   },
   pl: {
     preferences: 'Preferencje',
@@ -56,7 +63,8 @@ const TRANSLATIONS = {
       imperial: 'Imperialny',
     },
     hourLabels: {
-      GGMM: 'GG:MM',
+      TwelveHour: '12-godzinny',
+      TwentyFourHour: '24-godzinny',
     },
     themeLabels: {
       light: 'Jasny',
@@ -67,7 +75,17 @@ const TRANSLATIONS = {
       en: 'Angielski',
       pl: 'Polski',
     },
+    saveButton: 'Zapisz zmiany',
+    saveSuccess: 'Preferencje zapisane pomyślnie',
+    saveError: 'Błąd podczas zapisywania preferencji, spróbuj ponownie później...',
   },
+};
+
+type UserConfigurationDto = {
+  distanceUnit: 'Kilometers' | 'Miles';
+  language: 'Polish' | 'English';
+  theme: 'Dark' | 'Light';
+  timeSystem: 'TwelveHour' | 'TwentyFourHour';
 };
 
 export default function App() {
@@ -75,6 +93,11 @@ export default function App() {
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
   const { colorScheme, setColorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const [distanceUnit, setDistanceUnit] = useState<'Kilometers' | 'Miles'>('Kilometers');
+  const [timeSystem, setTimeSystem] = useState<'TwentyFourHour' | 'TwelveHour'>('TwentyFourHour');
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const selectedLanguage: Language = useMemo(() => {
     return i18n.language as Language;
@@ -83,6 +106,66 @@ export default function App() {
   const changeLanguage = (language: Language) => {
     i18n.changeLanguage(language);
   };
+
+  const { token } = useAuth();
+  const userConfigMutation = $api.useMutation('put', '/api/user-configuration');
+
+  const userConfigQuery = $api.useQuery('get', '/api/user-configuration', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  useEffect(() => {
+    if (userConfigQuery.data) {
+      const config = userConfigQuery.data as UserConfigurationDto;
+      setDistanceUnit(config.distanceUnit);
+      setTimeSystem(config.timeSystem);
+
+      if (config.theme === 'Dark' || config.theme === 'Light') {
+        setColorScheme(config.theme.toLowerCase() as 'dark' | 'light');
+      }
+
+      if (config.language === 'English') {
+        changeLanguage('en');
+      } else if (config.language === 'Polish') {
+        changeLanguage('pl');
+      }
+    }
+  }, [userConfigQuery.data]);
+
+  const savePreferences = useCallback(async () => {
+    setIsSaving(true);
+    setError(null);
+    setSaveMessage('');
+
+    const languageValue: 'English' | 'Polish' = selectedLanguage === 'en' ? 'English' : 'Polish';
+
+    const themeValue: 'Light' | 'Dark' = colorScheme === 'light' ? 'Light' : 'Dark';
+
+    const requestBody: UserConfigurationDto = {
+      distanceUnit,
+      timeSystem,
+      language: languageValue,
+      theme: themeValue,
+    };
+
+    try {
+      await userConfigMutation.mutateAsync({
+        body: requestBody,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setSaveMessage(t('saveSuccess'));
+    } catch (err: unknown) {
+      console.error(err);
+      setError(t('saveError'));
+    } finally {
+      setIsSaving(false);
+    }
+  }, [token, userConfigMutation, distanceUnit, timeSystem, selectedLanguage, colorScheme, t]);
 
   const insets = useSafeAreaInsets();
   const contentInsets = {
@@ -143,12 +226,6 @@ export default function App() {
                 className="text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                 {t('themeLabels.dark')}
               </SelectItem>
-              <SelectItem
-                label={t('themeLabels.system')}
-                value="system"
-                className="text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                {t('themeLabels.system')}
-              </SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>
@@ -204,7 +281,15 @@ export default function App() {
           {t('unit_metric')}
         </Label>
 
-        <Select>
+        <Select
+          value={{
+            value: distanceUnit,
+            label:
+              distanceUnit === 'Kilometers' ? t('metricLabels.metric') : t('metricLabels.imperial'),
+          }}
+          onValueChange={(option: Option) =>
+            option && setDistanceUnit(option.value as 'Kilometers' | 'Miles')
+          }>
           <SelectTrigger className="w-[140px] justify-end border-0 bg-transparent p-0">
             <View className="flex flex-row items-center">
               <SelectValue
@@ -218,14 +303,14 @@ export default function App() {
             className="w-[180px] border-gray-200 bg-white dark:border-gray-700 dark:bg-background">
             <SelectGroup>
               <SelectItem
-                label="Metric"
-                value={t('metricLabels.metric')}
+                label={t('metricLabels.metric')}
+                value="Kilometers"
                 className="text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                 {t('metricLabels.metric')}
               </SelectItem>
               <SelectItem
-                label="Imperial"
-                value={t('metricLabels.imperial')}
+                label={t('metricLabels.imperial')}
+                value="Miles"
                 className="text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                 {t('metricLabels.imperial')}
               </SelectItem>
@@ -243,7 +328,11 @@ export default function App() {
           {t('hour_format')}
         </Label>
 
-        <Select>
+        <Select
+          value={{ value: timeSystem, label: t(`hourLabels.${timeSystem}`) }}
+          onValueChange={(option: Option) =>
+            option && setTimeSystem(option.value as 'TwelveHour' | 'TwentyFourHour')
+          }>
           <SelectTrigger className="w-[140px] justify-end border-0 bg-transparent p-0">
             <View className="flex flex-row items-center">
               <SelectValue
@@ -257,10 +346,16 @@ export default function App() {
             className="w-[180px] border-gray-200 bg-white dark:border-gray-700 dark:bg-background">
             <SelectGroup>
               <SelectItem
-                label={t('hourLabels.GGMM')}
-                value={t('hourLabels.GGMM')}
+                label={t('hourLabels.TwelveHour')}
+                value="TwelveHour"
                 className="text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                {t('hourLabels.GGMM')}
+                {t('hourLabels.TwelveHour')}
+              </SelectItem>
+              <SelectItem
+                label={t('hourLabels.TwentyFourHour')}
+                value="TwentyFourHour"
+                className="text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                {t('hourLabels.TwentyFourHour')}
               </SelectItem>
             </SelectGroup>
           </SelectContent>
@@ -268,6 +363,28 @@ export default function App() {
       </View>
       <View className="w-full px-8">
         <Separator className="bg-gray-200 dark:bg-gray-700" />
+      </View>
+
+      {/* Status Messages */}
+      {saveMessage && (
+        <View className="px-8 pt-2">
+          <Text className="text-green-600">{saveMessage}</Text>
+        </View>
+      )}
+      {error && (
+        <View className="px-8 pt-2">
+          <Text className="text-red-600">{error}</Text>
+        </View>
+      )}
+
+      {/* Save Button */}
+      <View className="p-8">
+        <Button
+          onPress={savePreferences}
+          disabled={isSaving}
+          className="mt-6 w-full rounded-2xl text-center">
+          <Text>{isSaving ? '...' : t('saveButton')}</Text>
+        </Button>
       </View>
     </SafeAreaView>
   );
