@@ -10,7 +10,7 @@ import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 import { Pencil, ChevronLeft } from '@/src/lib/icons';
 import { useColorScheme } from '@/src/lib/useColorScheme';
 
-const avatarImage = require('../../assets/fallback-avatar.png'); // Import the image dynamically
+const avatarImage = require('../../../assets/fallback-avatar.png'); // Import the image dynamically
 const DEFAULT_IMAGE = Image.resolveAssetSource(avatarImage).uri;
 
 const NAMESPACE = 'profile/my-profile';

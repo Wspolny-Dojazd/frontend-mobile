@@ -19,3 +19,4 @@ export { LocateFixed } from './LocateFixed';
 export { LocateOff } from './LocateOff';
 export { MoonStar } from './MoonStar';
 export { UserRound } from './UserRound';
+export { Plus } from './Plus';

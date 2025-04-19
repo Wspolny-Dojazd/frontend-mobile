@@ -9,6 +9,18 @@ export default function MapTestLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="my-profile"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="preferences"
+        options={{
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }

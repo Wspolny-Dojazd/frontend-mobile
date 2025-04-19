@@ -49,6 +49,8 @@ type LocationBottomSheetProps = {
   } | null;
   onClose: () => void;
   index: number;
+  onAccept?: () => void;
+  acceptButtonText?: string;
 };
 
 export const LocationBottomSheet = ({
@@ -57,6 +59,8 @@ export const LocationBottomSheet = ({
   location,
   onClose,
   index,
+  onAccept,
+  acceptButtonText,
 }: LocationBottomSheetProps) => {
   const { t } = useInlineTranslations(NAMESPACE, TRANSLATIONS);
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -148,8 +152,10 @@ export const LocationBottomSheet = ({
               )}
             </View>
           </View>
-          <Pressable className="mt-4 w-full rounded-3xl bg-primary px-6 py-4">
-            <Text className="text-center text-xl font-semibold text-white">{t('newRide')}</Text>
+          <Pressable className="mt-4 w-full rounded-3xl bg-primary px-6 py-4" onPress={onAccept}>
+            <Text className="text-center text-xl font-semibold text-white">
+              {acceptButtonText ?? t('newRide')}
+            </Text>
           </Pressable>
         </View>
       </BottomSheetView>

@@ -18,13 +18,14 @@ import {
   XCircle,
   Pencil,
 } from '@/src/lib/icons';
-import { useColorScheme } from '@/src/lib/useColorScheme';
 
 // handling dummy image, and fallback image
-const avatarImage = require('../../assets/dummy-avatar.png'); // Import the image dynamically
+const avatarImage = require('../../../assets/dummy-avatar.png'); // Import the image dynamically
 const DEFAULT_IMAGE = avatarImage
   ? Image.resolveAssetSource(avatarImage).uri
-  : Image.resolveAssetSource(require('../../assets/fallback-avatar.png')).uri;
+  : Image.resolveAssetSource(require('../../../assets/fallback-avatar.png')).uri;
+
+const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
 const NAMESPACE = 'tabs/profile';
 const TRANSLATIONS = {
@@ -106,7 +107,7 @@ export default function App({ username }: { username: string }) {
         id: '2',
         icon: <Settings size={20} className="text-gray-500 dark:text-gray-400" />,
         title: t('preferences'),
-        onPress: () => router.push('/profile/preferences'),
+        onPress: () => router.push('/tabs/profile/preferences'),
       },
       {
         id: '3',
@@ -170,7 +171,7 @@ export default function App({ username }: { username: string }) {
           className="h-12 w-12 items-center justify-center rounded-full"
           onPress={() => {
             router.push({
-              pathname: '/profile/my-profile',
+              pathname: '/tabs/profile/my-profile',
               params: { username, image: DEFAULT_IMAGE }, // passing the image URI
             });
           }}>
@@ -195,6 +196,10 @@ export default function App({ username }: { username: string }) {
           }
           contentContainerStyle={{ paddingHorizontal: 8, paddingBottom: 8 }}
         />
+
+        <View className="flex-row items-center justify-center">
+          <Text className="text-foreground">Backend URL: {BACKEND_URL}</Text>
+        </View>
       </SafeAreaView>
     </SafeAreaProvider>
   );

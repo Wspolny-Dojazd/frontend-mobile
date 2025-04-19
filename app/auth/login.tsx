@@ -57,7 +57,8 @@ export default function Login() {
       setIsRedirecting(true);
       redirectTimerRef.current = setTimeout(() => {
         console.log('Login Screen: Redirect timer fired. Redirecting to /auth/profile.');
-        router.replace('/auth/profile');
+        // router.replace('/auth/profile');
+        router.replace('/tabs');
       }, REDIRECT_DELAY_MS);
     } else {
       setIsRedirecting(false);
@@ -71,7 +72,7 @@ export default function Login() {
 
   const handleLogin = () => {
     if (!email.trim() || !password.trim()) return;
-    login({ email: email.trim(), password });
+    login({ email: email.trim(), password: password.trim() });
   };
 
   // Show redirect message if applicable

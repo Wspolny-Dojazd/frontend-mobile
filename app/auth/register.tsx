@@ -16,9 +16,10 @@ const REDIRECT_DELAY_MS = 2500; //  Redirect delay duration
 const TRANSLATIONS = {
   en: {
     register: 'Create Account',
-    nickname: 'Nickname',
-    email: 'Email address',
-    password: 'Password',
+    username: 'Username *',
+    nickname: 'Display name *',
+    email: 'Email address *',
+    password: 'Password *',
     registerButton: 'Register',
     loginPrompt: 'Already have an account?',
     loginLink: 'Login here',
@@ -27,9 +28,10 @@ const TRANSLATIONS = {
   },
   pl: {
     register: 'Utwórz konto',
-    nickname: 'Pseudonim',
-    email: 'Adres email',
-    password: 'Hasło',
+    username: 'Nazwa użytkownika *',
+    nickname: 'Nazwa wyświetlana *',
+    email: 'Adres email *',
+    password: 'Hasło *',
     registerButton: 'Zarejestruj się',
     loginPrompt: 'Masz już konto?',
     loginLink: 'Zaloguj się',
@@ -40,6 +42,7 @@ const TRANSLATIONS = {
 
 export default function Register() {
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
+  const [username, setUsername] = useState('');
   const [nickname, setNickname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -58,7 +61,8 @@ export default function Register() {
       setIsRedirecting(true);
       redirectTimerRef.current = setTimeout(() => {
         console.log('Register Screen: Redirect timer fired. Redirecting to /auth/profile.');
-        router.replace('/auth/profile');
+        // router.replace('/auth/profile');
+        router.replace('/tabs');
       }, REDIRECT_DELAY_MS);
     } else {
       setIsRedirecting(false);
@@ -71,8 +75,13 @@ export default function Register() {
   }, [isInitializing, token, router]);
 
   const handleRegister = () => {
-    if (!nickname.trim() || !email.trim() || !password.trim()) return;
-    register({ nickname: nickname.trim(), email: email.trim(), password });
+    if (!username.trim() || !nickname.trim() || !email.trim() || !password.trim()) return;
+    register({
+      username: username.trim(),
+      nickname: nickname.trim(),
+      email: email.trim(),
+      password,
+    });
   };
 
   const iconPaddingClass = 'ps-[14px]';
@@ -101,6 +110,23 @@ export default function Register() {
             </View>
           )}
 
+        {/* Username Input*/}
+        <View className="relative mb-6 w-full">
+          <InputText
+            placeholder={t('username')}
+            value={username}
+            onChangeText={setUsername}
+            autoCapitalize="none"
+            className="rounded-2xl py-3 pl-12 text-black"
+            placeholderTextColor="text-muted-foreground"
+            editable={!isLoading}
+          />
+          <View
+            className={`pointer-events-none absolute inset-y-0 left-0 top-2 flex items-center ${iconPaddingClass}`}>
+            <UserRound size={24} strokeWidth={3} color="#909597" />
+          </View>
+        </View>
+
         {/* Nickname Input*/}
         <View className="relative mb-6 w-full">
           <InputText
@@ -110,7 +136,7 @@ export default function Register() {
             autoCapitalize="none"
             className="rounded-2xl py-3 pl-12 text-black"
             placeholderTextColor="text-muted-foreground"
-            editable={!isLoading} // Disable if registering
+            editable={!isLoading}
           />
           <View
             className={`pointer-events-none absolute inset-y-0 left-0 top-2 flex items-center ${iconPaddingClass}`}>

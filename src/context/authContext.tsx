@@ -1,6 +1,6 @@
-// src/context/authContext.tsx
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
+import { jwtDecode } from 'jwt-decode';
 import React, {
   createContext,
   useState,
@@ -9,33 +9,30 @@ import React, {
   useCallback,
   useEffect,
 } from 'react';
-// Removed AppState import
 
 import { $api } from '@/src/api/api';
 import { useLoginErrorTranslations } from '@/src/api/errors/auth/login';
 import { useMeErrorTranslations } from '@/src/api/errors/auth/me';
 import { useRegisterErrorTranslations } from '@/src/api/errors/auth/register';
-import { ApiError } from '@/src/api/errors/types'; // Keep if used elsewhere
+import { ApiError } from '@/src/api/errors/types';
 import { components } from '@/src/api/openapi';
+
+interface JwtPayload {
+  exp: number;
+  [key: string]: any;
+}
 
 // JWT Token validation utility
 const isTokenExpired = (token: string): boolean => {
+  console.log('Token:', token);
   try {
-    const parts = token.split('.');
-    if (parts.length !== 3) {
+    const decoded = jwtDecode<JwtPayload>(token);
+    console.log('Decoded token:', decoded);
+    if (!decoded || !decoded.exp) {
       console.error('Invalid token structure');
       return true;
     }
-    const base64Url = parts[1] as string;
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-    const payload = JSON.parse(jsonPayload);
-    const expirationTime = payload.exp * 1000; // Convert to milliseconds
+    const expirationTime = decoded.exp * 1000; // Convert to milliseconds
     return Date.now() >= expirationTime;
   } catch (error) {
     console.error('Error validating token:', error);
@@ -44,7 +41,7 @@ const isTokenExpired = (token: string): boolean => {
 };
 
 // Types
-type User = components['schemas']['AuthResponseDto'];
+type User = components['schemas']['UserDto'];
 type LoginCredentials = components['schemas']['LoginRequestDto'];
 type RegisterData = components['schemas']['RegisterRequestDto'];
 type LoginErrorCode = components['schemas']['LoginErrorCode'];
@@ -228,12 +225,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     async (credentials: LoginCredentials) => {
       setError(null);
       try {
+        console.log('Logging in', credentials);
         const data = await loginMutation.mutateAsync({ body: credentials });
+        console.log('Login response', data);
         if (data?.token) {
           await AsyncStorage.setItem(AUTH_TOKEN_KEY, data.token);
           setToken(data.token);
           setUser(data);
-          router.replace('/auth/profile');
+          // router.replace('/auth/profile');
+          router.replace('/tabs');
         } else {
           throw new Error('Login response did not contain a token.');
         }
@@ -259,7 +259,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           await AsyncStorage.setItem(AUTH_TOKEN_KEY, data.token);
           setToken(data.token);
           setUser(data);
-          router.replace('/auth/profile');
+          // router.replace('/auth/profile');
+          router.replace('/tabs');
         } else {
           throw new Error('Registration completed but no token received.');
         }
