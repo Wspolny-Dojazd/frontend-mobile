@@ -1,11 +1,13 @@
 import { useRouter } from 'expo-router';
-import { useMemo, useState, useCallback, useEffect } from 'react';
-import { TouchableOpacity, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useAuth } from '@/src/context/authContext';
-import { $api } from '@/src/api/api';
 import i18n, { Language } from '@/i18n';
+import { $api } from '@/src/api/api';
+import { usePreferencesErrorTranslations } from '@/src/api/errors/profile/preferences';
+import { Button } from '@/src/components/ui/button';
 import { Label } from '@/src/components/ui/label';
 import {
   Select,
@@ -18,10 +20,11 @@ import {
 } from '@/src/components/ui/select';
 import { Separator } from '@/src/components/ui/separator';
 import { Text } from '@/src/components/ui/text';
-import { Button } from '@/src/components/ui/button';
+import { useAuth } from '@/src/context/authContext';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 import { ChevronLeft } from '@/src/lib/icons';
 import { useColorScheme } from '@/src/lib/useColorScheme';
+import { components } from '@/src/api/openapi';
 
 const NAMESPACE = 'profile/preferences';
 const TRANSLATIONS = {
@@ -42,7 +45,6 @@ const TRANSLATIONS = {
     themeLabels: {
       light: 'Light',
       dark: 'Dark',
-      system: 'System',
     },
     languageLabels: {
       en: 'English',
@@ -51,6 +53,7 @@ const TRANSLATIONS = {
     saveButton: 'Save changes',
     saveSuccess: 'Preferences saved successfully',
     saveError: 'Error saving preferences, try again later...',
+    loading: 'Loading...',
   },
   pl: {
     preferences: 'Preferencje',
@@ -69,7 +72,6 @@ const TRANSLATIONS = {
     themeLabels: {
       light: 'Jasny',
       dark: 'Ciemny',
-      system: 'Systemowy',
     },
     languageLabels: {
       en: 'Angielski',
@@ -78,36 +80,77 @@ const TRANSLATIONS = {
     saveButton: 'Zapisz zmiany',
     saveSuccess: 'Preferencje zapisane pomyślnie',
     saveError: 'Błąd podczas zapisywania preferencji, spróbuj ponownie później...',
+    loading: 'Ładowanie...',
   },
 };
 
-type UserConfigurationDto = {
+type UserConfigurationDto = components['schemas']['UserConfigurationDto'];
+
+type PreferencesFormValues = {
   distanceUnit: 'Kilometers' | 'Miles';
-  language: 'Polish' | 'English';
-  theme: 'Dark' | 'Light';
-  timeSystem: 'TwelveHour' | 'TwentyFourHour';
+  timeSystem: 'TwentyFourHour' | 'TwelveHour';
+  theme: 'light' | 'dark';
+  language: Language;
 };
 
-export default function App() {
+const PreferenceItem = ({ label, children }: { label: string; children: React.ReactNode }) => {
+  return (
+    <>
+      <View className="flex w-full flex-row items-center justify-between px-8 py-3">
+        <Label className="text-base font-medium text-gray-700 dark:text-gray-300">{label}</Label>
+        {children}
+      </View>
+      <View className="w-full px-8">
+        <Separator className="bg-gray-200 dark:bg-gray-700" />
+      </View>
+    </>
+  );
+};
+
+export default function Preferences() {
   const router = useRouter();
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
+  const { t: translateError } = usePreferencesErrorTranslations();
   const { colorScheme, setColorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const [distanceUnit, setDistanceUnit] = useState<'Kilometers' | 'Miles'>('Kilometers');
-  const [timeSystem, setTimeSystem] = useState<'TwentyFourHour' | 'TwelveHour'>('TwentyFourHour');
-  const [isSaving, setIsSaving] = useState(false);
-  const [saveMessage, setSaveMessage] = useState('');
-  const [error, setError] = useState<string | null>(null);
-
-  const selectedLanguage: Language = useMemo(() => {
-    return i18n.language as Language;
-  }, [i18n.language]);
-
-  const changeLanguage = (language: Language) => {
-    i18n.changeLanguage(language);
-  };
-
+  const configLoadedRef = useRef(false);
   const { token } = useAuth();
+  const insets = useSafeAreaInsets();
+
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { isSubmitting },
+  } = useForm<PreferencesFormValues>({
+    defaultValues: {
+      distanceUnit: 'Kilometers',
+      timeSystem: 'TwentyFourHour',
+      theme: colorScheme === 'dark' ? 'dark' : 'light',
+      language: i18n.language as Language,
+    },
+  });
+
+  // Watch form values
+  const watchTheme = watch('theme');
+  const watchLanguage = watch('language');
+
+  // Update external state when form values change
+  useEffect(() => {
+    if (watchTheme) {
+      setColorScheme(watchTheme);
+    }
+  }, [watchTheme, setColorScheme]);
+
+  useEffect(() => {
+    if (watchLanguage && watchLanguage !== i18n.language) {
+      i18n.changeLanguage(watchLanguage);
+    }
+  }, [watchLanguage]);
+
+  const [saveMessage, setSaveMessage] = useState('');
+
   const userConfigMutation = $api.useMutation('put', '/api/user-configuration');
 
   const userConfigQuery = $api.useQuery('get', '/api/user-configuration', {
@@ -116,64 +159,79 @@ export default function App() {
     },
   });
 
+  const isLoading = userConfigQuery.isLoading;
+
   useEffect(() => {
-    if (userConfigQuery.data) {
+    if (userConfigQuery.data && !configLoadedRef.current) {
       const config = userConfigQuery.data as UserConfigurationDto;
-      setDistanceUnit(config.distanceUnit);
-      setTimeSystem(config.timeSystem);
+      setValue('distanceUnit', config.distanceUnit);
+      setValue('timeSystem', config.timeSystem);
 
       if (config.theme === 'Dark' || config.theme === 'Light') {
-        setColorScheme(config.theme.toLowerCase() as 'dark' | 'light');
+        setValue('theme', config.theme.toLowerCase() as 'dark' | 'light');
       }
 
       if (config.language === 'English') {
-        changeLanguage('en');
+        setValue('language', 'en');
       } else if (config.language === 'Polish') {
-        changeLanguage('pl');
+        setValue('language', 'pl');
       }
+
+      configLoadedRef.current = true;
     }
-  }, [userConfigQuery.data]);
+  }, [userConfigQuery.data, setValue]);
 
-  const savePreferences = useCallback(async () => {
-    setIsSaving(true);
-    setError(null);
-    setSaveMessage('');
+  const onSubmit = useCallback(
+    async (data: PreferencesFormValues) => {
+      setSaveMessage('');
 
-    const languageValue: 'English' | 'Polish' = selectedLanguage === 'en' ? 'English' : 'Polish';
+      const languageValue: 'English' | 'Polish' = data.language === 'en' ? 'English' : 'Polish';
+      const themeValue: 'Light' | 'Dark' = data.theme === 'light' ? 'Light' : 'Dark';
 
-    const themeValue: 'Light' | 'Dark' = colorScheme === 'light' ? 'Light' : 'Dark';
+      const requestBody: UserConfigurationDto = {
+        distanceUnit: data.distanceUnit,
+        timeSystem: data.timeSystem,
+        language: languageValue,
+        theme: themeValue,
+      };
 
-    const requestBody: UserConfigurationDto = {
-      distanceUnit,
-      timeSystem,
-      language: languageValue,
-      theme: themeValue,
-    };
+      try {
+        await userConfigMutation.mutateAsync({
+          body: requestBody,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-    try {
-      await userConfigMutation.mutateAsync({
-        body: requestBody,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+        setSaveMessage(t('saveSuccess'));
+      } catch (err) {
+        console.error(err);
+      }
+    },
+    [token, userConfigMutation, t]
+  );
 
-      setSaveMessage(t('saveSuccess'));
-    } catch (err: unknown) {
-      console.error(err);
-      setError(t('saveError'));
-    } finally {
-      setIsSaving(false);
-    }
-  }, [token, userConfigMutation, distanceUnit, timeSystem, selectedLanguage, colorScheme, t]);
-
-  const insets = useSafeAreaInsets();
   const contentInsets = {
     top: insets.top,
     bottom: insets.bottom,
     left: 12,
     right: 12,
   };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" color={isDark ? '#fff' : '#000'} />
+        <Text className="mt-4 text-gray-700 dark:text-gray-300">{t('loading')}</Text>
+      </SafeAreaView>
+    );
+  }
+
+  const errorMessage = userConfigMutation.error?.code
+    ? translateError(userConfigMutation.error.code)
+    : userConfigMutation.isError
+      ? translateError('INTERNAL_ERROR')
+      : null;
 
   return (
     <SafeAreaView className="flex-1">
@@ -192,178 +250,174 @@ export default function App() {
       </View>
 
       {/* Theme Section */}
-      <View className="flex w-full flex-row items-center justify-between px-8 py-3">
-        <Label className="text-base font-medium text-gray-700 dark:text-gray-300">
-          {t('theme')}
-        </Label>
-
-        <Select
-          value={{ value: colorScheme, label: t(`themeLabels.${colorScheme}`) }}
-          onValueChange={(option: Option) =>
-            option && setColorScheme(option.value as 'light' | 'dark' | 'system')
-          }>
-          <SelectTrigger className="w-[140px] justify-end border-0 bg-transparent p-0">
-            <View className="flex flex-row items-center">
-              <SelectValue
-                className="mr-1 text-base text-gray-500 dark:text-gray-300"
-                placeholder={t('theme')}
-              />
-            </View>
-          </SelectTrigger>
-          <SelectContent
-            insets={contentInsets}
-            className="w-[180px] border-gray-200 bg-white dark:border-gray-700 dark:bg-background">
-            <SelectGroup>
-              <SelectItem
-                label={t('themeLabels.light')}
-                value="light"
-                className="text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                {t('themeLabels.light')}
-              </SelectItem>
-              <SelectItem
-                label={t('themeLabels.dark')}
-                value="dark"
-                className="text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                {t('themeLabels.dark')}
-              </SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </View>
-      <View className="w-full px-8">
-        <Separator className="bg-gray-200 dark:bg-gray-700" />
-      </View>
+      <PreferenceItem label={t('theme')}>
+        <Controller
+          control={control}
+          name="theme"
+          render={({ field: { onChange, value } }) => (
+            <Select
+              value={{ value, label: t(`themeLabels.${value}`) }}
+              onValueChange={(option: Option) =>
+                option && onChange(option.value as 'light' | 'dark')
+              }>
+              <SelectTrigger className="w-[140px] justify-end border-0 bg-transparent p-0">
+                <View className="flex flex-row items-center">
+                  <SelectValue
+                    className="mr-1 text-base text-gray-500 dark:text-gray-300"
+                    placeholder={t('theme')}
+                  />
+                </View>
+              </SelectTrigger>
+              <SelectContent
+                insets={contentInsets}
+                className="w-[180px] border-gray-200 bg-white dark:border-gray-700 dark:bg-background">
+                <SelectGroup>
+                  <SelectItem
+                    label={t('themeLabels.light')}
+                    value="light"
+                    className="text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                    {t('themeLabels.light')}
+                  </SelectItem>
+                  <SelectItem
+                    label={t('themeLabels.dark')}
+                    value="dark"
+                    className="text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                    {t('themeLabels.dark')}
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          )}
+        />
+      </PreferenceItem>
 
       {/* Language Section */}
-      <View className="flex w-full flex-row items-center justify-between px-8 py-3">
-        <Label className="text-base font-medium text-gray-700 dark:text-gray-300">
-          {t('language')}
-        </Label>
-
-        <Select
-          value={{ value: selectedLanguage, label: t(`languageLabels.${selectedLanguage}`) }}
-          onValueChange={(option: Option) => option && changeLanguage(option.value as Language)}>
-          <SelectTrigger className="w-[140px] justify-end border-0 bg-transparent p-0">
-            <View className="flex flex-row items-center">
-              <SelectValue
-                className="mr-1 text-base text-gray-500 dark:text-gray-300"
-                placeholder={t('language')}
-              />
-            </View>
-          </SelectTrigger>
-          <SelectContent
-            insets={contentInsets}
-            className="w-[180px] border-gray-200 bg-white dark:border-gray-700 dark:bg-background">
-            <SelectGroup>
-              <SelectItem
-                label={t('languageLabels.en')}
-                value="en"
-                className="text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                {t('languageLabels.en')}
-              </SelectItem>
-              <SelectItem
-                label={t('languageLabels.pl')}
-                value="pl"
-                className="text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                {t('languageLabels.pl')}
-              </SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </View>
-      <View className="w-full px-8">
-        <Separator className="bg-gray-200 dark:bg-gray-700" />
-      </View>
+      <PreferenceItem label={t('language')}>
+        <Controller
+          control={control}
+          name="language"
+          render={({ field: { onChange, value } }) => (
+            <Select
+              value={{ value, label: t(`languageLabels.${value}`) }}
+              onValueChange={(option: Option) => option && onChange(option.value as Language)}>
+              <SelectTrigger className="w-[140px] justify-end border-0 bg-transparent p-0">
+                <View className="flex flex-row items-center">
+                  <SelectValue
+                    className="mr-1 text-base text-gray-500 dark:text-gray-300"
+                    placeholder={t('language')}
+                  />
+                </View>
+              </SelectTrigger>
+              <SelectContent
+                insets={contentInsets}
+                className="w-[180px] border-gray-200 bg-white dark:border-gray-700 dark:bg-background">
+                <SelectGroup>
+                  <SelectItem
+                    label={t('languageLabels.en')}
+                    value="en"
+                    className="text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                    {t('languageLabels.en')}
+                  </SelectItem>
+                  <SelectItem
+                    label={t('languageLabels.pl')}
+                    value="pl"
+                    className="text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                    {t('languageLabels.pl')}
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          )}
+        />
+      </PreferenceItem>
 
       {/* Unit of Measurement Section */}
-      <View className="flex w-full flex-row items-center justify-between px-8 py-3">
-        <Label className="text-base font-medium text-gray-700 dark:text-gray-300">
-          {t('unit_metric')}
-        </Label>
-
-        <Select
-          value={{
-            value: distanceUnit,
-            label:
-              distanceUnit === 'Kilometers' ? t('metricLabels.metric') : t('metricLabels.imperial'),
-          }}
-          onValueChange={(option: Option) =>
-            option && setDistanceUnit(option.value as 'Kilometers' | 'Miles')
-          }>
-          <SelectTrigger className="w-[140px] justify-end border-0 bg-transparent p-0">
-            <View className="flex flex-row items-center">
-              <SelectValue
-                className="mr-1 text-base text-gray-500 dark:text-gray-300"
-                placeholder={t('unit_metric')}
-              />
-            </View>
-          </SelectTrigger>
-          <SelectContent
-            insets={contentInsets}
-            className="w-[180px] border-gray-200 bg-white dark:border-gray-700 dark:bg-background">
-            <SelectGroup>
-              <SelectItem
-                label={t('metricLabels.metric')}
-                value="Kilometers"
-                className="text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                {t('metricLabels.metric')}
-              </SelectItem>
-              <SelectItem
-                label={t('metricLabels.imperial')}
-                value="Miles"
-                className="text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                {t('metricLabels.imperial')}
-              </SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </View>
-      <View className="w-full px-8">
-        <Separator className="bg-gray-200 dark:bg-gray-700" />
-      </View>
+      <PreferenceItem label={t('unit_metric')}>
+        <Controller
+          control={control}
+          name="distanceUnit"
+          render={({ field: { onChange, value } }) => (
+            <Select
+              value={{
+                value,
+                label:
+                  value === 'Kilometers' ? t('metricLabels.metric') : t('metricLabels.imperial'),
+              }}
+              onValueChange={(option: Option) =>
+                option && onChange(option.value as 'Kilometers' | 'Miles')
+              }>
+              <SelectTrigger className="w-[140px] justify-end border-0 bg-transparent p-0">
+                <View className="flex flex-row items-center">
+                  <SelectValue
+                    className="mr-1 text-base text-gray-500 dark:text-gray-300"
+                    placeholder={t('unit_metric')}
+                  />
+                </View>
+              </SelectTrigger>
+              <SelectContent
+                insets={contentInsets}
+                className="w-[180px] border-gray-200 bg-white dark:border-gray-700 dark:bg-background">
+                <SelectGroup>
+                  <SelectItem
+                    label={t('metricLabels.metric')}
+                    value="Kilometers"
+                    className="text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                    {t('metricLabels.metric')}
+                  </SelectItem>
+                  <SelectItem
+                    label={t('metricLabels.imperial')}
+                    value="Miles"
+                    className="text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                    {t('metricLabels.imperial')}
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          )}
+        />
+      </PreferenceItem>
 
       {/* Hour Format Section */}
-      <View className="flex w-full flex-row items-center justify-between px-8 py-3">
-        <Label className="text-base font-medium text-gray-700 dark:text-gray-300">
-          {t('hour_format')}
-        </Label>
-
-        <Select
-          value={{ value: timeSystem, label: t(`hourLabels.${timeSystem}`) }}
-          onValueChange={(option: Option) =>
-            option && setTimeSystem(option.value as 'TwelveHour' | 'TwentyFourHour')
-          }>
-          <SelectTrigger className="w-[140px] justify-end border-0 bg-transparent p-0">
-            <View className="flex flex-row items-center">
-              <SelectValue
-                className="mr-1 text-base text-gray-500 dark:text-gray-300"
-                placeholder={t('hour_format')}
-              />
-            </View>
-          </SelectTrigger>
-          <SelectContent
-            insets={contentInsets}
-            className="w-[180px] border-gray-200 bg-white dark:border-gray-700 dark:bg-background">
-            <SelectGroup>
-              <SelectItem
-                label={t('hourLabels.TwelveHour')}
-                value="TwelveHour"
-                className="text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                {t('hourLabels.TwelveHour')}
-              </SelectItem>
-              <SelectItem
-                label={t('hourLabels.TwentyFourHour')}
-                value="TwentyFourHour"
-                className="text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                {t('hourLabels.TwentyFourHour')}
-              </SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </View>
-      <View className="w-full px-8">
-        <Separator className="bg-gray-200 dark:bg-gray-700" />
-      </View>
+      <PreferenceItem label={t('hour_format')}>
+        <Controller
+          control={control}
+          name="timeSystem"
+          render={({ field: { onChange, value } }) => (
+            <Select
+              value={{ value, label: t(`hourLabels.${value}`) }}
+              onValueChange={(option: Option) =>
+                option && onChange(option.value as 'TwelveHour' | 'TwentyFourHour')
+              }>
+              <SelectTrigger className="w-[140px] justify-end border-0 bg-transparent p-0">
+                <View className="flex flex-row items-center">
+                  <SelectValue
+                    className="mr-1 text-base text-gray-500 dark:text-gray-300"
+                    placeholder={t('hour_format')}
+                  />
+                </View>
+              </SelectTrigger>
+              <SelectContent
+                insets={contentInsets}
+                className="w-[180px] border-gray-200 bg-white dark:border-gray-700 dark:bg-background">
+                <SelectGroup>
+                  <SelectItem
+                    label={t('hourLabels.TwelveHour')}
+                    value="TwelveHour"
+                    className="text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                    {t('hourLabels.TwelveHour')}
+                  </SelectItem>
+                  <SelectItem
+                    label={t('hourLabels.TwentyFourHour')}
+                    value="TwentyFourHour"
+                    className="text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                    {t('hourLabels.TwentyFourHour')}
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          )}
+        />
+      </PreferenceItem>
 
       {/* Status Messages */}
       {saveMessage && (
@@ -371,19 +425,23 @@ export default function App() {
           <Text className="text-green-600">{saveMessage}</Text>
         </View>
       )}
-      {error && (
+      {errorMessage && (
         <View className="px-8 pt-2">
-          <Text className="text-red-600">{error}</Text>
+          <Text className="text-red-600">{errorMessage}</Text>
         </View>
       )}
 
       {/* Save Button */}
       <View className="p-8">
         <Button
-          onPress={savePreferences}
-          disabled={isSaving}
+          onPress={handleSubmit(onSubmit)}
+          disabled={isSubmitting}
           className="mt-6 w-full rounded-2xl text-center">
-          <Text>{isSaving ? '...' : t('saveButton')}</Text>
+          {isSubmitting ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text>{t('saveButton')}</Text>
+          )}
         </Button>
       </View>
     </SafeAreaView>
