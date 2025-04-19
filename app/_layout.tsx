@@ -19,6 +19,7 @@ import { AuthProvider, useAuth } from '@/src/context/authContext';
 import { LiveLocationPoster } from '@/src/features/map/LiveLocationPoster';
 import { NAV_THEME } from '@/src/lib/constants';
 import { useColorScheme } from '@/src/lib/useColorScheme';
+import { UserPreferencesProvider } from '@/src/context/userPreferencesContext';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -115,6 +116,7 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
           <AuthProvider>
+            <UserPreferencesProvider />
             <LiveLocationPoster />
             <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
             <AuthRedirector />
