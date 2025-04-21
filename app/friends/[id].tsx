@@ -1,10 +1,37 @@
-import { View, Text, FlatList, TextInput, TouchableOpacity } from 'react-native';
+import { useState, useRef, useEffect } from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  TextInput,
+  TouchableOpacity,
+  LayoutChangeEvent,
+  Image
+} from 'react-native';
+import Monicon from '@monicon/native';
 
 type Message = {
   id: number;
   text: string;
   time: string;
   isSent: boolean;
+};
+
+// Mock user data
+const mockUser = {
+  id: 1,
+  name: 'You',
+  imageSource: {
+    uri: 'https://fastly.picsum.photos/id/852/200/200.jpg?hmac=4UHLpiS9j3YDnvq-w-MqnP5-ymiyvMs6BNV5ukoTRrI',
+  },
+};
+
+const mockFriend = {
+  id: 2,
+  name: 'John Cooper',
+  imageSource: {
+    uri: 'https://fastly.picsum.photos/id/1077/200/200.jpg?hmac=hiq7UCoz9ZFgr9HcMCpbnKhV-IMyOJqsQtVFyqmqohQ',
+  },
 };
 
 const mockMessages: Message[] = [
@@ -27,36 +54,86 @@ const mockMessages: Message[] = [
 ];
 
 export default function ChatScreen() {
+  const flatListRef = useRef<FlatList>(null);
+  const [inputHeight, setInputHeight] = useState(0);
+
+  const handleInputLayout = (event: LayoutChangeEvent) => {
+    setInputHeight(event.nativeEvent.layout.height); // Now properly typed
+  };
+
+  const scrollToBottom = () => {
+    flatListRef.current?.scrollToEnd({ animated: false });
+  };
+
+  useEffect(() => {
+    setTimeout(scrollToBottom, 300);
+  }, []);
+
+  // Auto-scroll to bottom on mount
+  useEffect(() => {
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: false });
+    }, 100);
+  }, []);
+
   const renderMessage = ({ item }: { item: Message }) => (
-    <View className={`w-full ${item.isSent ? 'items-end' : 'items-start'} mb-3`}>
-      <View className={
-        `max-w-[80%] rounded-lg p-3 ${
-          item.isSent 
-            ? 'bg-primary rounded-tr-sm' 
-            : 'bg-muted rounded-tl-sm'
-        }`
-      }>
-        <Text className={`text-base ${item.isSent ? 'text-white' : 'text-black dark:text-white'}`}>
-          {item.text}
-        </Text>
-        <Text className={`text-xs ${item.isSent ? 'text-blue-100' : 'text-gray-500'} mt-1`}>
+    <View className={`w-full flex-row ${item.isSent ? 'justify-end' : 'justify-start'} mb-3`}>
+      {/* Friend's avatar (left side) */}
+      {!item.isSent && (
+        <View className="mr-2 self-start">
+          <Image
+            source={mockFriend.imageSource}
+            className="w-10 h-10 rounded-full"
+          />
+        </View>
+      )}
+  
+      {/* Message container */}
+      <View className={`max-w-[70%] ${item.isSent ? 'items-end' : 'items-start'}`}>
+        {/* Message bubble */}
+        <View className={
+          `rounded-lg p-3 ${
+            item.isSent 
+              ? 'bg-primary rounded-tr-sm' 
+              : 'bg-muted rounded-tl-sm'
+          }`
+        }>
+          <Text className={`text-base ${item.isSent ? 'text-white' : 'text-black dark:text-white'}`}>
+            {item.text}
+          </Text>
+        </View>
+        
+        {/* Time stamp */}
+        <Text className={`text-xs text-gray-500 mt-1 ${item.isSent ? 'text-right' : 'text-left'}`}>
           {item.time}
         </Text>
       </View>
+  
+      {/* User's avatar (right side) */}
+      {item.isSent && (
+        <View className="ml-2 self-start">
+          <Image
+            source={mockUser.imageSource}
+            className="w-10 h-10 rounded-full"
+          />
+        </View>
+      )}
     </View>
   );
 
   return (
     <View className="flex-1 bg-background">
       <FlatList
-        data={mockMessages}
+        data={mockMessages.slice().reverse()}
         renderItem={renderMessage}
         keyExtractor={item => item.id.toString()}
         className="p-4 flex-1"
+        inverted
         contentContainerStyle={{ 
-          paddingBottom: 80,
+          paddingTop: 60,
+          paddingBottom: 30,
           flexGrow: 1,
-          justifyContent: 'flex-start'
+          justifyContent: 'flex-end'
         }}
         ListEmptyComponent={
           <View className="flex-1 items-center justify-center">
@@ -65,14 +142,24 @@ export default function ChatScreen() {
         }
       />
 
-      <View className="absolute bottom-0 left-0 right-0 bg-background border-t border-gray-200 p-3 flex-row items-center">
+      <View 
+        className="absolute bottom-0 left-0 right-0 bg-background p-3 flex-row items-center border-t border-muted"
+        style={{
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.25,
+          shadowRadius: 8,
+          elevation: 8,
+        }}
+        onLayout={handleInputLayout}
+      >
         <TextInput
-          className="flex-1 border border-gray-300 rounded-full px-4 py-2 mr-2"
+          className="flex-1 bg-muted rounded-full px-4 py-2 mr-2"
           placeholder="Type a message..."
           placeholderTextColor="#888"
         />
-        <TouchableOpacity className="bg-blue-500 px-5 py-2 rounded-full">
-          <Text className="text-white font-semibold">Send</Text>
+        <TouchableOpacity className="pr-2">
+          <Monicon name="circum:edit" size={36} color='#3d917c' />
         </TouchableOpacity>
       </View>
     </View>
