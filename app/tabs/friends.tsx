@@ -44,6 +44,16 @@ const statusColors: Record<Status, string> = {
   inactive: 'bg-gray-400',
 };
 
+const groupChat = {
+  id: 'group1',
+  name: 'test groupchat',
+  members: [
+    '1',
+    '2',
+    '3'
+  ],
+};
+
 const friends = [
   {
     id: 1,
@@ -278,6 +288,23 @@ export default function App() {
             </View>
           </View>
           <ScrollView contentContainerStyle={{ paddingBottom: 320 }}>
+            <FriendChatItem
+              name='test groupchat'
+              message=''
+              time='12:00'
+              imageSource=''
+              status='active'
+              isUnread={true}
+              onPress={() => router.push({
+                pathname: `/friends/${groupChat.id}`,
+                params: {
+                  ...groupChat,
+                  members: JSON.stringify(groupChat.members),
+                  chatType: 'group'
+                }
+              })}
+              onProfilePress={() => console.log(':)')}
+            />
             {friends.map((friend, index) => (
               <FriendChatItem
                 key={index}
@@ -290,7 +317,8 @@ export default function App() {
                 onPress={() => router.push({
                   pathname: `/friends/${friend.id}`,
                   params: {
-                    name: friend.name
+                    name: friend.name,
+                    chatType: 'private'
                   }
                 })}
                 onProfilePress={() => handleProfilePress(friend)}
