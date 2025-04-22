@@ -9,6 +9,8 @@ import {
   Image
 } from 'react-native';
 import Monicon from '@monicon/native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type Message = {
   id: number;
@@ -56,9 +58,11 @@ const mockMessages: Message[] = [
 export default function ChatScreen() {
   const flatListRef = useRef<FlatList>(null);
   const [inputHeight, setInputHeight] = useState(0);
+  const params = useLocalSearchParams<{ id: string; name: string }>();
+  const router = useRouter();
 
   const handleInputLayout = (event: LayoutChangeEvent) => {
-    setInputHeight(event.nativeEvent.layout.height); // Now properly typed
+    setInputHeight(event.nativeEvent.layout.height);
   };
 
   const scrollToBottom = () => {
@@ -78,7 +82,7 @@ export default function ChatScreen() {
 
   const renderMessage = ({ item }: { item: Message }) => (
     <View className={`w-full flex-row ${item.isSent ? 'justify-end' : 'justify-start'} mb-3`}>
-      {/* Friend's avatar (left side) */}
+      {/* Friend's avatar */}
       {!item.isSent && (
         <View className="mr-2 self-start">
           <Image
@@ -90,7 +94,6 @@ export default function ChatScreen() {
   
       {/* Message container */}
       <View className={`max-w-[70%] ${item.isSent ? 'items-end' : 'items-start'}`}>
-        {/* Message bubble */}
         <View className={
           `rounded-lg p-3 ${
             item.isSent 
@@ -109,7 +112,7 @@ export default function ChatScreen() {
         </Text>
       </View>
   
-      {/* User's avatar (right side) */}
+      {/* User's avatar */}
       {item.isSent && (
         <View className="ml-2 self-start">
           <Image
@@ -122,7 +125,36 @@ export default function ChatScreen() {
   );
 
   return (
-    <View className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-background">
+      {/* Header */}
+      <View className="flex-row items-center justify-between px-4 py-3 border-b border-muted bg-background">
+        <TouchableOpacity
+          onPress={() => router.back()}
+        >
+          <Monicon name="tabler:chevron-left" size={28} color="#A9A9A9" />
+        </TouchableOpacity>
+
+        <View className="flex-row items-center flex-1 mx-4">
+          <Image
+            source={{ uri: mockFriend.imageSource.uri }}
+            className="w-10 h-10 rounded-full mr-4"
+          />
+          <View>
+            <Text className="text-xl font-semibold text-black dark:text-white">
+              {params.name || 'Chat'}
+            </Text>
+            <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              Active now
+            </Text>
+          </View>
+        </View>
+
+        <TouchableOpacity className="p-2">
+          <Monicon name="tabler:location-filled" size={28} color="#3d917c" />
+        </TouchableOpacity>
+      </View>
+
+      {/* Chat */}
       <FlatList
         data={mockMessages.slice().reverse()}
         renderItem={renderMessage}
@@ -158,10 +190,10 @@ export default function ChatScreen() {
           placeholder="Type a message..."
           placeholderTextColor="#888"
         />
-        <TouchableOpacity className="pr-2">
-          <Monicon name="circum:edit" size={36} color='#3d917c' />
+        <TouchableOpacity className="px-2">
+          <Monicon name="fa:send-o" size={26} color='#3d917c' />
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }

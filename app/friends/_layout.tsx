@@ -16,14 +16,7 @@ export default function FriendsLayout() {
       />
       <Stack.Screen
         name="[id]"
-        options={({ route }) => ({
-          title: (route.params as ChatRouteParams)?.name || 'Chat',
-          headerRight: () => (
-            <View style={{ marginRight: 16 }}>
-              <Text style={{ color: 'green' }}>Active now</Text>
-            </View>
-          )
-        })}
+        options={{ headerShown: false }}
       />
     </Stack>
   );
