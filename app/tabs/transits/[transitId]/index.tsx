@@ -1,7 +1,7 @@
 import Monicon from '@monicon/native';
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useState, memo } from 'react';
+import { useCallback, useState, memo, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   Pressable,
   ScrollView,
   Alert,
+  ToastAndroid,
 } from 'react-native';
 import { Marker } from 'react-native-maps';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,10 +19,12 @@ import { useCoordinateContext } from './_layout';
 
 import { $api } from '@/src/api/api';
 import { useGroupErrorTranslations } from '@/src/api/errors/groups/groups';
+import { usePathErrorTranslations } from '@/src/api/errors/path/path';
 import DateTimeInput from '@/src/components/DateTimeInput';
 import { Input } from '@/src/components/ui/input';
 import { useAuth } from '@/src/context/authContext';
 import { CustomMapView } from '@/src/features/map/CustomMapView';
+import { useDebugCounter } from '@/src/hooks/useDebugCounter';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 import { ChevronLeft, Plus, XCircle } from '@/src/lib/icons';
 import { useTheme } from '@/src/lib/useTheme';
@@ -71,11 +74,13 @@ const MembersList = memo(
     return (
       <ScrollView>
         {members?.map((member) => (
-          <View key={member.id} className="mb-4 flex flex-row items-center justify-start gap-4">
+          <View
+            key={member.id}
+            className="mb-2 flex flex-row items-center justify-start gap-4 pt-2">
             <View
               className={cn(
                 'relative flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-gray-900',
-                member.id === me?.id && 'bg-primary'
+                member.id === me?.id && 'bg-primary dark:bg-primary'
               )}>
               <Text
                 className={cn(
@@ -128,13 +133,29 @@ const MembersList = memo(
 );
 
 export default function TransitGroup() {
+  useDebugCounter('TransitGroup');
+
+  const initialDestinationSetRef = useRef(false);
+  const { latitude, longitude } = useLocalSearchParams<{ latitude?: string; longitude?: string }>();
+  const { destinationCoordinate, setDestinationCoordinate } = useCoordinateContext();
+
+  useEffect(() => {
+    if (latitude && longitude && !initialDestinationSetRef.current) {
+      setDestinationCoordinate({
+        latitude: parseFloat(latitude),
+        longitude: parseFloat(longitude),
+      });
+      initialDestinationSetRef.current = true;
+    }
+  }, [latitude, longitude, setDestinationCoordinate]);
+
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
   const { t: tErrors } = useGroupErrorTranslations();
+  const { t: tFindPathsError } = usePathErrorTranslations();
   const { transitId } = useLocalSearchParams<{ transitId: string }>();
   const theme = useTheme();
   const router = useRouter();
   const { token } = useAuth();
-  const { destinationCoordinate } = useCoordinateContext();
 
   const [selectedDateTime, setSelectedDateTime] = useState<Date>(new Date());
   const [dateTimeISO, setDateTimeISO] = useState<string>(new Date().toISOString());
@@ -241,6 +262,9 @@ export default function TransitGroup() {
         },
         onSuccess(data, variables, context) {
           router.push(`/tabs`);
+        },
+        onError(error, variables, context) {
+          ToastAndroid.show(tFindPathsError(error.code), ToastAndroid.SHORT);
         },
       }
     );
@@ -356,7 +380,7 @@ export default function TransitGroup() {
         </CustomMapView>
       </Pressable>
 
-      <Text className="mb-4 text-lg font-bold text-foreground">{t('groupMembers')}</Text>
+      <Text className="mb-2 text-lg font-bold text-foreground">{t('groupMembers')}</Text>
 
       <MembersList
         groupId={transitId}

@@ -1,6 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useColorScheme as useNativewindColorScheme } from 'nativewind';
 import { useEffect, useCallback, useRef } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const COLOR_SCHEME_KEY = 'user-color-scheme';
 

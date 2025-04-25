@@ -278,21 +278,26 @@ export const NavigationView = ({ groupId }: NavigationViewProps) => {
         className="absolute bottom-44 right-5"
       />
 
-      {!queryAcceptedPath.isLoading && !isPathAccepted && (
-        <Pressable
-          className="absolute bottom-28 left-0 right-0 mx-8 flex-row items-center justify-center rounded-lg bg-primary py-2"
-          onPress={handleAcceptPath}
-          disabled={mutationAcceptPath.isPending}>
-          {mutationAcceptPath.isPending ? (
-            <View className="flex-row items-center justify-center">
-              <ActivityIndicator size="small" color="#ffffff" className="mr-2" />
-              <Text className="text-lg font-semibold text-white">{t('acceptingPath')}</Text>
-            </View>
-          ) : (
-            <Text className="text-lg font-semibold text-white">{t('acceptPath')}</Text>
-          )}
-        </Pressable>
-      )}
+      {!queryProposedPaths.isLoading &&
+        !queryAcceptedPath.isLoading &&
+        queryProposedPaths.data !== undefined &&
+        queryProposedPaths.data.length > 0 &&
+        selectedPathId !== null &&
+        !isPathAccepted && (
+          <Pressable
+            className="absolute bottom-28 left-0 right-0 mx-8 flex-row items-center justify-center rounded-lg bg-primary py-2"
+            onPress={handleAcceptPath}
+            disabled={mutationAcceptPath.isPending}>
+            {mutationAcceptPath.isPending ? (
+              <View className="flex-row items-center justify-center">
+                <ActivityIndicator size="small" color="#ffffff" className="mr-2" />
+                <Text className="text-lg font-semibold text-white">{t('acceptingPath')}</Text>
+              </View>
+            ) : (
+              <Text className="text-lg font-semibold text-white">{t('acceptPath')}</Text>
+            )}
+          </Pressable>
+        )}
 
       {selectedUserPath && <NavigationBottomSheet path={selectedUserPath} />}
     </>

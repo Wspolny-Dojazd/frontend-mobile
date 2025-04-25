@@ -7,6 +7,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import i18n, { Language } from '@/i18n';
 import { $api } from '@/src/api/api';
 import { usePreferencesErrorTranslations } from '@/src/api/errors/profile/preferences';
+import { components } from '@/src/api/openapi';
 import { Button } from '@/src/components/ui/button';
 import { Label } from '@/src/components/ui/label';
 import {
@@ -24,7 +25,6 @@ import { useAuth } from '@/src/context/authContext';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 import { ChevronLeft } from '@/src/lib/icons';
 import { useColorScheme } from '@/src/lib/useColorScheme';
-import { components } from '@/src/api/openapi';
 
 const NAMESPACE = 'profile/preferences';
 const TRANSLATIONS = {

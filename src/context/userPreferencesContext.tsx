@@ -1,10 +1,11 @@
 import { createContext, useContext, useEffect, ReactNode } from 'react';
 
+import { components } from '../api/openapi';
+
+import i18n from '@/i18n';
 import { $api } from '@/src/api/api';
 import { useAuth } from '@/src/context/authContext';
-import i18n from '@/i18n';
 import { useColorScheme } from '@/src/lib/useColorScheme';
-import { components } from '../api/openapi';
 
 type UserConfigurationDto = components['schemas']['UserConfigurationDto'];
 

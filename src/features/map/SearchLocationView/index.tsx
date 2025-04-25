@@ -342,7 +342,7 @@ export const SearchLocationView = ({
           )}
 
           <Text
-            className={`text-lg ${selectedPlace ? 'text-black dark:text-white' : 'text-muted-foreground'}`}>
+            className={`${selectedPlace ? 'text-black dark:text-white' : 'text-muted-foreground'}`}>
             {selectedPlace
               ? selectedPlace.name.length > 40
                 ? `${selectedPlace.name.substring(0, 40)}...`

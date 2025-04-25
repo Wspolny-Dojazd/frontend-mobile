@@ -68,7 +68,7 @@ const TopBarItem = ({ type, label, color }: TopBarItemProps) => {
   const iconMap = {
     bus: 'ion:bus-outline',
     subway: 'ic:outline-subway',
-    tram: 'ic:outline-tram',
+    tram: 'ph:tram',
     walk: 'bx:walk',
   };
   const icon = iconMap[type];

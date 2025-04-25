@@ -16,10 +16,10 @@ import {
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AuthProvider, useAuth } from '@/src/context/authContext';
+import { UserPreferencesProvider } from '@/src/context/userPreferencesContext';
 import { LiveLocationPoster } from '@/src/features/map/LiveLocationPoster';
 import { NAV_THEME } from '@/src/lib/constants';
 import { useColorScheme } from '@/src/lib/useColorScheme';
-import { UserPreferencesProvider } from '@/src/context/userPreferencesContext';
 
 const queryClient = new QueryClient({
   defaultOptions: {

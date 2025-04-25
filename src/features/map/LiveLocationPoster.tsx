@@ -7,26 +7,14 @@ import { $api } from '@/src/api/api';
 import { useAuth } from '@/src/context/authContext';
 
 const useLocationPosting = () => {
-  const { token } = useAuth();
-  const { data: user } = $api.useQuery(
-    'get',
-    '/api/auth/me',
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    },
-    {
-      enabled: !!token,
-    }
-  );
+  const { token, user } = useAuth();
 
   const { location } = useLiveLocation();
-  const mutationPostLocation = $api.useMutation('post', '/api/users/me/location');
+  const { mutate: postLocation } = $api.useMutation('post', '/api/users/me/location');
 
   const interval = useInterval(() => {
     if (location && token && user && user.id) {
-      mutationPostLocation.mutate(
+      postLocation(
         {
           body: {
             latitude: location.coords.latitude,
@@ -38,9 +26,6 @@ const useLocationPosting = () => {
           },
         },
         {
-          // onSuccess(data, variables, context) {
-          //   console.log('Location posted successfully', data.latitude, data.longitude);
-          // },
           onError(error, variables, context) {
             console.log('Error posting location', error);
           },
@@ -57,5 +42,5 @@ const useLocationPosting = () => {
 
 export const LiveLocationPoster = () => {
   useLocationPosting();
-  return <></>;
+  return null;
 };
