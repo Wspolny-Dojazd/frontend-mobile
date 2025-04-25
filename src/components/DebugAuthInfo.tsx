@@ -36,7 +36,6 @@ const getTokenExpiryTimestamp = (token: string | null): number | null => {
     const decoded = jwtDecode<JwtPayload>(token);
     return decoded.exp && typeof decoded.exp === 'number' ? decoded.exp * 1000 : null;
   } catch (error) {
-    // console.error('DebugAuthInfo: Error decoding token:', error); // Keep console for actual debugging if needed
     return null; // Treat decoding errors as token having no valid expiry
   }
 };
