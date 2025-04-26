@@ -12,42 +12,46 @@ import React, {
 } from 'react';
 
 import { $api } from '@/src/api/api';
+// Import error translation hooks
 import { useLoginErrorTranslations } from '@/src/api/errors/auth/login';
 import { useMeErrorTranslations } from '@/src/api/errors/auth/me';
 import { useRefreshTokenErrorTranslations } from '@/src/api/errors/auth/refresh';
 import { useRegisterErrorTranslations } from '@/src/api/errors/auth/register';
 import { ApiError } from '@/src/api/errors/types';
-import { components } from '@/src/api/openapi';
+import { components } from '@/src/api/openapi'; // Assuming this imports generated OpenAPI types
 
 // --- Constants ---
 const AUTH_TOKEN_KEY = 'authToken';
 const REFRESH_TOKEN_KEY = 'refreshToken';
-const ERROR_TIMEOUT_MS = 3000;
-const REFRESH_INTERVAL_MS = 60 * 1000; // Check token expiry every minute
-const REFRESH_THRESHOLD_SECONDS = 5 * 60; // Refresh if token expires within 5 minutes
+const ERROR_TIMEOUT_MS = 3000; // Duration to display transient errors
+const REFRESH_INTERVAL_MS = 60 * 1000; // How often to check token expiry (e.g., every 60 seconds)
+export const REFRESH_THRESHOLD_SECONDS = 5 * 60; // Refresh token if it expires within this time (e.g., 5 minutes)
 
 // --- Types ---
 interface JwtPayload {
   exp: number; // Expiration time (Unix timestamp in seconds)
-  [key: string]: any;
+  [key: string]: any; // Allow other claims
 }
 
-// Core DTO types from OpenAPI spec
+// OpenAPI Schema Types
 type User = components['schemas']['UserDto'];
 type LoginCredentials = components['schemas']['LoginRequestDto'];
 type RegisterData = components['schemas']['RegisterRequestDto'];
 type RefreshTokenRequestDto = components['schemas']['RefreshTokenRequestDto'];
-type AuthResponseDto = components['schemas']['AuthResponseDto']; // Expected response for login/register/refresh
+// Represents the expected response structure for login, register, and refresh operations
+type AuthResponseDto = components['schemas']['AuthResponseDto'];
 
-// Error code types from OpenAPI spec
+// Specific Error Code Types from OpenAPI spec for better error handling
 type LoginErrorCode = components['schemas']['LoginErrorCode'];
 type RegisterErrorCode = components['schemas']['RegisterErrorCode'];
+// Combined type for /me endpoint errors
 type MeErrorCode = components['schemas']['AuthErrorCode'] | components['schemas']['UserErrorCode'];
+type RefreshErrorCode = components['schemas']['AuthErrorCode']; // Assuming refresh uses AuthErrorCode
 
-// Type for handling TanStack Query errors specifically
+// Type definition for errors potentially coming from React Query wrappers
 type QueryError = {
   message: string;
-  data?: { code?: MeErrorCode; message?: string | null };
+  data?: { code?: MeErrorCode | string; message?: string | null }; // Allow generic code string too
   status?: number;
   response?: { status?: number };
 };
@@ -55,39 +59,44 @@ type QueryError = {
 // --- Context Definition ---
 interface AuthContextType {
   token: string | null; // Current Access Token
-  user: User | null; // Decoded user information
-  login: (credentials: LoginCredentials) => Promise<void>; // Login function
-  register: (registrationData: RegisterData) => Promise<void>; // Registration function
-  logout: () => Promise<void>; // Logout function
-  isLoading: boolean; // True during blocking auth operations (init, login, register)
-  isInitializing: boolean; // True only during initial app load/auth check
-  error: string | null; // Stores the last relevant error message
-  isRefreshing: boolean; // True if a background refresh API call is currently in progress
+  user: User | null; // Logged-in user details
+  login: (credentials: LoginCredentials) => Promise<void>;
+  register: (registrationData: RegisterData) => Promise<void>;
+  logout: () => Promise<void>; // Manual logout trigger
+  isLoading: boolean; // True during critical blocking operations (initial load, login, register)
+  isInitializing: boolean; // True only during the initial auth state determination on app start
+  error: string | null; // Stores the last user-facing error message
+  isRefreshing: boolean; // True if a background token refresh API call is currently in progress
 }
 
-// Create the context with an undefined default value
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // --- Helper Functions ---
-/** Checks if a JWT token string is expired or invalid. */
+/**
+ * Checks if a JWT token string is expired or structurally invalid.
+ * @param token The JWT string or null.
+ * @returns True if the token is null, expired, or cannot be decoded/validated, false otherwise.
+ */
 const isTokenExpired = (token: string | null): boolean => {
   if (!token) return true;
   try {
     const decoded = jwtDecode<JwtPayload>(token);
-    // Token must have a numeric 'exp' claim
     if (!decoded || typeof decoded.exp !== 'number') {
-      console.error('Invalid token structure or missing expiration');
-      return true;
+      return true; // Invalid structure or missing expiration
     }
     const expirationTime = decoded.exp * 1000; // Convert Unix seconds to milliseconds
-    return Date.now() >= expirationTime; // Compare with current time
+    return Date.now() >= expirationTime;
   } catch (error) {
-    console.error('Error decoding/validating token:', error);
-    return true; // Treat decoding errors as expired/invalid
+    // Treat decoding errors as expired/invalid
+    return true;
   }
 };
 
-/** Calculates the remaining time (in seconds) until a token expires. */
+/**
+ * Calculates the remaining time (in seconds) until a token expires.
+ * @param token The JWT string or null.
+ * @returns Remaining seconds (minimum 0), or null if token is invalid/missing.
+ */
 const getTokenRemainingTime = (token: string | null): number | null => {
   if (!token) return null;
   try {
@@ -96,277 +105,219 @@ const getTokenRemainingTime = (token: string | null): number | null => {
       return null;
     }
     const expirationTime = decoded.exp * 1000;
-    const remainingTime = expirationTime - Date.now();
-    return Math.max(0, remainingTime / 1000); // Return seconds, minimum 0
+    const remainingTimeMs = expirationTime - Date.now();
+    return Math.max(0, remainingTimeMs / 1000); // Return seconds, minimum 0
   } catch (error) {
-    console.error('Error getting token remaining time:', error);
-    return null;
+    return null; // Treat decoding errors as invalid
   }
 };
 
 // --- Auth Provider Component ---
-// This component wraps the application and manages the authentication state.
+/**
+ * Manages authentication state (tokens, user data), handles login, registration,
+ * logout, token refresh, and provides this state to the application via context.
+ */
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  // --- State Variables ---
-  const [token, setToken] = useState<string | null>(null); // Stores the current access token
-  const [user, setUser] = useState<User | null>(null); // Stores user data derived from token/API
-  const [isInitializing, setIsInitializing] = useState<boolean>(true); // Tracks initial loading state
-  const [error, setError] = useState<string | null>(null); // Stores user-facing error messages
+  // --- State ---
+  const [token, setToken] = useState<string | null>(null); // Access token
+  const [user, setUser] = useState<User | null>(null); // User data
+  const [isInitializing, setIsInitializing] = useState<boolean>(true); // Initial auth check status
+  const [error, setError] = useState<string | null>(null); // User-facing errors
 
   // --- Refs ---
-  const isRefreshing = useRef(false); // Tracks if a refresh API call is in flight (doesn't trigger re-render)
-  const refreshIntervalId = useRef<NodeJS.Timeout | null>(null); // Holds the ID of the setInterval timer
+  // Use a ref for isRefreshing to avoid re-renders just for background refresh status changes
+  const isRefreshing = useRef(false);
+  const refreshIntervalId = useRef<NodeJS.Timeout | null>(null); // ID for the periodic check timer
 
   // --- Hooks ---
-  const router = useRouter(); // For navigation
-  // Translation hooks for specific error types
+  const router = useRouter();
+  // Error translation hooks
   const { t: tLoginError } = useLoginErrorTranslations();
   const { t: tRegisterError } = useRegisterErrorTranslations();
   const { t: tMeError } = useMeErrorTranslations();
   const { t: tRefreshError } = useRefreshTokenErrorTranslations();
 
-  // --- API Mutations ---
+  // --- API Actions (Mutations & Query) ---
   const loginMutation = $api.useMutation('post', '/api/auth/login');
   const registerMutation = $api.useMutation('post', '/api/auth/register');
   const refreshMutation = $api.useMutation('post', '/api/auth/refresh');
 
-  // --- API Query ---
-  // Fetches user data (`/me`) automatically when authenticated and initialized.
+  // Automatically fetches user data (/me) when authenticated and initialized
   const {
     data: meData,
     error: meQueryError,
-    isLoading: isMeLoading, // Loading state specific to the /me query
+    isLoading: isMeLoading,
     isError: isMeError,
   } = $api.useQuery(
     'get',
     '/api/auth/me',
-    { headers: token ? { Authorization: `Bearer ${token}` } : undefined }, // Add auth header if token exists
+    { headers: token ? { Authorization: `Bearer ${token}` } : undefined }, // Dynamic headers
     {
-      enabled: !!token && !isInitializing, // Query runs only when logged in and initialized
+      enabled: !!token && !isInitializing, // Only run if logged in and past initial load
       retry: (failureCount, error: unknown) => {
-        const hookError = error as QueryError;
-        const status = hookError?.status ?? hookError?.response?.status;
-        // Don't automatically retry critical auth errors (401/404)
+        // Prevent automatic retries on critical auth errors (401 Unauthorized, 404 Not Found)
+        const queryError = error as QueryError;
+        const status = queryError?.status ?? queryError?.response?.status;
         if (status === 401 || status === 404) {
-          console.warn('/me query failed with status:', status, '- No retry.');
           return false;
         }
-        return failureCount < 1; // Allow one retry for other errors
+        return failureCount < 1; // Allow one retry for other potentially transient errors
       },
       staleTime: 5 * 60 * 1000, // Cache user data for 5 minutes
-      refetchOnWindowFocus: false, // Prevent refetching just on app focus
+      refetchOnWindowFocus: false, // Avoid potentially unnecessary refetches on app focus
     }
   );
 
   // --- Effect for Auto-Clearing Transient Errors ---
-  // Clears the error message after a short delay.
   useEffect(() => {
     let timerId: NodeJS.Timeout | null = null;
     if (error) {
-      timerId = setTimeout(() => {
-        setError(null);
-      }, ERROR_TIMEOUT_MS);
+      timerId = setTimeout(() => setError(null), ERROR_TIMEOUT_MS);
     }
-    // Cleanup function to clear the timer if the error changes or component unmounts
+    // Clear timeout if error changes or component unmounts
     return () => {
-      if (timerId) {
-        clearTimeout(timerId);
-      }
+      if (timerId) clearTimeout(timerId);
     };
-  }, [error]); // Reruns only when the error state changes
+  }, [error]);
 
   // --- Core Logout Function ---
-  // Centralized logic for logging out the user, clearing state, storage, and navigating.
+  // Centralized logic for clearing session state, storage, and redirecting.
   const handleLogout = useCallback(
     async (displayError?: string) => {
-      console.log('Executing handleLogout. Display Error:', displayError);
-      setError(displayError || null); // Show optional error message
-      setUser(null); // Clear user state
-      setToken(null); // Clear token state (this triggers effects depending on token)
-      isRefreshing.current = false; // Reset refresh flag
+      setError(displayError || null); // Display an optional error message on logout
+      setUser(null);
+      setToken(null); // Setting token to null triggers cleanup effects
+      isRefreshing.current = false;
 
-      // Stop the periodic refresh timer if it's running
+      // Clear the periodic refresh check interval
       if (refreshIntervalId.current) {
-        console.log('Clearing interval due to logout.');
         clearInterval(refreshIntervalId.current);
         refreshIntervalId.current = null;
       }
 
       // Remove tokens from persistent storage
-      await AsyncStorage.multiRemove([AUTH_TOKEN_KEY, REFRESH_TOKEN_KEY]);
+      try {
+        await AsyncStorage.multiRemove([AUTH_TOKEN_KEY, REFRESH_TOKEN_KEY]);
+      } catch (storageError) {
+        console.error('Failed to remove tokens from storage during logout:', storageError);
+        // Non-fatal for logout flow, but indicates storage issue
+      }
 
-      // Redirect to the public/login area
-      router.replace('/'); // Adjust route if needed
+      // Redirect to the main public route (e.g., login screen)
+      router.replace('/'); // Adjust the target route if needed
     },
-    [router]
-  ); // Dependency: router for navigation
+    [router] // router is the only dependency needed here
+  );
 
   // --- Refresh Token Logic ---
-  // Handles the API call to refresh the access token using the refresh token.
+  // Attempts to get a new access token using the stored refresh token.
   const attemptTokenRefresh = useCallback(async (): Promise<boolean> => {
-    // Prevent multiple concurrent refresh attempts
-    if (isRefreshing.current) {
-      console.log('Refresh already in progress, skipping.');
+    // Prevent concurrent refresh attempts
+    if (isRefreshing.current) return false;
+
+    const storedRefreshToken = await AsyncStorage.getItem(REFRESH_TOKEN_KEY);
+    // Backend might require the current (possibly expired) access token too
+    const storedAccessToken = await AsyncStorage.getItem(AUTH_TOKEN_KEY);
+
+    if (!storedRefreshToken || !storedAccessToken) {
+      // Cannot refresh if essential tokens are missing
       return false;
     }
 
-    // Read tokens from storage directly inside the function for accuracy
-    const storedRefreshToken = await AsyncStorage.getItem(REFRESH_TOKEN_KEY);
-    const storedAccessToken = await AsyncStorage.getItem(AUTH_TOKEN_KEY);
-
-    // Check if both tokens (required by backend DTO) are available
-    if (!storedRefreshToken || !storedAccessToken) {
-      console.log('Required token(s) missing from storage for refresh attempt.');
-      return false; // Signal failure; caller decides the consequence (e.g., logout)
-    }
-
-    console.log('Attempting token refresh API call...');
-    isRefreshing.current = true; // Mark refresh as in-progress
-    setError(null); // Clear previous errors
+    isRefreshing.current = true;
+    setError(null); // Clear previous errors before attempting
 
     try {
-      // Construct payload as required by the backend's RefreshTokenRequestDto
       const refreshPayload: RefreshTokenRequestDto = {
-        token: storedAccessToken, // Include current (potentially expired) access token
+        token: storedAccessToken,
         refreshToken: storedRefreshToken,
       };
-
-      // Perform the mutation
       const response = await refreshMutation.mutateAsync({ body: refreshPayload });
-      const responseData = response as AuthResponseDto; // Assert the expected response type
-      const newAccessToken = responseData?.token;
-      const newRefreshToken = responseData?.refreshToken;
+      const responseData = response as AuthResponseDto; // Assume successful response shape
 
-      // Validate the response from the backend
+      const newAccessToken = responseData?.token;
+      const newRefreshToken = responseData?.refreshToken; // Handle potential refresh token rotation
+
       if (!newAccessToken) {
-        console.error('Refresh response did not contain a new access token.');
-        isRefreshing.current = false; // Reset flag
-        return false; // Indicate failure
+        throw new Error('Refresh response did not contain a new access token.');
       }
 
-      // Refresh succeeded: Update token state and storage
-      console.log('Token refresh successful.');
+      // Success: Update token state and storage
       await AsyncStorage.setItem(AUTH_TOKEN_KEY, newAccessToken);
-      setToken(newAccessToken); // Update token state (triggers other effects)
+      setToken(newAccessToken); // Update state, which triggers dependent effects (like /me query)
 
-      // Handle potential refresh token rotation
       if (newRefreshToken) {
-        console.log('Received new rotated refresh token.');
         await AsyncStorage.setItem(REFRESH_TOKEN_KEY, newRefreshToken);
       }
 
-      isRefreshing.current = false; // Reset flag
-      return true; // Indicate success
+      isRefreshing.current = false;
+      return true; // Signal success
     } catch (err: unknown) {
-      // Handle API call failure
       console.error('Token refresh API call failed:', err);
-      isRefreshing.current = false; // Reset flag
+      isRefreshing.current = false;
 
-      // Set error message based on API error code
-      const apiError = err as ApiError<components['schemas']['AuthErrorCode']>;
+      // Translate API error code if possible, otherwise show generic message
+      const apiError = err as ApiError<RefreshErrorCode>;
       const errorCode = apiError.data?.code;
       const errorMessage = errorCode
         ? tRefreshError(errorCode)
         : 'Your session could not be refreshed. Please log in again.';
-      setError(errorMessage); // Set error state for potential display
 
-      return false; // Indicate failure
+      // Logout is typically required if refresh fails
+      await handleLogout(errorMessage);
+      return false; // Signal failure
     }
-  }, [refreshMutation, handleLogout, tRefreshError]); // Dependencies are stable functions/refs
+  }, [refreshMutation, handleLogout, tRefreshError]); // Dependencies: Stable mutation, logout, and translation
 
-  // --- Initialization Logic (Runs ONCE on component mount) ---
-  // Checks storage for tokens, validates them, and attempts refresh if necessary.
+  // --- Initialization Logic (Runs ONCE on mount) ---
+  // Checks storage for existing tokens, validates them, and establishes initial auth state.
   useEffect(() => {
-    console.log('Running initializeAuth effect...');
     let isMounted = true; // Track mount status for async operations
 
     const initializeAuth = async () => {
-      let storedTokenValue: string | null = null;
-      let storedRefreshTokenValue: string | null = null;
-      // Sentinel to determine if setToken needs explicit call in finally block
-      let finalTokenToSet: string | null | undefined = undefined;
+      let storedToken: string | null = null;
+      let storedRefreshToken: string | null = null;
 
       try {
-        // Read tokens from storage
         const results = await AsyncStorage.multiGet([AUTH_TOKEN_KEY, REFRESH_TOKEN_KEY]);
-        storedTokenValue = results[0]?.[1] ?? null;
-        storedRefreshTokenValue = results[1]?.[1] ?? null;
+        storedToken = results[0]?.[1] ?? null;
+        storedRefreshToken = results[1]?.[1] ?? null;
 
-        console.log(
-          `Initialization: Found AccessToken=${!!storedTokenValue}, RefreshToken=${!!storedRefreshTokenValue}`
-        );
-
-        // Scenario 1: Valid access token found
-        if (storedTokenValue && !isTokenExpired(storedTokenValue)) {
-          console.log('Valid access token found during init.');
-          finalTokenToSet = storedTokenValue; // Mark token to be set
+        if (storedToken && !isTokenExpired(storedToken)) {
+          // Valid access token found - Set it and proceed (user data will be fetched by /me query)
           if (isMounted) {
-            setUser(null); // Reset user data, /me query will refetch
-            setError(null);
+            setToken(storedToken);
           }
-        }
-        // Scenario 2: Expired/missing access token, but valid refresh token found
-        else if (storedRefreshTokenValue) {
-          console.log('Access token missing or expired, attempting refresh...');
-          // Backend requires the (potentially expired) access token for the refresh call
-          if (storedTokenValue) {
-            // Temporarily set state to make token available for attemptTokenRefresh
-            if (isMounted) {
-              setToken(storedTokenValue);
+        } else if (storedRefreshToken) {
+          // Access token expired/missing, but refresh token exists - Attempt refresh
+          if (storedToken) {
+            // Temporarily set expired token for the refresh API call if needed by backend DTO
+            if (isMounted) setToken(storedToken);
+            const refreshSuccess = await attemptTokenRefresh();
+            if (!refreshSuccess && isMounted) {
+              // If initial refresh fails, ensure clean logout state
+              // Error message/logout handled within attemptTokenRefresh
             }
-            const refreshSuccess = await attemptTokenRefresh(); // Attempt refresh
-            if (refreshSuccess) {
-              // Refresh succeeded, token state updated internally
-              console.log('Initial refresh successful.');
-              finalTokenToSet = undefined; // Signal that setToken was handled
-              if (isMounted) {
-                setUser(null); // Reset user data
-                setError(null);
-              }
-            } else {
-              // Refresh failed
-              console.log('Initial refresh failed.');
-              finalTokenToSet = null; // Ensure logged out state
-              if (isMounted) await handleLogout(error || 'Your session could not be refreshed.');
-            }
+            // If refresh succeeds, attemptTokenRefresh handles setting the new token
           } else {
-            // Cannot refresh if access token is required by DTO but totally missing
-            console.log(
-              'Cannot attempt initial refresh: Access token required by DTO but missing.'
-            );
-            finalTokenToSet = null;
+            // Cannot refresh if backend requires the (expired) access token DTO field but it's missing
             if (isMounted) await handleLogout('Invalid session state.');
           }
-        }
-        // Scenario 3: No valid tokens found at all
-        else {
-          console.log('No valid tokens found during init.');
-          finalTokenToSet = null; // Ensure logged out state
+        } else {
+          // No valid tokens found - Ensure logged out state
           if (isMounted) {
+            setToken(null); // Explicitly set null if no valid tokens
             setUser(null);
-            setError(null);
           }
         }
       } catch (e) {
-        // Handle errors during storage access or initial logic
-        console.error('Failed to initialize auth:', e);
-        finalTokenToSet = null;
+        console.error('Failed to initialize authentication state:', e);
         if (isMounted) {
           await handleLogout('Failed to load session.');
         }
       } finally {
-        // This runs after try/catch, regardless of outcome
-        console.log('Initialization sequence finished.');
+        // Mark initialization complete regardless of outcome
         if (isMounted) {
-          // Set the final token state unless refresh handled it
-          if (finalTokenToSet !== undefined) {
-            console.log(
-              `Final token state determined during init: ${finalTokenToSet ? 'Exists' : 'Null'}`
-            );
-            setToken(finalTokenToSet);
-          }
-          // Mark initialization as complete
-          console.log('Setting isInitializing to false');
           setIsInitializing(false);
         }
       }
@@ -374,226 +325,178 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     initializeAuth();
 
-    // Cleanup function to prevent state updates if component unmounts during async ops
+    // Cleanup: Prevent state updates if component unmounts during async init
     return () => {
-      console.log('initializeAuth effect cleanup.');
       isMounted = false;
     };
-    // ** CRUCIAL: Empty dependency array `[]` ensures this effect runs only ONCE per component mount **
-  }, []);
+    // ** IMPORTANT: Empty dependency array `[]` ensures this runs only ONCE **
+  }, [attemptTokenRefresh, handleLogout]); // Include stable callbacks used inside
 
   // --- Periodic Refresh Check ---
-  // Sets up an interval timer to check token expiry and trigger refresh proactively.
+  // Sets up an interval to proactively refresh the token before it expires.
   useEffect(() => {
-    // Conditions to run the interval: App initialized AND user is logged in (token exists)
+    // Only run the interval check if initialized and logged in
     if (isInitializing || !token) {
-      // If conditions are not met, ensure any existing interval is cleared
+      // Clear any existing interval if conditions are not met
       if (refreshIntervalId.current) {
-        console.log('Clearing interval: Conditions not met (initializing or no token).');
         clearInterval(refreshIntervalId.current);
         refreshIntervalId.current = null;
       }
-      return; // Don't setup the interval
+      return; // Exit effect early
     }
 
-    // Setup interval only if it's not already running
+    // Setup interval only if one isn't already running
     if (!refreshIntervalId.current) {
-      console.log('Setting up periodic refresh check interval.');
       refreshIntervalId.current = setInterval(async () => {
-        // Prevent check if a refresh API call is already in progress
-        if (isRefreshing.current) {
-          return;
-        }
+        // Skip check if a refresh is already in progress
+        if (isRefreshing.current) return;
 
-        // Read token directly from storage for the most accurate time check
-        const currentTokenInStorage = await AsyncStorage.getItem(AUTH_TOKEN_KEY);
-        if (!currentTokenInStorage) {
-          // Token might have been removed externally (e.g., multi-device logout)
-          console.log('Interval check: Token missing from storage, clearing interval.');
-          if (refreshIntervalId.current) {
-            clearInterval(refreshIntervalId.current);
-            refreshIntervalId.current = null;
-          }
-          // Consider forcing logout if token disappears unexpectedly
-          // await handleLogout("Session ended unexpectedly.");
-          return;
-        }
+        // Check remaining time using the token *currently in state*
+        // Reading from storage again here might be slightly more accurate but adds async overhead
+        // to every interval tick. Using state token is simpler for the check threshold logic.
+        const remainingTime = getTokenRemainingTime(token);
 
-        const remainingTime = getTokenRemainingTime(currentTokenInStorage);
-
-        // Check if token expiry is within the refresh threshold
         if (remainingTime !== null && remainingTime < REFRESH_THRESHOLD_SECONDS) {
-          console.log(
-            `Periodic Check: Token nearing expiration (${remainingTime}s left). Attempting refresh.`
-          );
+          // Token nearing expiration, attempt refresh
           const refreshSuccess = await attemptTokenRefresh();
-          // If refresh fails during the interval check, force a logout
           if (!refreshSuccess) {
-            console.log('Periodic refresh failed. Logging out.');
-            await handleLogout(error || 'Your session could not be refreshed.');
+            // If refresh fails during periodic check, logout is handled within attemptTokenRefresh
           }
         }
-      }, REFRESH_INTERVAL_MS); // Interval frequency (e.g., every minute)
+        // If token is valid and not near expiry, do nothing.
+      }, REFRESH_INTERVAL_MS);
     }
 
-    // Cleanup function: Clears the interval when the effect re-runs or component unmounts
+    // Cleanup: Clear interval when token changes, initialization status changes, or component unmounts
     return () => {
       if (refreshIntervalId.current) {
-        console.log('Clearing periodic refresh check interval (Effect cleanup).');
         clearInterval(refreshIntervalId.current);
-        refreshIntervalId.current = null; // Reset ref
+        refreshIntervalId.current = null;
       }
     };
-    // Re-run this effect only if initialization status or token presence changes
-  }, [token, isInitializing]); // Simplified dependencies
+  }, [token, isInitializing, attemptTokenRefresh]); // Re-run effect if token or init status changes
 
   // --- Update State based on /me Query Results ---
-  // Handles the outcome of the automatic `/me` query.
+  // Manages user state and handles errors from the automatic `/me` fetch.
   useEffect(() => {
-    // Don't process results during initial app load
-    if (isInitializing) {
-      return;
-    }
+    // Don't process /me results during initial load
+    if (isInitializing) return;
 
-    // Logic runs when the query's state changes
     if (isMeLoading) {
-      // Can handle /me specific loading state if needed, separate from overall isLoading
+      // Optional: Handle loading state specific to fetching user data if needed
     } else if (isMeError && meQueryError) {
-      const hookError = meQueryError as QueryError;
-      const status = hookError?.status ?? hookError?.response?.status;
-      console.error('Error fetching /me:', {
+      const queryError = meQueryError as QueryError;
+      const status = queryError?.status ?? queryError?.response?.status;
+      console.error('Error fetching /me data:', {
         status,
-        code: hookError?.data?.code,
-        message: hookError?.message,
+        data: queryError?.data,
+        message: queryError?.message,
       });
 
-      // If /me returns 401/404, it indicates the current token is invalid. Logout unless a refresh is fixing it.
+      // If /me returns 401/404, token is invalid. Logout unless a refresh is *currently* fixing it.
       if ((status === 401 || status === 404) && !isRefreshing.current) {
-        console.warn(`/me fetch failed with ${status} while not refreshing, logging out.`);
         handleLogout('Your session is invalid. Please log in again.');
       } else if (!isRefreshing.current) {
-        // Show non-critical /me errors only if not currently refreshing
-        const errorCode = hookError?.data?.code as MeErrorCode | undefined;
-        const apiMessage = hookError?.data?.message;
+        // Show other /me errors only if not currently handling a refresh
+        const errorCode = queryError?.data?.code as MeErrorCode | undefined;
         const errorMessage = errorCode
           ? tMeError(errorCode)
-          : apiMessage || hookError?.message || 'Failed to load user details.';
+          : queryError?.data?.message || queryError?.message || 'Failed to load user details.';
         setError(errorMessage);
-        setUser(null); // Clear potentially stale user data
+        setUser(null); // Clear potentially stale user data on error
       }
     } else if (meData) {
-      // /me query succeeded: Validate token again (edge case) and update user state
+      // /me query succeeded: Update user state
+      // Double-check token validity as an edge case safeguard
       if (isTokenExpired(token)) {
-        // Check current token state
-        console.warn('Token expired right after successful /me fetch. Logging out.');
         handleLogout('Your session expired. Please log in again.');
       } else {
-        // All good: User is fetched and token is valid
-        setUser(meData);
-        setError(null); // Clear any previous non-fatal error
+        setUser(meData as User); // Assume meData matches User DTO structure
+        setError(null); // Clear any previous non-fatal errors
       }
-    } else if (!token) {
-      // If token became null after initialization (e.g., via logout), clear user state
+    } else if (!token && !isInitializing) {
+      // Explicitly clear user if token becomes null after initialization (logout)
       setUser(null);
       setError(null);
     }
-  }, [
-    // Dependencies that trigger re-evaluation of the /me query results
-    isInitializing,
-    isMeLoading,
-    isMeError,
-    meQueryError,
-    meData,
-    token, // Re-check if token changes (e.g., after refresh)
-    tMeError, // Translation function
-    handleLogout, // Logout function
-  ]);
+  }, [isInitializing, isMeLoading, isMeError, meQueryError, meData, token, tMeError, handleLogout]);
 
-  // --- Helper to Update Tokens (State & Storage) after Login/Register ---
-  // Centralized logic for handling successful authentication responses.
+  // --- Helper to Update Tokens (State & Storage) after Login/Register/Refresh ---
   const handleTokenUpdate = useCallback(
     async (authResponse: AuthResponseDto) => {
       const { token: newAccessToken, refreshToken: newRefreshToken, ...userData } = authResponse;
 
-      // Basic validation of the response
       if (!newAccessToken) {
+        // This case should ideally be caught by API call error handling, but double-check
         console.error('Auth response missing access token!');
         await handleLogout('Authentication failed: Invalid server response.');
-        return; // Prevent further execution
+        return;
       }
 
-      // Update React state first for immediate UI feedback
+      // Update state first for responsiveness
       setToken(newAccessToken);
-      setUser(userData as User); // Assume userData structure matches UserDto
-      setError(null); // Clear previous login/register errors
+      setUser(userData as User); // Assume rest of properties form the User object
+      setError(null);
 
-      // Prepare tokens for persistent storage
-      const itemsToStore: [string, string][] = [[AUTH_TOKEN_KEY, newAccessToken]];
-      if (newRefreshToken) {
-        itemsToStore.push([REFRESH_TOKEN_KEY, newRefreshToken]);
-      } else {
-        // Ensure old refresh token is removed if backend doesn't rotate/return one
-        await AsyncStorage.removeItem(REFRESH_TOKEN_KEY);
-      }
-
-      // Save tokens to AsyncStorage
+      // Update persistent storage
       try {
+        const itemsToStore: [string, string][] = [[AUTH_TOKEN_KEY, newAccessToken]];
+        if (newRefreshToken) {
+          itemsToStore.push([REFRESH_TOKEN_KEY, newRefreshToken]);
+        } else {
+          // Ensure old refresh token is removed if not rotated/returned
+          await AsyncStorage.removeItem(REFRESH_TOKEN_KEY);
+        }
         await AsyncStorage.multiSet(itemsToStore);
-        console.log(
-          `Tokens updated. AccessToken stored. RefreshToken ${newRefreshToken ? 'stored' : 'not provided/removed'}.`
-        );
       } catch (storageError) {
-        // Handle critical storage failure, likely requires logout
-        console.error('CRITICAL: Failed to store tokens:', storageError);
-        await handleLogout('Failed to save session. Please log in again.');
+        console.error('CRITICAL: Failed to store authentication tokens:', storageError);
+        // If storage fails, the session isn't persisted. Logout might be necessary.
+        await handleLogout('Failed to save your session. Please try logging in again.');
+        // Rethrow or handle more gracefully depending on requirements
       }
     },
-    [handleLogout]
-  ); // Dependency: handleLogout for error case
+    [handleLogout] // handleLogout is the main dependency
+  );
 
-  // --- login function ---
-  // Exposed via context to trigger the login process.
+  // --- Login Function ---
+  // Exposed via context for components to call.
   const login = useCallback(
     async (credentials: LoginCredentials) => {
-      setError(null); // Clear previous errors
-      isRefreshing.current = false; // Reset refresh flag
+      setError(null);
+      isRefreshing.current = false; // Ensure no pending refresh conflicts
       try {
-        console.log('Logging in...');
         const data = (await loginMutation.mutateAsync({ body: credentials })) as AuthResponseDto;
-        console.log('Login response received');
-        await handleTokenUpdate(data); // Update state and storage
-        router.replace('/tabs'); // Navigate after successful login
+        await handleTokenUpdate(data);
+        router.replace('/tabs'); // Navigate to main app area after successful login
       } catch (err: unknown) {
         console.error('Login failed:', err);
         const apiError = err as ApiError<LoginErrorCode>;
         const errorCode = apiError.data?.code;
-        // Use central logout handler for cleanup on failure
+        // Use central logout handler for cleanup, passing the translated error
         await handleLogout(errorCode ? tLoginError(errorCode) : 'Login failed. Please try again.');
       }
     },
-    [loginMutation, handleTokenUpdate, handleLogout, router, tLoginError] // Dependencies
+    [loginMutation, handleTokenUpdate, handleLogout, router, tLoginError]
   );
 
-  // --- register function ---
-  // Exposed via context to trigger the registration process.
+  // --- Register Function ---
+  // Exposed via context for components to call.
   const register = useCallback(
     async (registrationData: RegisterData) => {
-      setError(null); // Clear previous errors
-      isRefreshing.current = false; // Reset refresh flag
+      setError(null);
+      isRefreshing.current = false; // Ensure no pending refresh conflicts
       try {
-        console.log('Registering...');
         const data = (await registerMutation.mutateAsync({
           body: registrationData,
         })) as AuthResponseDto;
-        console.log('Register response received');
-        await handleTokenUpdate(data); // Update state and storage
-        router.replace('/tabs'); // Navigate after successful registration
+        await handleTokenUpdate(data);
+        router.replace('/tabs'); // Navigate to main app area after successful registration
       } catch (err: unknown) {
         console.error('Registration failed:', err);
         const apiError = err as ApiError<RegisterErrorCode>;
         const errorCode = apiError?.data?.code;
         const backendMessage = apiError?.data?.message ?? (err as any)?.message;
-        // Use central logout handler for cleanup on failure
+        // Use central logout handler for cleanup, passing the translated error
         await handleLogout(
           errorCode
             ? tRegisterError(errorCode)
@@ -601,42 +504,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         );
       }
     },
-    [registerMutation, handleTokenUpdate, handleLogout, router, tRegisterError] // Dependencies
+    [registerMutation, handleTokenUpdate, handleLogout, router, tRegisterError]
   );
 
-  // --- public logout function exposed by context ---
-  // Allows components to trigger a manual logout.
+  // --- Manual Logout Function ---
+  // Exposed via context, simply calls the central handler.
   const logout = useCallback(async () => {
-    console.log('Manual logout triggered.');
-    await handleLogout(); // Use central handler without specific error message
-  }, [handleLogout]); // Dependency
+    await handleLogout(); // Use central handler without a specific error message
+  }, [handleLogout]);
 
-  // Combined loading state for UI feedback during critical operations
+  // Combined loading state reflects critical, blocking operations
   const combinedIsLoading = isInitializing || loginMutation.isPending || registerMutation.isPending;
 
-  // Context value provided to consuming components
+  // Context value provided to children
   const value: AuthContextType = {
-    token, // Current access token
-    user, // Current user data
-    login, // Login function
-    register, // Register function
-    logout, // Logout function
-    isLoading: combinedIsLoading, // True during init/login/register
-    isInitializing, // True only during initial load
-    error, // Last relevant error message
-    isRefreshing: isRefreshing.current, // True if a refresh API call is in flight
+    token,
+    user,
+    login,
+    register,
+    logout,
+    isLoading: combinedIsLoading,
+    isInitializing,
+    error,
+    // Provide the current refresh status from the ref
+    isRefreshing: isRefreshing.current,
   };
 
-  // Provide the context value to children components
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 // --- Custom Hook for Consuming Context ---
-// Provides a convenient way for components to access the auth context.
+/**
+ * Access the authentication context. Must be used within an AuthProvider.
+ */
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  // Ensure the hook is used within a provider
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
@@ -644,5 +547,5 @@ export const useAuth = () => {
 
 // --- Prop Types for Provider ---
 interface AuthProviderProps {
-  children: ReactNode; // Allows wrapping components
+  children: ReactNode;
 }
