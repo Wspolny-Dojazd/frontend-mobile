@@ -1,16 +1,29 @@
-import { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
   FlatList,
   TextInput,
   TouchableOpacity,
-  LayoutChangeEvent,
   Image
 } from 'react-native';
 import Monicon from '@monicon/native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
+
+const NAMESPACE = 'app/tabs/friends/[id]';
+const TRANSLATIONS = {
+  en: {
+    transit: 'During transit',
+    active: 'Active now',
+    message: 'Type a message...',
+  },
+  pl: {
+    transit: 'W trakcie przejazdu',
+    active: 'Aktywny/a teraz',
+    message: 'Napisz wiadomość...',
+  },
+};
 
 type Friend = {
   id: number;
@@ -94,6 +107,7 @@ const mockMessages: Message[] = [
 ];
 
 export default function ChatScreen() {
+  const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
   const router = useRouter();
   
   const params = useLocalSearchParams<ChatParams>();
@@ -141,8 +155,8 @@ export default function ChatScreen() {
           </Text>
           <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
             {params.chatType === 'group' 
-              ? 'W trakcie przejazdu'
-              : 'Active now'}
+              ? t('transit')
+              : t('active')}
           </Text>
         </View>
       </View>
@@ -248,7 +262,7 @@ export default function ChatScreen() {
       >
         <TextInput
           className="flex-1 bg-muted rounded-full px-4 py-2 mr-2"
-          placeholder="Type a message..."
+          placeholder={t('message')}
           placeholderTextColor="#888"
         />
         <TouchableOpacity className="px-2">

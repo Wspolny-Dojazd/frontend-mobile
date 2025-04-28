@@ -254,7 +254,7 @@ export default function App() {
   const [selectedFriend, setSelectedFriend] = useState<(typeof friends)[number] | null>(null);
 
   const handleAddFriendPress = () => {
-    router.push('/friends/addFriend');
+    router.push('tabs/friends/addFriend');
   };
 
   const handleProfilePress = (friend: (typeof friends)[number]) => {
@@ -288,23 +288,6 @@ export default function App() {
             </View>
           </View>
           <ScrollView contentContainerStyle={{ paddingBottom: 320 }}>
-            <FriendChatItem
-              name='test groupchat'
-              message=''
-              time='12:00'
-              imageSource=''
-              status='active'
-              isUnread={true}
-              onPress={() => router.push({
-                pathname: `/friends/${groupChat.id}`,
-                params: {
-                  ...groupChat,
-                  members: JSON.stringify(groupChat.members),
-                  chatType: 'group'
-                }
-              })}
-              onProfilePress={() => console.log(':)')}
-            />
             {friends.map((friend, index) => (
               <FriendChatItem
                 key={index}
@@ -315,7 +298,7 @@ export default function App() {
                 status={friend.status}
                 isUnread={friend.isUnread}
                 onPress={() => router.push({
-                  pathname: `/friends/${friend.id}`,
+                  pathname: `tabs/friends/${friend.id}`,
                   params: {
                     name: friend.name,
                     chatType: 'private'
