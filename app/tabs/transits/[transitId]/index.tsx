@@ -391,7 +391,7 @@ export default function TransitGroup() {
 
       <Pressable
         onPress={() => router.push({
-          pathname: `tabs/friends/${queryGroup.data?.id}`,
+          pathname: `chat/${queryGroup.data?.id}`,
           params: {
             members: JSON.stringify(queryGroup.data?.groupMembers),
             chatType: 'group'

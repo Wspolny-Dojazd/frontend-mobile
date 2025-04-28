@@ -298,7 +298,7 @@ export default function App() {
                 status={friend.status}
                 isUnread={friend.isUnread}
                 onPress={() => router.push({
-                  pathname: `tabs/friends/${friend.id}`,
+                  pathname: `chat/${friend.id}`,
                   params: {
                     name: friend.name,
                     chatType: 'private'

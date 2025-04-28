@@ -11,10 +11,6 @@ export default function FriendsLayout() {
         name="addFriend"
         options={{ headerShown: false }}
       />
-      <Stack.Screen
-        name="[id]"
-        options={{ headerShown: false }}
-      />
     </Stack>
   );
 }
