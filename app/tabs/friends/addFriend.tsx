@@ -10,7 +10,7 @@ import { Text } from '@/src/components/ui/text';
 import { UserBar } from '@/src/components/userBar';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 
-const NAMESPACE = 'app/add-friends/index';
+const NAMESPACE = 'app/friends/addFriend';
 const TRANSLATIONS = {
   en: {
     title: 'Invite friends',

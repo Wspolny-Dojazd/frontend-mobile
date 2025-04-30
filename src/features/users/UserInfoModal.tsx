@@ -8,7 +8,7 @@ import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 const { height } = Dimensions.get('window');
 const MODAL_HEIGHT = height * 0.7; // 70% of screen height
 
-const NAMESPACE = 'app/src/components/ui/dialog';
+const NAMESPACE = 'app/src/components/features/users/UserInfoModal';
 const TRANSLATIONS = {
   en: {
     friendsStatus: 'You are friends',
@@ -24,7 +24,7 @@ const TRANSLATIONS = {
   },
 };
 
-type FriendInfoDialogProps = {
+type UserInfoModalProps = {
   visible: boolean;
   onClose: () => void;
   friend: {
@@ -36,7 +36,7 @@ type FriendInfoDialogProps = {
   onRemove: () => void;
 };
 
-export function FriendInfoDialog({ visible, onClose, friend, onRemove }: FriendInfoDialogProps) {
+export function UserInfoModal({ visible, onClose, friend, onRemove }: UserInfoModalProps) {
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
   const slideAnim = useRef(new Animated.Value(height)).current;
   const backdropOpacity = useRef(new Animated.Value(0)).current;

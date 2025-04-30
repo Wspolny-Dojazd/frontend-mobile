@@ -8,7 +8,7 @@ import { Button } from '@/src/components/ui/button';
 import { InputText } from '@/src/components/ui/inputText';
 import { Text } from '@/src/components/ui/text';
 import { UserBar } from '@/src/components/userBar';
-import { FriendInfoDialog } from '@/src/features/users/UserInfoModal';
+import { UserInfoModal } from '@/src/features/users/UserInfoModal';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 
@@ -44,8 +44,19 @@ const statusColors: Record<Status, string> = {
   inactive: 'bg-gray-400',
 };
 
+const groupChat = {
+  id: 'group1',
+  name: 'test groupchat',
+  members: [
+    '1',
+    '2',
+    '3'
+  ],
+};
+
 const friends = [
   {
+    id: 1,
     name: 'Jane Cooper',
     message: 'lecimy tutaj',
     time: '9:41',
@@ -58,6 +69,7 @@ const friends = [
     sharedKm: 55,
   },
   {
+    id: 2,
     name: 'Kristin Watson',
     message: 'siema mordo',
     time: '9:30',
@@ -70,6 +82,7 @@ const friends = [
     sharedKm: 78.5,
   },
   {
+    id: 3,
     name: 'Darrell Steward',
     message: 'Nostrud eius',
     time: 'pon.',
@@ -82,6 +95,7 @@ const friends = [
     sharedKm: 4.33,
   },
   {
+    id: 4,
     name: 'Guy Hawkins',
     message: 'Aliquip incididunt',
     time: 'pon.',
@@ -94,6 +108,7 @@ const friends = [
     sharedKm: 0,
   },
   {
+    id: 5,
     name: 'Kayley Tess',
     message: 'Irure inci',
     time: 'niedz.',
@@ -106,6 +121,7 @@ const friends = [
     sharedKm: 7653,
   },
   {
+    id: 6,
     name: 'Sara Giona',
     message: 'Aute ullamco',
     time: 'niedz.',
@@ -118,6 +134,7 @@ const friends = [
     sharedKm: 432867.2,
   },
   {
+    id: 7,
     name: 'Jaye Inga',
     message: 'Nostrud eiusmod',
     time: '13 mar',
@@ -130,6 +147,7 @@ const friends = [
     sharedKm: 3245,
   },
   {
+    id: 8,
     name: 'Kiran Glaucus',
     message: 'Proident cillum',
     time: '2 mar',
@@ -236,7 +254,7 @@ export default function App() {
   const [selectedFriend, setSelectedFriend] = useState<(typeof friends)[number] | null>(null);
 
   const handleAddFriendPress = () => {
-    router.push('/add-friends');
+    router.push('tabs/friends/addFriend');
   };
 
   const handleProfilePress = (friend: (typeof friends)[number]) => {
@@ -279,7 +297,13 @@ export default function App() {
                 imageSource={friend.imageSource}
                 status={friend.status}
                 isUnread={friend.isUnread}
-                onPress={() => console.log('Go to chat with', friend.name)}
+                onPress={() => router.push({
+                  pathname: `chat/${friend.id}`,
+                  params: {
+                    name: friend.name,
+                    chatType: 'private'
+                  }
+                })}
                 onProfilePress={() => handleProfilePress(friend)}
               />
             ))}
@@ -346,7 +370,7 @@ export default function App() {
       </Button>
 
       {selectedFriend && (
-        <FriendInfoDialog
+        <UserInfoModal
           visible={!!selectedFriend}
           onClose={() => setSelectedFriend(null)}
           friend={{ ...selectedFriend }}
