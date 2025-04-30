@@ -1,7 +1,10 @@
-import { useRouter } from 'expo-router';
+import { useRouter, Link } from 'expo-router';
 import React, { useMemo } from 'react';
 import { View, FlatList, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
+
+// Debug auth
+//
 
 import { $api } from '@/src/api/api';
 import { Text } from '@/src/components/ui/text';
@@ -197,7 +200,13 @@ export default function App({ username }: { username: string }) {
           contentContainerStyle={{ paddingHorizontal: 8, paddingBottom: 8 }}
         />
 
-        <View className="flex-row items-center justify-center">
+        <View className="flex-col items-center justify-center">
+          <Link href="/debug-auth" style={{ marginBottom: 5 }}>
+            <Text style={{ color: 'white', textDecorationLine: 'underline' }}>
+              Show Auth Debug Info
+            </Text>
+          </Link>
+
           <Text className="text-foreground">Backend URL: {BACKEND_URL}</Text>
         </View>
       </SafeAreaView>
