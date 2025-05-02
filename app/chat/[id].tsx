@@ -23,6 +23,7 @@ import {
       message: 'Type a message...',
       groupchat: 'Group chat',
       noMessages: 'No messages found',
+      userLeft: '[ User left the group ]',
     },
     pl: {
       transit: 'W trakcie przejazdu',
@@ -30,6 +31,7 @@ import {
       message: 'Napisz wiadomość...',
       groupchat: 'Czat grupy',
       noMessages: 'Brak wiadomości',
+      userLeft: '[ Użytkownik opuścił grupę ]',
     },
   };
   
@@ -219,7 +221,7 @@ import {
         <>
           <View className={`w-full flex-row ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-3`}>
             {/* Sender's avatar */}
-            {!isCurrentUser && sender && (
+            {!isCurrentUser && (
               <View className="mr-2 self-start">
                 <View className="w-10 h-10 items-center justify-center rounded-full border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-gray-900">
                   <Text className='text-lg font-extrabold text-foreground'>
@@ -234,13 +236,13 @@ import {
               {/* Sender name for group chats */}
               {params.chatType === 'group' && !isCurrentUser && (
                 <Text className="text-xs text-gray-500 mb-1 dark:text-gray-400">
-                  {sender?.nickname}
+                  {sender ? sender.nickname : t('userLeft')}
                 </Text>
               )}
               
               {/* Message bubble */}
               <View className={
-                `rounded-lg px-3 py-2 ${
+                `rounded-2xl px-3 py-2 ${
                   isCurrentUser 
                     ? 'bg-primary rounded-tr-sm' 
                     : 'bg-muted rounded-tl-sm'
