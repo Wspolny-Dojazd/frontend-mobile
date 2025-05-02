@@ -13,7 +13,7 @@ import {
   import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
   import { useAuth } from '@/src/context/authContext';
   import { $api } from '@/src/api/api';
-  import { useCallback, useState, memo, useEffect, useRef } from 'react';
+  import { useCallback, useState, useMemo } from 'react';
   
   const NAMESPACE = 'app/tabs/friends/[id]';
   const TRANSLATIONS = {
@@ -29,14 +29,6 @@ import {
     },
   };
   
-  type Friend = {
-    id: number;
-    name: string;
-    imageSource: {
-      uri: string;
-    };
-  };
-  
   type Message = {
     id: number;
     userId: string;
@@ -46,68 +38,33 @@ import {
   
   type ChatParams = {
     id: string;
-    name: string;
+    nickname: string;
     chatType: 'private' | 'group';
     members?: string;
   };
   
-  // Mock data
-  const mockUser = {
-    id: '1',
-    name: 'You',
-    imageSource: {
-      uri: 'https://fastly.picsum.photos/id/852/200/200.jpg?hmac=4UHLpiS9j3YDnvq-w-MqnP5-ymiyvMs6BNV5ukoTRrI',
-    },
-  };
   const mockFriend = {
     id: 2,
-    name: 'John Cooper',
-    imageSource: {
-      uri: 'https://fastly.picsum.photos/id/1077/200/200.jpg?hmac=hiq7UCoz9ZFgr9HcMCpbnKhV-IMyOJqsQtVFyqmqohQ',
-    },
+    nickname: 'John Cooper'
   };
   
-  const mockGroupMembers: Friend[] = [
-    {
-      id: 2,
-      name: 'Kristin Watson',
-      imageSource: {
-        uri: 'https://fastly.picsum.photos/id/1077/200/200.jpg?hmac=hiq7UCoz9ZFgr9HcMCpbnKhV-IMyOJqsQtVFyqmqohQ',
-      }
-    },
-    {
-      id: 3,
-      name: 'Darrell Steward',
-      imageSource: {
-        uri: 'https://fastly.picsum.photos/id/277/200/200.jpg?hmac=zlHjTbiytnfBWurpKXXSvMRzVSmkgW13o4K7Q-08r68',
-      }
-    },
-    {
-      id: 4,
-      name: 'Guy Hawkins',
-      imageSource: {
-        uri: 'https://fastly.picsum.photos/id/231/200/200.jpg?hmac=lUSm6Na5VxIhLKub6Y3JaBOAwCjkimAi-zHEOInwL58',
-      }
-    }
-  ];
-  
   const mockMessages: Message[] = [
-    { id: 1, content: 'Hi, the restaurant is quite busy now so the delivery may be late 15 mins. Please wait for me.', createdAt: '9:41', userId: '1' },
-    { id: 2, content: 'Sure! Thank you', createdAt: '12:03', userId: '2' },
-    { id: 3, content: 'Could you please ask the restaurant to give me cutlery? I just need these items.', createdAt: '12:03', userId: '3' },
-    { id: 4, content: 'Yes, let me tell the restaurant.', createdAt: '12:04', userId: '4' },
-    { id: 5, content: 'Hi, the restaurant is quite busy now so the delivery may be late 15 mins. Please wait for me.', createdAt: '9:41', userId: '1' },
-    { id: 6, content: 'Sure! Thank you', createdAt: '12:03', userId: '2' },
-    { id: 7, content: 'Could you please ask the restaurant to give me cutlery? I just need these items.', createdAt: '12:03', userId: '3' },
-    { id: 8, content: 'Yes, let me tell the restaurant.', createdAt: '12:04', userId: '4' },
-    { id: 9, content: 'Hi, the restaurant is quite busy now so the delivery may be late 15 mins. Please wait for me.', createdAt: '9:41', userId: '1' },
-    { id: 10, content: 'Sure! Thank you', createdAt: '12:03', userId: '2' },
-    { id: 11, content: 'Could you please ask the restaurant to give me cutlery? I just need these items.', createdAt: '12:03', userId: '3' },
-    { id: 12, content: 'Yes, let me tell the restaurant.', createdAt: '12:04', userId: '4' },
-    { id: 13, content: 'Hi, the restaurant is quite busy now so the delivery may be late 15 mins. Please wait for me.', createdAt: '9:41', userId: '1' },
-    { id: 14, content: 'Sure! Thank you', createdAt: '12:03', userId: '2' },
-    { id: 15, content: 'Could you please ask the restaurant to give me cutlery? I just need these items.', createdAt: '12:03', userId: '3' },
-    { id: 16, content: 'Yes, let me tell the restaurant.', createdAt: '12:04', userId: '4' },
+    { id: 1, content: 'Hi, the restaurant is quite busy now so the delivery may be late 15 mins. Please wait for me.', createdAt: '2025-05-02T11:55:03.490Z', userId: '1' },
+    { id: 2, content: 'Sure! Thank you', createdAt: '2025-05-02T11:55:03.490Z', userId: '2' },
+    { id: 3, content: 'Could you please ask the restaurant to give me cutlery? I just need these items.', createdAt: '2025-05-02T11:55:03.490Z', userId: '3' },
+    { id: 4, content: 'Yes, let me tell the restaurant.', createdAt: '2025-05-02T11:55:03.490Z', userId: '4' },
+    { id: 5, content: 'Hi, the restaurant is quite busy now so the delivery may be late 15 mins. Please wait for me.', createdAt: '2025-05-02T11:55:03.490Z', userId: '1' },
+    { id: 6, content: 'Sure! Thank you', createdAt: '2025-05-02T11:55:03.490Z', userId: '2' },
+    { id: 7, content: 'Could you please ask the restaurant to give me cutlery? I just need these items.', createdAt: '2025-05-02T11:55:03.490Z', userId: '3' },
+    { id: 8, content: 'Yes, let me tell the restaurant.', createdAt: '2025-05-02T11:55:03.490Z', userId: '4' },
+    { id: 9, content: 'Hi, the restaurant is quite busy now so the delivery may be late 15 mins. Please wait for me.', createdAt: '2025-05-02T11:55:03.490Z', userId: '1' },
+    { id: 10, content: 'Sure! Thank you', createdAt: '2025-05-02T11:55:03.490Z', userId: '2' },
+    { id: 11, content: 'Could you please ask the restaurant to give me cutlery? I just need these items.', createdAt: '2025-05-02T11:55:03.490Z', userId: '3' },
+    { id: 12, content: 'Yes, let me tell the restaurant.', createdAt: '2025-05-02T11:55:03.490Z', userId: '4' },
+    { id: 13, content: 'Hi, the restaurant is quite busy now so the delivery may be late 15 mins. Please wait for me.', createdAt: '2025-05-02T11:55:03.490Z', userId: '1' },
+    { id: 14, content: 'Sure! Thank you', createdAt: '2025-05-02T11:55:03.490Z', userId: '2' },
+    { id: 15, content: 'Could you please ask the restaurant to give me cutlery? I just need these items.', createdAt: '2025-05-02T11:55:03.490Z', userId: '3' },
+    { id: 16, content: 'Yes, let me tell the restaurant.', createdAt: '2025-05-02T11:55:03.490Z', userId: '4' },
   ];
   
   export default function ChatScreen() {
@@ -117,10 +74,28 @@ import {
     const [messageInput, setMessageInput] = useState('');
 
     const { token } = useAuth();
-    const { data: members } = $api.useQuery('get', '/api/groups/{id}/members', {
+    const { data: me } = $api.useQuery('get', '/api/auth/me', {
       headers: { Authorization: `Bearer ${token}` },
-      params: { path: { id: Number(params.id) } },
     });
+
+    const { data: members = [] } = $api.useQuery('get', '/api/groups/{id}/members',
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { path: { id: Number(params.id) } },
+      },
+      {
+        refetchInterval: 1000,
+      }
+    );
+
+    const otherMembers = useMemo(() => {
+      // Handle loading/error states
+      if (!members) return [];
+      
+      return members.filter(member => 
+        member.id !== me?.id
+      );
+    }, [members, me?.id]);
 
     const { data: groupMessages } = $api.useQuery(
       'get',
@@ -137,10 +112,6 @@ import {
     const messages = params.chatType === 'group' 
       ? groupMessages 
       : mockMessages;
-
-    const { data: me } = $api.useQuery('get', '/api/auth/me', {
-      headers: { Authorization: `Bearer ${token}` },
-    });
 
     const queryGroup = $api.useQuery(
       'get',
@@ -201,32 +172,37 @@ import {
           {params.chatType === 'group' ? (
             <View className="flex-row items-center mr-2">
               {/* Avatar container */}
-              {/* <View className="relative mr-4 -top-1">
-                <Image
-                  source={{ uri: members[0]?.imageSource?.uri }}
-                  className="w-10 h-10 rounded-full border-2 border-background"
-                />
-                {members.length >= 2 && (
-                  <Image
-                    source={{ uri: members[1]?.imageSource?.uri }}
-                    className="absolute -right-3 -bottom-3 w-10 h-10 rounded-full border-2 border-background"
+              <View className="relative mr-4 -top-1">
+                <View className="w-10 h-10 items-center justify-center rounded-full border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-gray-900">
+                  <Text className='text-lg font-extrabold text-foreground'>
+                    { otherMembers[0]?.nickname?.slice(0, 2) }
+                  </Text>
+                </View>
+                {otherMembers.length >= 2 && (
+                  <View
+                    className="absolute -right-3 -bottom-3 w-10 h-10 items-center justify-center rounded-full border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-gray-900"
                     style={{ zIndex: 1 }}
-                  />
+                  >
+                    <Text className='text-lg font-extrabold text-foreground'>
+                    { otherMembers[1]?.nickname?.slice(0, 2) }
+                    </Text>
+                  </View>
                 )}
               </View>
               {members.length > 2 && (
                 <Text className="text-gray-500 text-sm">+{members.length - 2}</Text>
-              )} */}
+              )}
             </View>
           ) : (
-            <Image
-              source={{ uri: mockFriend.imageSource.uri }}
-              className="w-10 h-10 rounded-full mr-4"
-            />
+            <View className="w-10 h-10 items-center justify-center rounded-full border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-gray-900">
+              <Text className='text-lg font-extrabold text-foreground'>
+                { params.nickname?.slice(0, 2) }
+              </Text>
+            </View>
           )}
           <View>
             <Text className="text-xl font-semibold text-black dark:text-white">
-              {params.name || 'Chat'}
+              {params.nickname || 'Chat'}
             </Text>
             <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
               {params.chatType === 'group' 
@@ -245,33 +221,37 @@ import {
     const renderMessage = ({ item }: { item: Message }) => {
       const isCurrentUser = item.userId === me?.id;
       const sender = params.chatType === 'private'
-      ? (item.userId !== mockUser.id ? mockFriend : null) // For private chats, use mockFriend
-      : members?.find(f => f.id === item.userId); // For groups, find in members
-  
+        ? (item.userId !== me?.id ? mockFriend : null)
+        : members?.find(member => member.id === item.userId);
+
+      const date = new Date(item.createdAt);
+      const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
       return (
         <View className={`w-full flex-row ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-3`}>
           {/* Sender's avatar */}
           {!isCurrentUser && sender && (
             <View className="mr-2 self-start">
-              {/* <Image
-                source={sender.imageSource}
-                className="w-10 h-10 rounded-full"
-              /> */}
+              <View className="w-10 h-10 items-center justify-center rounded-full border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-gray-900">
+                <Text className='text-lg font-extrabold text-foreground'>
+                  {sender?.nickname?.slice(0, 2)}
+                </Text>
+              </View>
             </View>
           )}
-  
+    
           {/* Message container */}
           <View className={`max-w-[70%] ${isCurrentUser ? 'items-end' : 'items-start'}`}>
             {/* Sender name for group chats */}
             {params.chatType === 'group' && !isCurrentUser && (
-              <Text className="text-xs text-gray-500 mb-1">
-                {/* {sender?.name} */}
+              <Text className="text-xs text-gray-500 mb-1 dark:text-gray-400">
+                {sender?.nickname}
               </Text>
             )}
             
             {/* Message bubble */}
             <View className={
-              `rounded-lg p-3 ${
+              `rounded-lg px-3 py-2 ${
                 isCurrentUser 
                   ? 'bg-primary rounded-tr-sm' 
                   : 'bg-muted rounded-tl-sm'
@@ -284,17 +264,18 @@ import {
             
             {/* Time stamp */}
             <Text className={`text-xs text-gray-500 mt-1 ${isCurrentUser ? 'text-right' : 'text-left'}`}>
-              {item.createdAt}
+              { time }
             </Text>
           </View>
     
           {/* Current user avatar */}
           {isCurrentUser && (
             <View className="ml-2 self-start">
-              <Image
-                source={mockUser.imageSource}
-                className="w-10 h-10 rounded-full"
-              />
+              <View className="w-10 h-10 items-center justify-center rounded-full border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-gray-900">
+                <Text className='text-lg font-extrabold text-foreground'>
+                  { me?.nickname?.slice(0, 2) }
+                </Text>
+              </View>
             </View>
           )}
         </View>

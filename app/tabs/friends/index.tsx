@@ -300,7 +300,7 @@ export default function App() {
                 onPress={() => router.push({
                   pathname: `chat/${friend.id}`,
                   params: {
-                    name: friend.name,
+                    nickname: friend.name,
                     chatType: 'private'
                   }
                 })}
