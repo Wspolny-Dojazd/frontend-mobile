@@ -21,6 +21,7 @@ export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
     INTERNAL_ERROR: 'An internal error occurred. Please try again later.',
     ACCESS_DENIED: 'You do not have permission to access this resource.',
     INVALID_REFRESH_TOKEN: 'Invalid refresh token.',
+    INVALID_CURRENT_PASSWORD: 'Invalid current password.',
   },
   pl: {
     GROUP_NOT_FOUND: 'Grupa nie znaleziona. Sprawdź czy wpisałeś poprawny kod.',
@@ -33,6 +34,7 @@ export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
     INTERNAL_ERROR: 'Wystąpił wewnętrzny błąd. Proszę spróbować ponownie później.',
     ACCESS_DENIED: 'Nie masz dostępu do tego zasobu.',
     INVALID_REFRESH_TOKEN: 'Nieprawidłowy token odświeżania.',
+    INVALID_CURRENT_PASSWORD: 'Nieprawidłowe hasło.',
   },
 };
 

@@ -414,13 +414,15 @@ export default function TransitGroup() {
       )}
 
       <Pressable
-        onPress={() => router.push({
-          pathname: `chat/${queryGroup.data?.id}`,
-          params: {
-            members: JSON.stringify(queryGroup.data?.groupMembers),
-            chatType: 'group'
-          }
-        })}
+        onPress={() =>
+          router.push({
+            pathname: `chat/${queryGroup.data?.id}`,
+            params: {
+              members: JSON.stringify(queryGroup.data?.groupMembers),
+              chatType: 'group',
+            },
+          })
+        }
         className="absolute bottom-32 right-5 flex h-14 w-14 items-center justify-center rounded-full bg-primary">
         <Monicon name="bi:chat-square-text" size={24} color="white" />
       </Pressable>

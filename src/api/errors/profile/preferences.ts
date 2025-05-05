@@ -17,6 +17,8 @@ export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
     EXPIRED_TOKEN: 'Your session has expired. Please log in again.',
     INTERNAL_ERROR: 'An internal error occurred. Please try again later.',
     INVALID_REFRESH_TOKEN: 'Invalid refresh token.',
+    INVALID_CURRENT_PASSWORD: 'Invalid current password.',
+    USER_NOT_FOUND: 'The specified user could not be found.',
   },
   pl: {
     USER_CONFIGURATION_NOT_FOUND: 'Konfiguracja użytkownika nie znaleziona.',
@@ -26,6 +28,8 @@ export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
     EXPIRED_TOKEN: 'Twoja sesja wygasła. Proszę zalogować się ponownie.',
     INTERNAL_ERROR: 'Wystąpił wewnętrzny błąd. Proszę spróbować ponownie później.',
     INVALID_REFRESH_TOKEN: 'Nieprawidłowy token odświeżania.',
+    INVALID_CURRENT_PASSWORD: 'Nieprawidłowe hasło.',
+    USER_NOT_FOUND: 'Użytkownik nie znaleziony.',
   },
 };
 

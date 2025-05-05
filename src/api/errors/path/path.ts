@@ -20,6 +20,8 @@ export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
     PATH_ALREADY_ACCEPTED: 'The path has already been accepted.',
     PATH_NOT_FOUND: 'The path could not be found.',
     PATH_NOT_IN_GROUP: 'The path is not in the group.',
+    INVALID_CURRENT_PASSWORD: 'Invalid current password.',
+    USER_NOT_FOUND: 'The specified user could not be found.',
   },
   pl: {
     GROUP_NOT_FOUND: 'Grupa nie znaleziona. Sprawdź czy wpisałeś poprawny kod.',
@@ -31,6 +33,8 @@ export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
     PATH_ALREADY_ACCEPTED: 'Ścieżka została już zaakceptowana.',
     PATH_NOT_FOUND: 'Ścieżka nie znaleziona.',
     PATH_NOT_IN_GROUP: 'Ścieżka nie należy do grupy.',
+    INVALID_CURRENT_PASSWORD: 'Nieprawidłowe hasło.',
+    USER_NOT_FOUND: 'Użytkownik nie znaleziony.',
   },
 };
 

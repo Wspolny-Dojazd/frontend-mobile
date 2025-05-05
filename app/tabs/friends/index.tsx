@@ -47,11 +47,7 @@ const statusColors: Record<Status, string> = {
 const groupChat = {
   id: 'group1',
   name: 'test groupchat',
-  members: [
-    '1',
-    '2',
-    '3'
-  ],
+  members: ['1', '2', '3'],
 };
 
 const friends = [
@@ -297,13 +293,15 @@ export default function App() {
                 imageSource={friend.imageSource}
                 status={friend.status}
                 isUnread={friend.isUnread}
-                onPress={() => router.push({
-                  pathname: `chat/${friend.id}`,
-                  params: {
-                    nickname: friend.name,
-                    chatType: 'private'
-                  }
-                })}
+                onPress={() =>
+                  router.push({
+                    pathname: `chat/${friend.id}`,
+                    params: {
+                      nickname: friend.name,
+                      chatType: 'private',
+                    },
+                  })
+                }
                 onProfilePress={() => handleProfilePress(friend)}
               />
             ))}

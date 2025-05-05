@@ -289,6 +289,134 @@
         }
       }
     },
+    "/api/auth/change-password": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Changes the password of the currently authenticated user.",
+        "requestBody": {
+          "description": "The change-password request containing current and new password.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The user password has been changed successfully.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/auth/refresh": {
       "post": {
         "tags": ["Auth"],
@@ -356,6 +484,495 @@
           },
           "404": {
             "description": "The user was not found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/friend-invitations": {
+      "post": {
+        "tags": ["FriendInvitations"],
+        "summary": "Sends a new friend invitation from the authenticated user to another user.",
+        "requestBody": {
+          "description": "The friend invitation request data.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FriendInvitationRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FriendInvitationRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/FriendInvitationRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Friend invitation sent successfully.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendInvitationDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendInvitationDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendInvitationDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Self-invitation, already sent, already friends, or reciprocal invitation exists.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendInvitationErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendInvitationErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendInvitationErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The recipient user was not found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendInvitationErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendInvitationErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendInvitationErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/friend-invitations/sent": {
+      "get": {
+        "tags": ["FriendInvitations"],
+        "summary": "Retrieves all invitations sent by the authenticated user.",
+        "responses": {
+          "200": {
+            "description": "The sent invitations were retrieved successfully.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FriendInvitationDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FriendInvitationDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FriendInvitationDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/friend-invitations/received": {
+      "get": {
+        "tags": ["FriendInvitations"],
+        "summary": "Retrieves all invitations received by the authenticated user.",
+        "responses": {
+          "200": {
+            "description": "The received invitations were retrieved successfully.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FriendInvitationDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FriendInvitationDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FriendInvitationDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/friend-invitations/{id}/accept": {
+      "post": {
+        "tags": ["FriendInvitations"],
+        "summary": "Accepts a friend invitation and creates a friendship between the sender and receiver.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The unique identifier of the invitation to accept.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Friend invitation accepted successfully."
+          },
+          "403": {
+            "description": "The user is not authorized to accept the invitation.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendInvitationErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendInvitationErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendInvitationErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The invitation was not found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendInvitationErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendInvitationErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendInvitationErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/friend-invitations/{id}": {
+      "delete": {
+        "tags": ["FriendInvitations"],
+        "summary": "Deletes a friend invitation.",
+        "description": "This method executes a `cancel` operation if the user is the sender,\nor a `decline` operation if the user is the receiver.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The unique identifier of the invitation to delete.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Friend invitation deleted successfully."
+          },
+          "403": {
+            "description": "The user is not authorized to delete the invitation.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendInvitationErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendInvitationErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendInvitationErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The invitation was not found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendInvitationErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendInvitationErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendInvitationErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "text/plain": {
                 "schema": {
@@ -1302,25 +1919,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "The user was successfully removed from the group.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/GroupDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GroupDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GroupDto"
-                }
-              }
-            }
+          "204": {
+            "description": "The user was successfully removed from the group."
           },
           "404": {
             "description": "The group or the user was not found.",
@@ -1434,6 +2034,26 @@
           },
           "400": {
             "description": "The user is not a member of the group.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The user is the creator of the group and cannot be kicked from it.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -2338,7 +2958,14 @@
   "components": {
     "schemas": {
       "AuthErrorCode": {
-        "enum": ["MISSING_TOKEN", "INVALID_TOKEN", "INVALID_REFRESH_TOKEN", "EXPIRED_TOKEN"],
+        "enum": [
+          "MISSING_TOKEN",
+          "INVALID_TOKEN",
+          "INVALID_REFRESH_TOKEN",
+          "EXPIRED_TOKEN",
+          "USER_NOT_FOUND",
+          "INVALID_CURRENT_PASSWORD"
+        ],
         "type": "string",
         "description": "Defines error codes related to authentication operations, returned in API error responses."
       },
@@ -2389,9 +3016,85 @@
         },
         "additionalProperties": false
       },
+      "ChangePasswordRequestDto": {
+        "required": ["currentPassword", "newPassword"],
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "newPassword": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
       "DistanceUnit": {
         "enum": ["Kilometers", "Miles"],
         "type": "string"
+      },
+      "FriendInvitationDto": {
+        "required": ["createdAt", "id", "receiver", "sender"],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "sender": {
+            "$ref": "#/components/schemas/UserDto"
+          },
+          "receiver": {
+            "$ref": "#/components/schemas/UserDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FriendInvitationErrorCode": {
+        "enum": [
+          "INVITATION_NOT_FOUND",
+          "RECIPIENT_NOT_FOUND",
+          "ALREADY_FRIEND",
+          "ALREADY_SENT",
+          "RECIPROCAL_EXISTS",
+          "SELF_INVITATION",
+          "ACCESS_DENIED"
+        ],
+        "type": "string",
+        "description": "Defines error codes for friend invitation operations,\nreturned in API error responses."
+      },
+      "FriendInvitationErrorCodeErrorResponse": {
+        "required": ["code"],
+        "type": "object",
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/FriendInvitationErrorCode"
+          },
+          "message": {
+            "type": "string",
+            "description": "The human-readable error message.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents a strongly-typed error response containing a machine-readable error code."
+      },
+      "FriendInvitationRequestDto": {
+        "required": ["userId"],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
       },
       "GroupDto": {
         "required": ["groupMembers", "id", "joiningCode"],
@@ -2683,7 +3386,8 @@
           "USERNAME_ALREADY_USED",
           "USERNAME_VALIDATION_ERROR",
           "INVALID_EMAIL_FORMAT",
-          "VALIDATION_ERROR"
+          "VALIDATION_ERROR",
+          "USERNAME_RESERVED"
         ],
         "type": "string",
         "description": "Defines error codes returned by the registration endpoint."
@@ -3123,6 +3827,10 @@
     {
       "name": "Auth",
       "description": "Provides authentication endpoints for user login, registration, and profile."
+    },
+    {
+      "name": "FriendInvitations",
+      "description": "Provides API endpoints for managing friend invitations."
     },
     {
       "name": "GroupPaths",

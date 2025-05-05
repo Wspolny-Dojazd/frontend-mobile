@@ -220,6 +220,95 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/auth/change-password': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Changes the password of the currently authenticated user. */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      /** @description The change-password request containing current and new password. */
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['ChangePasswordRequestDto'];
+          'text/json': components['schemas']['ChangePasswordRequestDto'];
+          'application/*+json': components['schemas']['ChangePasswordRequestDto'];
+        };
+      };
+      responses: {
+        /** @description The user password has been changed successfully. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthResponseDto'];
+            'application/json': components['schemas']['AuthResponseDto'];
+            'text/json': components['schemas']['AuthResponseDto'];
+          };
+        };
+        /** @description The request payload is invalid. */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/auth/refresh': {
     parameters: {
       query?: never;
@@ -293,6 +382,381 @@ export interface paths {
       };
     };
     delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/friend-invitations': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Sends a new friend invitation from the authenticated user to another user. */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      /** @description The friend invitation request data. */
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['FriendInvitationRequestDto'];
+          'text/json': components['schemas']['FriendInvitationRequestDto'];
+          'application/*+json': components['schemas']['FriendInvitationRequestDto'];
+        };
+      };
+      responses: {
+        /** @description Friend invitation sent successfully. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['FriendInvitationDto'];
+            'application/json': components['schemas']['FriendInvitationDto'];
+            'text/json': components['schemas']['FriendInvitationDto'];
+          };
+        };
+        /** @description Self-invitation, already sent, already friends, or reciprocal invitation exists. */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['FriendInvitationErrorCodeErrorResponse'];
+            'application/json': components['schemas']['FriendInvitationErrorCodeErrorResponse'];
+            'text/json': components['schemas']['FriendInvitationErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The recipient user was not found. */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['FriendInvitationErrorCodeErrorResponse'];
+            'application/json': components['schemas']['FriendInvitationErrorCodeErrorResponse'];
+            'text/json': components['schemas']['FriendInvitationErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/friend-invitations/sent': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Retrieves all invitations sent by the authenticated user. */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description The sent invitations were retrieved successfully. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['FriendInvitationDto'][];
+            'application/json': components['schemas']['FriendInvitationDto'][];
+            'text/json': components['schemas']['FriendInvitationDto'][];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/friend-invitations/received': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Retrieves all invitations received by the authenticated user. */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description The received invitations were retrieved successfully. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['FriendInvitationDto'][];
+            'application/json': components['schemas']['FriendInvitationDto'][];
+            'text/json': components['schemas']['FriendInvitationDto'][];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/friend-invitations/{id}/accept': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Accepts a friend invitation and creates a friendship between the sender and receiver. */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          /** @description The unique identifier of the invitation to accept. */
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Friend invitation accepted successfully. */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The user is not authorized to accept the invitation. */
+        403: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['FriendInvitationErrorCodeErrorResponse'];
+            'application/json': components['schemas']['FriendInvitationErrorCodeErrorResponse'];
+            'text/json': components['schemas']['FriendInvitationErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The invitation was not found. */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['FriendInvitationErrorCodeErrorResponse'];
+            'application/json': components['schemas']['FriendInvitationErrorCodeErrorResponse'];
+            'text/json': components['schemas']['FriendInvitationErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/friend-invitations/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Deletes a friend invitation.
+     * @description This method executes a `cancel` operation if the user is the sender,
+     *     or a `decline` operation if the user is the receiver.
+     */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          /** @description The unique identifier of the invitation to delete. */
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Friend invitation deleted successfully. */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The user is not authorized to delete the invitation. */
+        403: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['FriendInvitationErrorCodeErrorResponse'];
+            'application/json': components['schemas']['FriendInvitationErrorCodeErrorResponse'];
+            'text/json': components['schemas']['FriendInvitationErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The invitation was not found. */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['FriendInvitationErrorCodeErrorResponse'];
+            'application/json': components['schemas']['FriendInvitationErrorCodeErrorResponse'];
+            'text/json': components['schemas']['FriendInvitationErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
     options?: never;
     head?: never;
     patch?: never;
@@ -918,15 +1382,11 @@ export interface paths {
       requestBody?: never;
       responses: {
         /** @description The user was successfully removed from the group. */
-        200: {
+        204: {
           headers: {
             [name: string]: unknown;
           };
-          content: {
-            'text/plain': components['schemas']['GroupDto'];
-            'application/json': components['schemas']['GroupDto'];
-            'text/json': components['schemas']['GroupDto'];
-          };
+          content?: never;
         };
         /** @description Unauthorized */
         401: {
@@ -1024,6 +1484,17 @@ export interface paths {
             'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
             'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
             'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The user is the creator of the group and cannot be kicked from it. */
+        403: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupErrorCodeErrorResponse'];
           };
         };
         /** @description The group or the user was not found. */
@@ -1601,7 +2072,13 @@ export interface components {
      * @description Defines error codes related to authentication operations, returned in API error responses.
      * @enum {string}
      */
-    AuthErrorCode: 'MISSING_TOKEN' | 'INVALID_TOKEN' | 'INVALID_REFRESH_TOKEN' | 'EXPIRED_TOKEN';
+    AuthErrorCode:
+      | 'MISSING_TOKEN'
+      | 'INVALID_TOKEN'
+      | 'INVALID_REFRESH_TOKEN'
+      | 'EXPIRED_TOKEN'
+      | 'USER_NOT_FOUND'
+      | 'INVALID_CURRENT_PASSWORD';
     /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     AuthErrorCodeErrorResponse: {
       code: components['schemas']['AuthErrorCode'];
@@ -1617,8 +2094,43 @@ export interface components {
       token: string;
       refreshToken: string;
     };
+    ChangePasswordRequestDto: {
+      currentPassword: string;
+      newPassword: string;
+    };
     /** @enum {string} */
     DistanceUnit: 'Kilometers' | 'Miles';
+    FriendInvitationDto: {
+      /** Format: uuid */
+      id: string;
+      /** Format: date-time */
+      createdAt: string;
+      sender: components['schemas']['UserDto'];
+      receiver: components['schemas']['UserDto'];
+    };
+    /**
+     * @description Defines error codes for friend invitation operations,
+     *     returned in API error responses.
+     * @enum {string}
+     */
+    FriendInvitationErrorCode:
+      | 'INVITATION_NOT_FOUND'
+      | 'RECIPIENT_NOT_FOUND'
+      | 'ALREADY_FRIEND'
+      | 'ALREADY_SENT'
+      | 'RECIPROCAL_EXISTS'
+      | 'SELF_INVITATION'
+      | 'ACCESS_DENIED';
+    /** @description Represents a strongly-typed error response containing a machine-readable error code. */
+    FriendInvitationErrorCodeErrorResponse: {
+      code: components['schemas']['FriendInvitationErrorCode'];
+      /** @description The human-readable error message. */
+      message?: string | null;
+    };
+    FriendInvitationRequestDto: {
+      /** Format: uuid */
+      userId: string;
+    };
     GroupDto: {
       /** Format: int32 */
       id: number;
@@ -1748,7 +2260,8 @@ export interface components {
       | 'USERNAME_ALREADY_USED'
       | 'USERNAME_VALIDATION_ERROR'
       | 'INVALID_EMAIL_FORMAT'
-      | 'VALIDATION_ERROR';
+      | 'VALIDATION_ERROR'
+      | 'USERNAME_RESERVED';
     /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     RegisterErrorCodeErrorResponse: {
       code: components['schemas']['RegisterErrorCode'];

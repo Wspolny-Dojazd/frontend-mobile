@@ -15,6 +15,7 @@ export const TRANSLATIONS: Record<string, Record<RefreshErrorCode, string>> = {
     INVALID_TOKEN: 'Your session token is invalid. Please log in again.',
     INVALID_REFRESH_TOKEN: 'Your session token is invalid. Please log in again.',
     EXPIRED_TOKEN: 'Your session has expired. Please log in again.',
+    INVALID_CURRENT_PASSWORD: 'Invalid current password.',
   },
   pl: {
     MISSING_TOKEN:
@@ -23,6 +24,7 @@ export const TRANSLATIONS: Record<string, Record<RefreshErrorCode, string>> = {
     INVALID_TOKEN: 'Twój token sesji jest nieprawidłowy. Proszę zalogować się ponownie.',
     INVALID_REFRESH_TOKEN: 'Twój token sesji jest nieprawidłowy. Proszę zalogować się ponownie.',
     EXPIRED_TOKEN: 'Twoja sesja wygasła. Proszę zalogować się ponownie.',
+    INVALID_CURRENT_PASSWORD: 'Nieprawidłowe hasło.',
   },
 };
 

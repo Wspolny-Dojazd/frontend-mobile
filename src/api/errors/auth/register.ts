@@ -12,6 +12,7 @@ export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
     VALIDATION_ERROR: 'Registration validation failed. Please check your input.',
     USERNAME_ALREADY_USED: 'This username is already registered.',
     USERNAME_VALIDATION_ERROR: 'Username validation failed. Please check your input.',
+    USERNAME_RESERVED: 'This username is reserved for internal use.',
   },
   pl: {
     EMAIL_ALREADY_USED: 'Ten adres email jest już zarejestrowany.',
@@ -20,6 +21,7 @@ export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
     USERNAME_ALREADY_USED: 'Ta nazwa użytkownika jest już zarejestrowana.',
     USERNAME_VALIDATION_ERROR:
       'Nazwa użytkownika jest nieprawidłowa. Proszę sprawdzić wprowadzone dane.',
+    USERNAME_RESERVED: 'Ta nazwa użytkownika jest zarezerwowana dla wewnętrznego użycia.',
   },
 };
 
