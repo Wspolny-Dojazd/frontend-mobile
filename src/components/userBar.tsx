@@ -5,19 +5,19 @@ import { Text } from '@/src/components/ui/text';
 
 type UserBarProps = {
   name: string;
-  imageSource: any;
+  // imageSource: any;
   children?: ReactNode;
   className?: string;
 };
 
-export const UserBar = ({ name, imageSource, children, className = '' }: UserBarProps) => {
+export const UserBar = ({ name, children, className = '' }: UserBarProps) => {
   return (
     <View className={`flex-row items-center justify-between px-7 py-4 ${className}`}>
       {/* Main content container */}
       <View className="flex-1 flex-row items-center">
         {/* Image container */}
         <View className="relative">
-          <Image source={imageSource} className="mr-3 h-12 w-12 rounded-full" />
+          {/* <Image source={imageSource} className="mr-3 h-12 w-12 rounded-full" /> */}
         </View>
 
         {/* Text container */}
