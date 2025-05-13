@@ -328,7 +328,7 @@ export default function App() {
                   <UserBar
                     key={index}
                     name={request.name}
-                    imageSource={request.imageSource}
+                    // imageSource={request.imageSource}
                     className="border-t border-muted">
                     <Button className="rounded-2xl" size="sm" variant="muted">
                       <Text className="text-destructive">{t('decline')}</Text>
@@ -346,7 +346,7 @@ export default function App() {
                   <UserBar
                     key={index}
                     name={request.name}
-                    imageSource={request.imageSource}
+                    // imageSource={request.imageSource}
                     className="border-t border-muted">
                     <Button className="rounded-2xl" size="sm" variant="muted">
                       <Text className="text-destructive">{t('cancel')}</Text>

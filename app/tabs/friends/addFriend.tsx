@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { Search, ChevronLeft } from 'lucide-react-native';
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { View, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -50,48 +50,67 @@ export default function AddFriendView() {
 
   const { token } = useAuth();
 
-  console.log('Sending searchTrigger in useQuery:', searchTrigger);
-  const { data, isLoading, error: queryError } = $api.useQuery(
-    'get',
-    '/api/users/search',
-    {
-      headers: { Authorization: `Bearer ${token}` },
-      query: { query: searchTrigger },
-    }
-  );
+  // console.log('Sending searchTrigger in useQuery:', searchTrigger);
+  // const { data, isLoading, error: queryError } = $api.useQuery(
+  //   'get',
+  //   '/api/users/search',
+  //   {
+  //     headers: { Authorization: `Bearer ${token}` },
+  //     params: { query: { query: searchTrigger } },
+  //   }
+  // );
 
   // Update users or error when API result changes
-  useEffect(() => {
-    if (queryError) {
-      console.error('Search error:', queryError);
-      setError(t('error'));
-      Alert.alert(queryError?.message || t('error'));
-      return;
-    }
+  // useEffect(() => {
+  //   if (queryError) {
+  //     console.error('Search error:', queryError);
+  //     setError(t('error'));
+  //     Alert.alert(queryError?.message || t('error'));
+  //     return;
+  //   }
 
-    if (data) {
-      setError(null);
-      setUsers(
-        data.map((user: User) => ({
-          id: user.id,
-          username: user.username,
-          nickname: user.nickname,
-          email: user.email,
-          invited: false,
-        }))
-      );
-    }
-  }, [data, queryError]);
+  //   if (data) {
+  //     setError(null);
+  //     setUsers(
+  //       data.map((user: User) => ({
+  //         id: user.id,
+  //         username: user.username,
+  //         nickname: user.nickname,
+  //         email: user.email,
+  //         invited: false,
+  //       }))
+  //     );
+  //   }
+  // }, [data, queryError]);
 
-  const handleSearch = () => {
+  const mutationSearch = $api.useMutation('get', '/api/users/search');
+
+  const handleSearch = useCallback(() => {
     console.log('Search for:', searchQuery.trim())
     if (!searchQuery.trim()) {
       setUsers([]);
       setSearchTrigger('');
       return;
     }
-    setSearchTrigger(searchQuery.trim());
-  };
+
+    mutationSearch.mutate(
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { query: { query: searchQuery.trim() } },
+      },
+      {
+        onSuccess(data) {
+          setError(null);
+          setUsers(data);
+        },
+
+        onError(error, variables, context) {
+          Alert.alert(error?.code ?? 'Some error occurred');
+        },
+      }
+    );
+    // setSearchTrigger(searchQuery.trim());
+  }, [searchQuery, mutationSearch, token]);
 
   // const handleSendRequest = async (userId: string) => {
   //   try {
@@ -142,11 +161,14 @@ export default function AddFriendView() {
       </View>
 
       <ScrollView>
-        {isLoading ? (
+        {/* {isLoading ? (
           <Text className="text-center py-4">{t('loading')}</Text>
         ) : error ? (
           <Text className="text-red-500 text-center py-4">{error}</Text>
         ) : users.length === 0 && searchTrigger ? (
+          <Text className="text-center py-4">{t('empty')}</Text>
+        ) : ( */}
+        { users.length === 0 ? (
           <Text className="text-center py-4">{t('empty')}</Text>
         ) : (
           users.map(user => (
