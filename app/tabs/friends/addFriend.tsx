@@ -137,8 +137,8 @@ export default function AddFriendView() {
             onSubmitEditing={handleSearch}
             returnKeyType="search"
           />
-          <TouchableOpacity onPress={handleSearch} className="absolute ml-2 p-2 ">
-            <Search size={24} strokeWidth={3} color="#3d917c" />
+          <TouchableOpacity onPress={handleSearch} className="absolute ml-2 p-2">
+            <Search size={24} strokeWidth={3} color="#909597" />
           </TouchableOpacity>
         </View>
       </View>
