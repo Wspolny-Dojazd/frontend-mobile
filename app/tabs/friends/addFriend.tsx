@@ -19,18 +19,22 @@ const TRANSLATIONS = {
     search: 'Search username',
     invite: 'Invite',
     sent: 'Sent',
+    alreadyInvited: 'User already invited you',
     error: 'Failed to search users',
     empty: 'No users found',
-    loading: 'Searching...',
+    searching: 'Searching...',
+    sending: 'Sending...',
   },
   pl: {
     title: 'Dodaj znajomego',
     search: 'Wyszukaj nazwę',
     invite: 'Zaproś',
     sent: 'Wysłano',
+    alreadyInvited: 'Ten użytkownik już cię zaprosił',
     error: 'Błąd wyszukiwania',
     empty: 'Brak wyników',
-    loading: 'Wyszukiwanie...',
+    searching: 'Wyszukiwanie...',
+    sending: 'Wysyłanie...',
   },
 };
 
@@ -49,41 +53,24 @@ export default function AddFriendView() {
   const [error, setError] = useState<string | null>(null);
 
   const { token } = useAuth();
+  console.log(token);
 
-  // console.log('Sending searchTrigger in useQuery:', searchTrigger);
-  // const { data, isLoading, error: queryError } = $api.useQuery(
-  //   'get',
-  //   '/api/users/search',
-  //   {
-  //     headers: { Authorization: `Bearer ${token}` },
-  //     params: { query: { query: searchTrigger } },
-  //   }
-  // );
-
-  // Update users or error when API result changes
-  // useEffect(() => {
-  //   if (queryError) {
-  //     console.error('Search error:', queryError);
-  //     setError(t('error'));
-  //     Alert.alert(queryError?.message || t('error'));
-  //     return;
-  //   }
-
-  //   if (data) {
-  //     setError(null);
-  //     setUsers(
-  //       data.map((user: User) => ({
-  //         id: user.id,
-  //         username: user.username,
-  //         nickname: user.nickname,
-  //         email: user.email,
-  //         invited: false,
-  //       }))
-  //     );
-  //   }
-  // }, [data, queryError]);
+  const { 
+    data: sentInvitations = [], 
+    refetch: refetchSent 
+  } = $api.useQuery('get', '/api/friend-invitations/sent', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  
+  const { 
+    data: receivedInvitations = [] 
+  } = $api.useQuery('get', '/api/friend-invitations/received', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 
   const mutationSearch = $api.useMutation('get', '/api/users/search');
+
+  const mutationSendRequest = $api.useMutation('post', '/api/friend-invitations');
 
   const handleSearch = useCallback(() => {
     console.log('Search for:', searchQuery.trim())
@@ -109,28 +96,24 @@ export default function AddFriendView() {
         },
       }
     );
-    // setSearchTrigger(searchQuery.trim());
   }, [searchQuery, mutationSearch, token]);
 
-  // const handleSendRequest = async (userId: string) => {
-  //   try {
-  //     await $api.useQuery('post', '/api/friend-invitations', {
-  //       headers: { Authorization: `Bearer ${token}` },
-  //       body: { userId },
-  //     });
-
-  //     setUsers(prev =>
-  //       prev.map(user =>
-  //         user.id === userId ? { ...user } : user
-  //       )
-  //     );
-  //   } catch (err: any) {
-  //     console.error('Invite error:', err);
-  //     const errorMessage = err.response?.data?.message || t('error');
-  //     setError(errorMessage);
-  //     Alert.alert(errorMessage);
-  //   }
-  // };
+  const handleSendRequest = useCallback((userId: string) => {
+    mutationSendRequest.mutate(
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        body: { userId },
+      },
+      {
+        onSuccess: () => {
+          refetchSent();
+        },
+        onError: (error) => {
+          Alert.alert(error?.code ?? 'Failed to send friend request');
+        },
+      }
+    );
+  }, [mutationSendRequest, token, t]);
 
   return (
     <SafeAreaView className="flex min-h-full flex-1 flex-col">
@@ -151,7 +134,7 @@ export default function AddFriendView() {
             value={searchQuery}
             onChangeText={setSearchQuery}
             className="flex-1 rounded-2xl bg-field pl-12"
-            // onSubmitEditing={handleSearch}
+            onSubmitEditing={handleSearch}
             returnKeyType="search"
           />
           <TouchableOpacity onPress={handleSearch} className="absolute ml-2 p-2 ">
@@ -161,29 +144,53 @@ export default function AddFriendView() {
       </View>
 
       <ScrollView>
-        {/* {isLoading ? (
-          <Text className="text-center py-4">{t('loading')}</Text>
+        {mutationSearch.isPending ? (
+          <Text className="text-center py-4">{t('searching')}</Text>
         ) : error ? (
           <Text className="text-red-500 text-center py-4">{error}</Text>
-        ) : users.length === 0 && searchTrigger ? (
-          <Text className="text-center py-4">{t('empty')}</Text>
-        ) : ( */}
-        { users.length === 0 ? (
+        ) : users.length === 0 ? (
           <Text className="text-center py-4">{t('empty')}</Text>
         ) : (
-          users.map(user => (
-            <UserBar key={user.id} name={user.nickname}>
-              <Button
-                className="min-w-24 rounded-2xl"
-                size="sm"
-                variant="default"
-                // onPress={() => handleSendRequest(user.id)}
-                onPress={() => console.log('Invite user:', user.id)}
-              >
-                <Text>{t('invite')}</Text>
-              </Button>
-            </UserBar>
-          ))
+          users.map(user => {
+            const isSent = sentInvitations.some(invite => 
+              invite.receiver.id === user.id
+            );
+            const isReceived = receivedInvitations.some(invite => 
+              invite.sender.id === user.id
+            );
+            const isSending = mutationSendRequest.isPending && 
+              mutationSendRequest.variables?.body?.userId === user.id;
+          
+            let buttonVariant: 'default' | 'muted' = 'default';
+            let buttonText = t('invite');
+          
+            if (isSending) {
+              buttonVariant = 'muted';
+              buttonText = t('sending');
+            } else if (isSent) {
+              buttonVariant = 'muted';
+              buttonText = t('sent');
+            } else if (isReceived) {
+              buttonVariant = 'muted';
+              buttonText = t('alreadyInvited');
+            }
+          
+            return (
+              <UserBar key={user.id} name={user.nickname}>
+                <Button
+                  className="min-w-24 rounded-2xl"
+                  size="sm"
+                  variant={buttonVariant}
+                  onPress={!isSent && !isReceived && !isSending ? 
+                    () => handleSendRequest(user.id) : 
+                    undefined
+                  }
+                >
+                  <Text>{buttonText}</Text>
+                </Button>
+              </UserBar>
+            );
+          })
         )}
       </ScrollView>
     </SafeAreaView>
