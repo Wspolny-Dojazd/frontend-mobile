@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { Search, ChevronLeft } from 'lucide-react-native';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { View, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -24,6 +24,7 @@ const TRANSLATIONS = {
     empty: 'No users found',
     searching: 'Searching...',
     sending: 'Sending...',
+    instruction: "Input user's nickname above to search",
   },
   pl: {
     title: 'Dodaj znajomego',
@@ -35,6 +36,7 @@ const TRANSLATIONS = {
     empty: 'Brak wyników',
     searching: 'Wyszukiwanie...',
     sending: 'Wysyłanie...',
+    instruction: "Wpisz nazwę użytkownika powyżej, aby wyszukać",
   },
 };
 
@@ -49,11 +51,14 @@ export default function AddFriendView() {
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchTrigger, setSearchTrigger] = useState('');
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const { token } = useAuth();
-  console.log(token);
+  const { data: me } = $api.useQuery('get', '/api/auth/me', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 
   const { 
     data: sentInvitations = [], 
@@ -72,31 +77,45 @@ export default function AddFriendView() {
 
   const mutationSendRequest = $api.useMutation('post', '/api/friend-invitations');
 
-  const handleSearch = useCallback(() => {
-    console.log('Search for:', searchQuery.trim())
-    if (!searchQuery.trim()) {
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
       setUsers([]);
       setSearchTrigger('');
       return;
     }
-
-    mutationSearch.mutate(
-      {
-        headers: { Authorization: `Bearer ${token}` },
-        params: { query: { query: searchQuery.trim() } },
-      },
-      {
-        onSuccess(data) {
-          setError(null);
-          setUsers(data);
+  
+    // Clear previous timeout
+    if (searchTimeout) clearTimeout(searchTimeout);
+  
+    // Set new timeout
+    const timeout = setTimeout(() => {
+      mutationSearch.mutate(
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { query: { query: searchQuery.trim() } },
         },
-
-        onError(error, variables, context) {
-          Alert.alert(error?.code ?? 'Some error occurred');
-        },
-      }
-    );
-  }, [searchQuery, mutationSearch, token]);
+        {
+          onSuccess(data) {
+            setError(null);
+            const filteredData = me ? data.filter(user => user.id !== me.id) : data;
+            setUsers(filteredData);
+            setSearchTrigger(searchQuery.trim());
+          },
+          onError(error) {
+            Alert.alert(error?.code ?? t('error'));
+            setSearchTrigger('');
+          },
+        }
+      );
+    }, 300); // 300ms debounce time
+  
+    setSearchTimeout(timeout);
+  
+    // Cleanup timeout on unmount
+    return () => {
+      if (searchTimeout) clearTimeout(searchTimeout);
+    };
+  }, [searchQuery, token]);
 
   const handleSendRequest = useCallback((userId: string) => {
     mutationSendRequest.mutate(
@@ -128,18 +147,22 @@ export default function AddFriendView() {
       </View>
 
       <View className="relative my-4 w-full px-7">
-        <View className="flex-row items-center">
-          <InputText
-            placeholder={t('search')}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            className="flex-1 rounded-2xl bg-field pl-12"
-            onSubmitEditing={handleSearch}
-            returnKeyType="search"
-          />
-          <TouchableOpacity onPress={handleSearch} className="absolute ml-2 p-2">
-            <Search size={24} strokeWidth={3} color="#909597" />
-          </TouchableOpacity>
+        <InputText
+          placeholder={t('search')}
+          value={searchQuery}
+          onChangeText={(text) => {
+            setSearchQuery(text);
+            // Clear results immediately when clearing input
+            if (text.trim() === '') {
+              setUsers([]);
+              setSearchTrigger('');
+            }
+          }}
+          className="flex-1 rounded-2xl bg-field pl-12"
+          returnKeyType="search"
+        />
+        <View className="pointer-events-none absolute inset-y-0 left-7 top-3 flex items-center ps-3">
+          <Search size={24} strokeWidth={3} color="#909597" />
         </View>
       </View>
 
@@ -148,7 +171,9 @@ export default function AddFriendView() {
           <Text className="text-center py-4">{t('searching')}</Text>
         ) : error ? (
           <Text className="text-red-500 text-center py-4">{error}</Text>
-        ) : users.length === 0 ? (
+        ) : searchTrigger === '' ? (
+          <Text className="text-center py-4">{t('instruction')}</Text>
+        ) : users.length === 0 && searchTrigger ? (
           <Text className="text-center py-4">{t('empty')}</Text>
         ) : (
           users.map(user => {
