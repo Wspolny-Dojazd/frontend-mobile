@@ -20,6 +20,7 @@ const TRANSLATIONS = {
     invite: 'Invite',
     sent: 'Sent',
     alreadyInvited: 'User already invited you',
+    alreadyFriends: 'Already friends',
     error: 'Failed to search users',
     empty: 'No users found',
     searching: 'Searching...',
@@ -32,6 +33,7 @@ const TRANSLATIONS = {
     invite: 'Zaproś',
     sent: 'Wysłano',
     alreadyInvited: 'Ten użytkownik już cię zaprosił',
+    alreadyFriends: 'Jesteście już znajomymi',
     error: 'Błąd wyszukiwania',
     empty: 'Brak wyników',
     searching: 'Wyszukiwanie...',
@@ -75,6 +77,16 @@ export default function AddFriendView() {
       headers: { Authorization: `Bearer ${token}` },
     }
   );
+
+  const { data: friendsList = [] } = $api.useQuery(
+    'get',
+    '/api/friends',
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+
+  const friends: User[] = Array.isArray(friendsList) ? friendsList : [friendsList];
 
   const mutationSearch = $api.useMutation('get', '/api/users/search');
 
@@ -185,6 +197,7 @@ export default function AddFriendView() {
           users.map((user) => {
             const isSent = sentInvitations.some((invite) => invite.receiver.id === user.id);
             const isReceived = receivedInvitations.some((invite) => invite.sender.id === user.id);
+            const isFriend = friends.some(friend => friend.id === user.id);
             const isSending =
               mutationSendRequest.isPending &&
               mutationSendRequest.variables?.body?.userId === user.id;
@@ -195,6 +208,9 @@ export default function AddFriendView() {
             if (isSending) {
               buttonVariant = 'muted';
               buttonText = t('sending');
+            } else if (isFriend) {
+              buttonVariant = 'muted';
+              buttonText = t('alreadyFriends');
             } else if (isSent) {
               buttonVariant = 'muted';
               buttonText = t('sent');
@@ -210,7 +226,7 @@ export default function AddFriendView() {
                   size="sm"
                   variant={buttonVariant}
                   onPress={
-                    !isSent && !isReceived && !isSending
+                    !isFriend && !isSent && !isReceived && !isSending
                       ? () => handleSendRequest(user.id)
                       : undefined
                   }>

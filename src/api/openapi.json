@@ -7,7 +7,9 @@
   "paths": {
     "/api/auth/login": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Authenticates a user using provided credentials and returns a JWT token.",
         "requestBody": {
           "description": "The login request containing email and password.",
@@ -95,7 +97,9 @@
     },
     "/api/auth/register": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Registers a new user and returns a JWT token.",
         "requestBody": {
           "description": "The registration request containing email, nickname, and password.",
@@ -203,7 +207,9 @@
     },
     "/api/auth/me": {
       "get": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Retrieves the currently authenticated user's profile.",
         "responses": {
           "200": {
@@ -291,7 +297,9 @@
     },
     "/api/auth/change-password": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Changes the password of the currently authenticated user.",
         "requestBody": {
           "description": "The change-password request containing current and new password.",
@@ -419,7 +427,9 @@
     },
     "/api/auth/refresh": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Refreshes the access token using the provided refresh token.",
         "requestBody": {
           "description": "The request containing token and refresh token.",
@@ -527,7 +537,9 @@
     },
     "/api/friend-invitations": {
       "post": {
-        "tags": ["FriendInvitations"],
+        "tags": [
+          "FriendInvitations"
+        ],
         "summary": "Sends a new friend invitation from the authenticated user to another user.",
         "requestBody": {
           "description": "The friend invitation request data.",
@@ -655,7 +667,9 @@
     },
     "/api/friend-invitations/sent": {
       "get": {
-        "tags": ["FriendInvitations"],
+        "tags": [
+          "FriendInvitations"
+        ],
         "summary": "Retrieves all invitations sent by the authenticated user.",
         "responses": {
           "200": {
@@ -732,7 +746,9 @@
     },
     "/api/friend-invitations/received": {
       "get": {
-        "tags": ["FriendInvitations"],
+        "tags": [
+          "FriendInvitations"
+        ],
         "summary": "Retrieves all invitations received by the authenticated user.",
         "responses": {
           "200": {
@@ -809,7 +825,9 @@
     },
     "/api/friend-invitations/{id}/accept": {
       "post": {
-        "tags": ["FriendInvitations"],
+        "tags": [
+          "FriendInvitations"
+        ],
         "summary": "Accepts a friend invitation and creates a friendship between the sender and receiver.",
         "parameters": [
           {
@@ -912,7 +930,9 @@
     },
     "/api/friend-invitations/{id}": {
       "delete": {
-        "tags": ["FriendInvitations"],
+        "tags": [
+          "FriendInvitations"
+        ],
         "summary": "Deletes a friend invitation.",
         "description": "This method executes a `cancel` operation if the user is the sender,\nor a `decline` operation if the user is the receiver.",
         "parameters": [
@@ -1014,9 +1034,101 @@
         }
       }
     },
+    "/api/friends": {
+      "get": {
+        "tags": [
+          "Friends"
+        ],
+        "summary": "Retrieves a friend list for currently logged in user.",
+        "responses": {
+          "200": {
+            "description": "The friend list was successfully retrieved.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The friend list was not found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/groups/{groupId}/paths": {
       "post": {
-        "tags": ["GroupPaths"],
+        "tags": [
+          "GroupPaths"
+        ],
         "summary": "Generates multiple proposed path sets for all users in the group\nbased on their locations and a desired destination.",
         "parameters": [
           {
@@ -1100,6 +1212,26 @@
               }
             }
           },
+          "403": {
+            "description": "The user is not a member of the group.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
           "404": {
             "description": "The group was not found.",
             "content": {
@@ -1163,7 +1295,9 @@
         }
       },
       "get": {
-        "tags": ["GroupPaths"],
+        "tags": [
+          "GroupPaths"
+        ],
         "summary": "Retrieves all proposed paths for the specified group.",
         "parameters": [
           {
@@ -1209,6 +1343,26 @@
           },
           "400": {
             "description": "Cannot retrieve paths because one has already been accepted.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The user is not a member of the group.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -1292,7 +1446,9 @@
     },
     "/api/groups/{groupId}/paths/accepted": {
       "get": {
-        "tags": ["GroupPaths"],
+        "tags": [
+          "GroupPaths"
+        ],
         "summary": "Retrieves the accepted path for the specified group.",
         "parameters": [
           {
@@ -1323,6 +1479,26 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProposedPathDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The user is not a member of the group.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
                 }
               }
             }
@@ -1392,7 +1568,9 @@
     },
     "/api/groups/{groupId}/paths/{pathId}/accept": {
       "post": {
-        "tags": ["GroupPaths"],
+        "tags": [
+          "GroupPaths"
+        ],
         "summary": "Accepts a proposed path and removes all other proposed paths for the group.",
         "parameters": [
           {
@@ -1439,6 +1617,26 @@
           },
           "400": {
             "description": "The path is already accepted.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The user is not a member of the group.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -1522,7 +1720,9 @@
     },
     "/api/groups/{id}": {
       "get": {
-        "tags": ["Groups"],
+        "tags": [
+          "Groups"
+        ],
         "summary": "Retrieves a group by its unique identifier.",
         "parameters": [
           {
@@ -1622,7 +1822,9 @@
     },
     "/api/groups": {
       "post": {
-        "tags": ["Groups"],
+        "tags": [
+          "Groups"
+        ],
         "summary": "Creates a new group.",
         "responses": {
           "200": {
@@ -1708,7 +1910,9 @@
         }
       },
       "get": {
-        "tags": ["Groups"],
+        "tags": [
+          "Groups"
+        ],
         "summary": "Retrieves all groups that the currently logged user is a member of.",
         "responses": {
           "200": {
@@ -1805,7 +2009,9 @@
     },
     "/api/groups/join/code/{code}": {
       "post": {
-        "tags": ["Groups"],
+        "tags": [
+          "Groups"
+        ],
         "summary": "Adds the currently authenticated user to a group using a joining code.",
         "parameters": [
           {
@@ -1904,7 +2110,9 @@
     },
     "/api/groups/{id}/leave": {
       "post": {
-        "tags": ["Groups"],
+        "tags": [
+          "Groups"
+        ],
         "summary": "Removes the currently authenticated user from the specified group.",
         "parameters": [
           {
@@ -1921,6 +2129,26 @@
         "responses": {
           "204": {
             "description": "The user was successfully removed from the group."
+          },
+          "403": {
+            "description": "The user is not a member of the group.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              }
+            }
           },
           "404": {
             "description": "The group or the user was not found.",
@@ -1987,7 +2215,9 @@
     },
     "/api/groups/{id}/kick/{userId}": {
       "post": {
-        "tags": ["Groups"],
+        "tags": [
+          "Groups"
+        ],
         "summary": "Removes a specific user from a group (kick user).",
         "parameters": [
           {
@@ -2053,7 +2283,7 @@
             }
           },
           "403": {
-            "description": "The user is the creator of the group and cannot be kicked from it.",
+            "description": "The user is not a member of the group.\nThe user is the creator of the group and cannot be kicked from it.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -2137,7 +2367,9 @@
     },
     "/api/groups/{id}/messages": {
       "get": {
-        "tags": ["Groups"],
+        "tags": [
+          "Groups"
+        ],
         "summary": "Retrieves all messages for a specified group.",
         "parameters": [
           {
@@ -2264,7 +2496,9 @@
         }
       },
       "post": {
-        "tags": ["Groups"],
+        "tags": [
+          "Groups"
+        ],
         "summary": "Sends a message to a specified group.",
         "parameters": [
           {
@@ -2424,7 +2658,9 @@
     },
     "/api/groups/{id}/members": {
       "get": {
-        "tags": ["Groups"],
+        "tags": [
+          "Groups"
+        ],
         "summary": "Retrieves all members of the specified group.",
         "parameters": [
           {
@@ -2464,6 +2700,26 @@
                   "items": {
                     "$ref": "#/components/schemas/GroupMemberDto"
                   }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The user is not a member of the group.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
                 }
               }
             }
@@ -2533,7 +2789,9 @@
     },
     "/api/user-configuration": {
       "get": {
-        "tags": ["UserConfiguration"],
+        "tags": [
+          "UserConfiguration"
+        ],
         "summary": "Retrieves a user configuration.",
         "responses": {
           "200": {
@@ -2619,7 +2877,9 @@
         }
       },
       "put": {
-        "tags": ["UserConfiguration"],
+        "tags": [
+          "UserConfiguration"
+        ],
         "summary": "Updates user configuration.",
         "requestBody": {
           "description": "The user configuration fields to update with.",
@@ -2727,7 +2987,9 @@
     },
     "/api/users/{id}": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Retrieves a user by their unique identifier.",
         "parameters": [
           {
@@ -2827,7 +3089,9 @@
     },
     "/api/users/me/location": {
       "post": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Updates the current user's location.",
         "requestBody": {
           "description": "The location data containing latitude and longitude.",
@@ -2956,7 +3220,9 @@
     },
     "/api/users/search": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Retrieves users whose username or nickname closely matches the provided query.",
         "description": "Users are matched using the Levenshtein distance.\nThe comparison is case-insensitive.\nResults are ordered first by the distance to the username,\nthen by the distance to the nickname.",
         "parameters": [
@@ -3057,7 +3323,9 @@
         "type": "string"
       },
       "AuthErrorCodeErrorResponse": {
-        "required": ["code"],
+        "required": [
+          "code"
+        ],
         "type": "object",
         "properties": {
           "code": {
@@ -3071,7 +3339,14 @@
         "additionalProperties": false
       },
       "AuthResponseDto": {
-        "required": ["email", "id", "nickname", "refreshToken", "token", "username"],
+        "required": [
+          "email",
+          "id",
+          "nickname",
+          "refreshToken",
+          "token",
+          "username"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -3102,7 +3377,10 @@
         "additionalProperties": false
       },
       "ChangePasswordRequestDto": {
-        "required": ["currentPassword", "newPassword"],
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ],
         "type": "object",
         "properties": {
           "currentPassword": {
@@ -3117,11 +3395,19 @@
         "additionalProperties": false
       },
       "DistanceUnit": {
-        "enum": ["Kilometers", "Miles"],
+        "enum": [
+          "Kilometers",
+          "Miles"
+        ],
         "type": "string"
       },
       "FriendInvitationDto": {
-        "required": ["createdAt", "id", "receiver", "sender"],
+        "required": [
+          "createdAt",
+          "id",
+          "receiver",
+          "sender"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -3154,7 +3440,9 @@
         "type": "string"
       },
       "FriendInvitationErrorCodeErrorResponse": {
-        "required": ["code"],
+        "required": [
+          "code"
+        ],
         "type": "object",
         "properties": {
           "code": {
@@ -3168,7 +3456,9 @@
         "additionalProperties": false
       },
       "FriendInvitationRequestDto": {
-        "required": ["userId"],
+        "required": [
+          "userId"
+        ],
         "type": "object",
         "properties": {
           "userId": {
@@ -3179,7 +3469,11 @@
         "additionalProperties": false
       },
       "GroupDto": {
-        "required": ["groupMembers", "id", "joiningCode"],
+        "required": [
+          "groupMembers",
+          "id",
+          "joiningCode"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -3210,7 +3504,9 @@
         "type": "string"
       },
       "GroupErrorCodeErrorResponse": {
-        "required": ["code"],
+        "required": [
+          "code"
+        ],
         "type": "object",
         "properties": {
           "code": {
@@ -3224,7 +3520,12 @@
         "additionalProperties": false
       },
       "GroupMemberDto": {
-        "required": ["id", "isCreator", "nickname", "username"],
+        "required": [
+          "id",
+          "isCreator",
+          "nickname",
+          "username"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -3249,11 +3550,19 @@
         "additionalProperties": false
       },
       "GroupPathErrorCode": {
-        "enum": ["GROUP_NOT_FOUND", "PATH_NOT_FOUND", "PATH_NOT_IN_GROUP", "PATH_ALREADY_ACCEPTED"],
+        "enum": [
+          "GROUP_NOT_FOUND",
+          "PATH_NOT_FOUND",
+          "PATH_NOT_IN_GROUP",
+          "PATH_ALREADY_ACCEPTED",
+          "ACCESS_DENIED"
+        ],
         "type": "string"
       },
       "GroupPathErrorCodeErrorResponse": {
-        "required": ["code"],
+        "required": [
+          "code"
+        ],
         "type": "object",
         "properties": {
           "code": {
@@ -3267,11 +3576,15 @@
         "additionalProperties": false
       },
       "InternalErrorCode": {
-        "enum": ["INTERNAL_ERROR"],
+        "enum": [
+          "INTERNAL_ERROR"
+        ],
         "type": "string"
       },
       "InternalErrorCodeErrorResponse": {
-        "required": ["code"],
+        "required": [
+          "code"
+        ],
         "type": "object",
         "properties": {
           "code": {
@@ -3285,15 +3598,24 @@
         "additionalProperties": false
       },
       "Language": {
-        "enum": ["Polish", "English"],
+        "enum": [
+          "Polish",
+          "English"
+        ],
         "type": "string"
       },
       "LoginErrorCode": {
-        "enum": ["INVALID_CREDENTIALS", "INVALID_EMAIL_FORMAT", "VALIDATION_ERROR"],
+        "enum": [
+          "INVALID_CREDENTIALS",
+          "INVALID_EMAIL_FORMAT",
+          "VALIDATION_ERROR"
+        ],
         "type": "string"
       },
       "LoginErrorCodeErrorResponse": {
-        "required": ["code"],
+        "required": [
+          "code"
+        ],
         "type": "object",
         "properties": {
           "code": {
@@ -3307,7 +3629,10 @@
         "additionalProperties": false
       },
       "LoginRequestDto": {
-        "required": ["email", "password"],
+        "required": [
+          "email",
+          "password"
+        ],
         "type": "object",
         "properties": {
           "email": {
@@ -3323,7 +3648,9 @@
         "additionalProperties": false
       },
       "MemberLocationRequestDto": {
-        "required": ["userId"],
+        "required": [
+          "userId"
+        ],
         "type": "object",
         "allOf": [
           {
@@ -3339,7 +3666,12 @@
         "additionalProperties": false
       },
       "MessageDto": {
-        "required": ["content", "createdAt", "id", "userId"],
+        "required": [
+          "content",
+          "createdAt",
+          "id",
+          "userId"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -3362,11 +3694,15 @@
         "additionalProperties": false
       },
       "MessageErrorCode": {
-        "enum": ["EMPTY_MESSAGE"],
+        "enum": [
+          "EMPTY_MESSAGE"
+        ],
         "type": "string"
       },
       "MessageErrorCodeErrorResponse": {
-        "required": ["code"],
+        "required": [
+          "code"
+        ],
         "type": "object",
         "properties": {
           "code": {
@@ -3380,7 +3716,9 @@
         "additionalProperties": false
       },
       "MessagePayloadDto": {
-        "required": ["content"],
+        "required": [
+          "content"
+        ],
         "type": "object",
         "properties": {
           "content": {
@@ -3391,7 +3729,12 @@
         "additionalProperties": false
       },
       "PathRequestDto": {
-        "required": ["arrivalTime", "destinationLatitude", "destinationLongitude", "userLocations"],
+        "required": [
+          "arrivalTime",
+          "destinationLatitude",
+          "destinationLongitude",
+          "userLocations"
+        ],
         "type": "object",
         "properties": {
           "destinationLatitude": {
@@ -3416,7 +3759,10 @@
         "additionalProperties": false
       },
       "ProposedPathDto": {
-        "required": ["id", "paths"],
+        "required": [
+          "id",
+          "paths"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -3433,7 +3779,10 @@
         "additionalProperties": false
       },
       "RefreshTokenRequestDto": {
-        "required": ["refreshToken", "token"],
+        "required": [
+          "refreshToken",
+          "token"
+        ],
         "type": "object",
         "properties": {
           "token": {
@@ -3459,7 +3808,9 @@
         "type": "string"
       },
       "RegisterErrorCodeErrorResponse": {
-        "required": ["code"],
+        "required": [
+          "code"
+        ],
         "type": "object",
         "properties": {
           "code": {
@@ -3473,7 +3824,12 @@
         "additionalProperties": false
       },
       "RegisterRequestDto": {
-        "required": ["email", "nickname", "password", "username"],
+        "required": [
+          "email",
+          "nickname",
+          "password",
+          "username"
+        ],
         "type": "object",
         "properties": {
           "username": {
@@ -3499,7 +3855,14 @@
         "additionalProperties": false
       },
       "RouteLineDto": {
-        "required": ["color", "headSign", "longName", "shortName", "textColor", "type"],
+        "required": [
+          "color",
+          "headSign",
+          "longName",
+          "shortName",
+          "textColor",
+          "type"
+        ],
         "type": "object",
         "properties": {
           "type": {
@@ -3529,7 +3892,11 @@
         "additionalProperties": false
       },
       "RouteSegmentDto": {
-        "required": ["line", "shapes", "stops"],
+        "required": [
+          "line",
+          "shapes",
+          "stops"
+        ],
         "type": "object",
         "allOf": [
           {
@@ -3575,7 +3942,10 @@
         "additionalProperties": false
       },
       "ShapeCoordDto": {
-        "required": ["latitude", "longitude"],
+        "required": [
+          "latitude",
+          "longitude"
+        ],
         "type": "object",
         "properties": {
           "latitude": {
@@ -3590,7 +3960,9 @@
         "additionalProperties": false
       },
       "ShapeSectionDto": {
-        "required": ["coords"],
+        "required": [
+          "coords"
+        ],
         "type": "object",
         "properties": {
           "from": {
@@ -3611,7 +3983,14 @@
         "additionalProperties": false
       },
       "StopDto": {
-        "required": ["code", "id", "latitude", "longitude", "name", "wheelchairAccessible"],
+        "required": [
+          "code",
+          "id",
+          "latitude",
+          "longitude",
+          "name",
+          "wheelchairAccessible"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -3651,15 +4030,27 @@
         "additionalProperties": false
       },
       "Theme": {
-        "enum": ["Dark", "Light"],
+        "enum": [
+          "Dark",
+          "Light",
+          "System"
+        ],
         "type": "string"
       },
       "TimeSystem": {
-        "enum": ["TwelveHour", "TwentyFourHour"],
+        "enum": [
+          "TwelveHour",
+          "TwentyFourHour"
+        ],
         "type": "string"
       },
       "UserConfigurationDto": {
-        "required": ["distanceUnit", "language", "theme", "timeSystem"],
+        "required": [
+          "distanceUnit",
+          "language",
+          "theme",
+          "timeSystem"
+        ],
         "type": "object",
         "properties": {
           "timeSystem": {
@@ -3678,11 +4069,16 @@
         "additionalProperties": false
       },
       "UserConfigurationErrorCode": {
-        "enum": ["USER_CONFIGURATION_NOT_FOUND", "VALIDATION_ERROR"],
+        "enum": [
+          "USER_CONFIGURATION_NOT_FOUND",
+          "VALIDATION_ERROR"
+        ],
         "type": "string"
       },
       "UserConfigurationErrorCodeErrorResponse": {
-        "required": ["code"],
+        "required": [
+          "code"
+        ],
         "type": "object",
         "properties": {
           "code": {
@@ -3696,7 +4092,12 @@
         "additionalProperties": false
       },
       "UserDto": {
-        "required": ["email", "id", "nickname", "username"],
+        "required": [
+          "email",
+          "id",
+          "nickname",
+          "username"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -3719,11 +4120,15 @@
         "additionalProperties": false
       },
       "UserErrorCode": {
-        "enum": ["USER_NOT_FOUND"],
+        "enum": [
+          "USER_NOT_FOUND"
+        ],
         "type": "string"
       },
       "UserErrorCodeErrorResponse": {
-        "required": ["code"],
+        "required": [
+          "code"
+        ],
         "type": "object",
         "properties": {
           "code": {
@@ -3737,7 +4142,11 @@
         "additionalProperties": false
       },
       "UserLocationDto": {
-        "required": ["latitude", "longitude", "updatedAt"],
+        "required": [
+          "latitude",
+          "longitude",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "latitude": {
@@ -3756,11 +4165,16 @@
         "additionalProperties": false
       },
       "UserLocationErrorCode": {
-        "enum": ["INVALID_COORDINATES", "LOCATION_NOT_FOUND"],
+        "enum": [
+          "INVALID_COORDINATES",
+          "LOCATION_NOT_FOUND"
+        ],
         "type": "string"
       },
       "UserLocationErrorCodeErrorResponse": {
-        "required": ["code"],
+        "required": [
+          "code"
+        ],
         "type": "object",
         "properties": {
           "code": {
@@ -3774,7 +4188,10 @@
         "additionalProperties": false
       },
       "UserLocationRequestDto": {
-        "required": ["latitude", "longitude"],
+        "required": [
+          "latitude",
+          "longitude"
+        ],
         "type": "object",
         "properties": {
           "latitude": {
@@ -3793,7 +4210,10 @@
         "additionalProperties": false
       },
       "UserPathDto": {
-        "required": ["segments", "userId"],
+        "required": [
+          "segments",
+          "userId"
+        ],
         "type": "object",
         "properties": {
           "userId": {
@@ -3817,7 +4237,11 @@
         "additionalProperties": false
       },
       "WalkLocationDto": {
-        "required": ["id", "latitude", "longitude"],
+        "required": [
+          "id",
+          "latitude",
+          "longitude"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -3840,7 +4264,11 @@
         "additionalProperties": false
       },
       "WalkSegmentDto": {
-        "required": ["from", "shapes", "to"],
+        "required": [
+          "from",
+          "shapes",
+          "to"
+        ],
         "type": "object",
         "allOf": [
           {
@@ -3875,7 +4303,7 @@
   },
   "security": [
     {
-      "Bearer": []
+      "Bearer": [ ]
     }
   ],
   "tags": [
@@ -3886,6 +4314,10 @@
     {
       "name": "FriendInvitations",
       "description": "Provides API endpoints for managing friend invitations."
+    },
+    {
+      "name": "Friends",
+      "description": "Provides API endpoints for managing users' friendship relationships."
     },
     {
       "name": "GroupPaths",
