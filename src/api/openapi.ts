@@ -2064,14 +2064,80 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/users/search': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Retrieves users whose username or nickname closely matches the provided query.
+     * @description Users are matched using the Levenshtein distance.
+     *     The comparison is case-insensitive.
+     *     Results are ordered first by the distance to the username,
+     *     then by the distance to the nickname.
+     */
+    get: {
+      parameters: {
+        query?: {
+          /** @description The search string to compare against usernames and nicknames. */
+          query?: string;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Users matching the query were found. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['UserDto'][];
+            'application/json': components['schemas']['UserDto'][];
+            'text/json': components['schemas']['UserDto'][];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    /**
-     * @description Defines error codes related to authentication operations, returned in API error responses.
-     * @enum {string}
-     */
+    /** @enum {string} */
     AuthErrorCode:
       | 'MISSING_TOKEN'
       | 'INVALID_TOKEN'
@@ -2079,10 +2145,8 @@ export interface components {
       | 'EXPIRED_TOKEN'
       | 'USER_NOT_FOUND'
       | 'INVALID_CURRENT_PASSWORD';
-    /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     AuthErrorCodeErrorResponse: {
       code: components['schemas']['AuthErrorCode'];
-      /** @description The human-readable error message. */
       message?: string | null;
     };
     AuthResponseDto: {
@@ -2108,11 +2172,7 @@ export interface components {
       sender: components['schemas']['UserDto'];
       receiver: components['schemas']['UserDto'];
     };
-    /**
-     * @description Defines error codes for friend invitation operations,
-     *     returned in API error responses.
-     * @enum {string}
-     */
+    /** @enum {string} */
     FriendInvitationErrorCode:
       | 'INVITATION_NOT_FOUND'
       | 'RECIPIENT_NOT_FOUND'
@@ -2121,10 +2181,8 @@ export interface components {
       | 'RECIPROCAL_EXISTS'
       | 'SELF_INVITATION'
       | 'ACCESS_DENIED';
-    /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     FriendInvitationErrorCodeErrorResponse: {
       code: components['schemas']['FriendInvitationErrorCode'];
-      /** @description The human-readable error message. */
       message?: string | null;
     };
     FriendInvitationRequestDto: {
@@ -2137,20 +2195,15 @@ export interface components {
       joiningCode: string;
       groupMembers: components['schemas']['GroupMemberDto'][];
     };
-    /**
-     * @description Defines error codes related to group operations, returned in API error responses.
-     * @enum {string}
-     */
+    /** @enum {string} */
     GroupErrorCode:
       | 'GROUP_NOT_FOUND'
       | 'USER_NOT_FOUND'
       | 'USER_ALREADY_IN_GROUP'
       | 'USER_NOT_IN_GROUP'
       | 'ACCESS_DENIED';
-    /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     GroupErrorCodeErrorResponse: {
       code: components['schemas']['GroupErrorCode'];
-      /** @description The human-readable error message. */
       message?: string | null;
     };
     GroupMemberDto: {
@@ -2161,44 +2214,28 @@ export interface components {
       location?: components['schemas']['UserLocationDto'];
       isCreator: boolean;
     };
-    /**
-     * @description Defines error codes related to group path operations,
-     *     returned in API error responses.
-     * @enum {string}
-     */
+    /** @enum {string} */
     GroupPathErrorCode:
       | 'GROUP_NOT_FOUND'
       | 'PATH_NOT_FOUND'
       | 'PATH_NOT_IN_GROUP'
       | 'PATH_ALREADY_ACCEPTED';
-    /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     GroupPathErrorCodeErrorResponse: {
       code: components['schemas']['GroupPathErrorCode'];
-      /** @description The human-readable error message. */
       message?: string | null;
     };
-    /**
-     * @description Defines error codes related to internal errors.
-     * @enum {string}
-     */
+    /** @enum {string} */
     InternalErrorCode: 'INTERNAL_ERROR';
-    /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     InternalErrorCodeErrorResponse: {
       code: components['schemas']['InternalErrorCode'];
-      /** @description The human-readable error message. */
       message?: string | null;
     };
     /** @enum {string} */
     Language: 'Polish' | 'English';
-    /**
-     * @description Defines error codes returned by the login endpoint.
-     * @enum {string}
-     */
+    /** @enum {string} */
     LoginErrorCode: 'INVALID_CREDENTIALS' | 'INVALID_EMAIL_FORMAT' | 'VALIDATION_ERROR';
-    /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     LoginErrorCodeErrorResponse: {
       code: components['schemas']['LoginErrorCode'];
-      /** @description The human-readable error message. */
       message?: string | null;
     };
     LoginRequestDto: {
@@ -2219,15 +2256,10 @@ export interface components {
       /** Format: date-time */
       createdAt: string;
     };
-    /**
-     * @description Defines error codes related to message operations, returned in API error responses.
-     * @enum {string}
-     */
+    /** @enum {string} */
     MessageErrorCode: 'EMPTY_MESSAGE';
-    /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     MessageErrorCodeErrorResponse: {
       code: components['schemas']['MessageErrorCode'];
-      /** @description The human-readable error message. */
       message?: string | null;
     };
     MessagePayloadDto: {
@@ -2251,10 +2283,7 @@ export interface components {
       token: string;
       refreshToken: string;
     };
-    /**
-     * @description Defines error codes returned by the registration endpoint.
-     * @enum {string}
-     */
+    /** @enum {string} */
     RegisterErrorCode:
       | 'EMAIL_ALREADY_USED'
       | 'USERNAME_ALREADY_USED'
@@ -2262,10 +2291,8 @@ export interface components {
       | 'INVALID_EMAIL_FORMAT'
       | 'VALIDATION_ERROR'
       | 'USERNAME_RESERVED';
-    /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     RegisterErrorCodeErrorResponse: {
       code: components['schemas']['RegisterErrorCode'];
-      /** @description The human-readable error message. */
       message?: string | null;
     };
     RegisterRequestDto: {
@@ -2336,15 +2363,10 @@ export interface components {
       language: components['schemas']['Language'];
       theme: components['schemas']['Theme'];
     };
-    /**
-     * @description Defines error codes related to user configuration operations, returned in API error responses.
-     * @enum {string}
-     */
+    /** @enum {string} */
     UserConfigurationErrorCode: 'USER_CONFIGURATION_NOT_FOUND' | 'VALIDATION_ERROR';
-    /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     UserConfigurationErrorCodeErrorResponse: {
       code: components['schemas']['UserConfigurationErrorCode'];
-      /** @description The human-readable error message. */
       message?: string | null;
     };
     UserDto: {
@@ -2354,15 +2376,10 @@ export interface components {
       nickname: string;
       email: string;
     };
-    /**
-     * @description Defines error codes related to user operations, returned in API error responses.
-     * @enum {string}
-     */
+    /** @enum {string} */
     UserErrorCode: 'USER_NOT_FOUND';
-    /** @description Represents a strongly-typed error response containing a machine-readable error code. */
     UserErrorCodeErrorResponse: {
       code: components['schemas']['UserErrorCode'];
-      /** @description The human-readable error message. */
       message?: string | null;
     };
     UserLocationDto: {
@@ -2373,15 +2390,10 @@ export interface components {
       /** Format: date-time */
       updatedAt: string;
     };
-    /**
-     * @description Defines error codes related to user location operations, returned in API error responses.
-     * @enum {string}
-     */
-    UserLocationErrorCode: 'INVALID_COORDINATES';
-    /** @description Represents a strongly-typed error response containing a machine-readable error code. */
+    /** @enum {string} */
+    UserLocationErrorCode: 'INVALID_COORDINATES' | 'LOCATION_NOT_FOUND';
     UserLocationErrorCodeErrorResponse: {
       code: components['schemas']['UserLocationErrorCode'];
-      /** @description The human-readable error message. */
       message?: string | null;
     };
     UserLocationRequestDto: {

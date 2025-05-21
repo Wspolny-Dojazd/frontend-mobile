@@ -1,13 +1,15 @@
 import { useRouter } from 'expo-router';
 import { Search, Plus } from 'lucide-react-native';
-import { useState } from 'react';
-import { TouchableOpacity, View, Image, ScrollView } from 'react-native';
+import { useState, useEffect } from 'react';
+import { TouchableOpacity, View, Image, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { $api } from '@/src/api/api';
 import { Button } from '@/src/components/ui/button';
 import { InputText } from '@/src/components/ui/inputText';
 import { Text } from '@/src/components/ui/text';
 import { UserBar } from '@/src/components/userBar';
+import { useAuth } from '@/src/context/authContext';
 import { UserInfoModal } from '@/src/features/users/UserInfoModal';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
@@ -23,6 +25,14 @@ const TRANSLATIONS = {
     accept: 'Accept',
     decline: 'Decline',
     cancel: 'Cancel',
+    loading: 'Loading...',
+    error: 'Failed to load requests',
+    accepted: 'Accepted',
+    declined: 'Declined',
+    cancelled: 'Cancelled',
+    noRequests: 'No requests found',
+    noSentRequests: 'No sent invitations',
+    noMatches: 'No matches found',
   },
   pl: {
     friends: 'Znajomi',
@@ -33,6 +43,14 @@ const TRANSLATIONS = {
     accept: 'Zaakceptuj',
     decline: 'Odrzuć',
     cancel: 'Anuluj',
+    loading: 'Ładowanie...',
+    error: 'Błąd ładowania',
+    accepted: 'Zaakceptowano',
+    declined: 'Odrzucono',
+    cancelled: 'Anulowano',
+    noRequests: 'Brak próśb',
+    noSentRequests: 'Brak wysłanych',
+    noMatches: 'Brak pasujących',
   },
 };
 
@@ -42,12 +60,6 @@ const statusColors: Record<Status, string> = {
   away: 'bg-yellow-500',
   busy: 'bg-red-500',
   inactive: 'bg-gray-400',
-};
-
-const groupChat = {
-  id: 'group1',
-  name: 'test groupchat',
-  members: ['1', '2', '3'],
 };
 
 const friends = [
@@ -157,37 +169,6 @@ const friends = [
   },
 ];
 
-const friendRequests = [
-  {
-    name: 'Darrell Steward',
-    imageSource: {
-      uri: 'https://fastly.picsum.photos/id/852/200/200.jpg?hmac=4UHLpiS9j3YDnvq-w-MqnP5-ymiyvMs6BNV5ukoTRrI',
-    },
-    type: 'new' as const,
-  },
-  {
-    name: 'Jane Doe',
-    imageSource: {
-      uri: 'https://fastly.picsum.photos/id/626/200/200.jpg?hmac=k-fpo_bQAtxcljtuQzE1GTq5YEufAV5jjzW3n86c0i0',
-    },
-    type: 'sent' as const,
-  },
-  {
-    name: 'Guy Hawkins',
-    imageSource: {
-      uri: 'https://fastly.picsum.photos/id/764/200/200.jpg?hmac=g-JXLL-Box0-4IF64xLkh-OYHpc0kuCIXsRTuaqEPhQ',
-    },
-    type: 'sent' as const,
-  },
-  {
-    name: 'John Doe',
-    imageSource: {
-      uri: 'https://fastly.picsum.photos/id/942/200/200.jpg?hmac=Gh7W-H3ZGmweB9STLwQvq-IHkxrVyawHVTKYxy-u9mA',
-    },
-    type: 'new' as const,
-  },
-];
-
 const FriendChatItem = ({
   name,
   message,
@@ -246,8 +227,69 @@ export default function App() {
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
   const [value, setValue] = useState('friends');
   const [name, setName] = useState('');
-  const router = useRouter();
+  const [processedInvitations, setProcessedInvitations] = useState<
+    Record<string, 'accepted' | 'declined' | 'cancelled'>
+  >({});
+  const [processingInvitations, setProcessingInvitations] = useState<Record<string, boolean>>({});
   const [selectedFriend, setSelectedFriend] = useState<(typeof friends)[number] | null>(null);
+  const router = useRouter();
+
+  const { token } = useAuth();
+
+  const { data: sentInvitations = [], refetch: refetchSent } = $api.useQuery(
+    'get',
+    '/api/friend-invitations/sent',
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+
+  const { data: receivedInvitations = [], refetch: refetchReceived } = $api.useQuery(
+    'get',
+    '/api/friend-invitations/received',
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+
+  useEffect(() => {
+    if (value === 'requests') {
+      refetchSent();
+      refetchReceived();
+    }
+  }, [value, refetchSent, refetchReceived]);
+
+  const mutationAccept = $api.useMutation('post', '/api/friend-invitations/{id}/accept');
+  const mutationDecline = $api.useMutation('delete', '/api/friend-invitations/{id}');
+
+  const handleAction = async (
+    invitationId: string,
+    actionType: 'accept' | 'decline' | 'cancel'
+  ) => {
+    try {
+      setProcessingInvitations((prev) => ({ ...prev, [invitationId]: true }));
+
+      const mutation = actionType === 'accept' ? mutationAccept : mutationDecline;
+      await mutation.mutateAsync({
+        headers: { Authorization: `Bearer ${token}` },
+        params: { path: { id: invitationId } },
+      });
+
+      setProcessedInvitations((prev) => ({
+        ...prev,
+        [invitationId]:
+          actionType === 'accept'
+            ? 'accepted'
+            : actionType === 'decline'
+              ? 'declined'
+              : 'cancelled',
+      }));
+    } catch (error: any) {
+      Alert.alert(error?.code ?? t('error'));
+    } finally {
+      setProcessingInvitations((prev) => ({ ...prev, [invitationId]: false }));
+    }
+  };
 
   const handleAddFriendPress = () => {
     router.push('tabs/friends/addFriend');
@@ -256,6 +298,21 @@ export default function App() {
   const handleProfilePress = (friend: (typeof friends)[number]) => {
     setSelectedFriend(friend);
   };
+
+  const filterInvitations = (invitations: any[], searchQuery: string, isSent: boolean) => {
+    if (!searchQuery.trim()) return invitations;
+
+    const query = searchQuery.trim().toLowerCase();
+    return invitations.filter((invitation) => {
+      const nickname = isSent
+        ? invitation.receiver.nickname.toLowerCase()
+        : invitation.sender.nickname.toLowerCase();
+      return nickname.startsWith(query);
+    });
+  };
+
+  const filteredReceived = filterInvitations(receivedInvitations, name, false);
+  const filteredSent = filterInvitations(sentInvitations, name, true);
 
   return (
     <SafeAreaView className="flex min-h-full flex-1 flex-col items-center">
@@ -279,7 +336,7 @@ export default function App() {
               onChangeText={setName}
               className="rounded-2xl bg-field pl-12"
             />
-            <View className="pointer-events-none absolute inset-y-0 left-7 top-2 flex items-center ps-3">
+            <View className="pointer-events-none absolute inset-y-0 left-7 top-3 flex items-center ps-3">
               <Search size={24} strokeWidth={3} color="#909597" />
             </View>
           </View>
@@ -316,44 +373,131 @@ export default function App() {
               onChangeText={setName}
               className="rounded-2xl bg-field pl-12"
             />
-            <View className="pointer-events-none absolute inset-y-0 left-7 top-2 flex items-center ps-3">
+            <View className="pointer-events-none absolute inset-y-0 left-7 top-3 flex items-center ps-3">
               <Search size={24} strokeWidth={3} color="#909597" />
             </View>
           </View>
           <ScrollView contentContainerStyle={{ paddingBottom: 320 }}>
-            <Text className="my-2 text-center text-muted-foreground">{t('newRequests')}</Text>
-            {friendRequests.map(
-              (request, index) =>
-                request.type === 'new' && (
-                  <UserBar
-                    key={index}
-                    name={request.name}
-                    imageSource={request.imageSource}
-                    className="border-t border-muted">
-                    <Button className="rounded-2xl" size="sm" variant="muted">
-                      <Text className="text-destructive">{t('decline')}</Text>
-                    </Button>
-                    <Button className="rounded-2xl" size="sm">
-                      <Text>{t('accept')}</Text>
-                    </Button>
-                  </UserBar>
-                )
-            )}
-            <Text className="my-2 text-center text-muted-foreground">{t('sentRequests')}</Text>
-            {friendRequests.map(
-              (request, index) =>
-                request.type === 'sent' && (
-                  <UserBar
-                    key={index}
-                    name={request.name}
-                    imageSource={request.imageSource}
-                    className="border-t border-muted">
-                    <Button className="rounded-2xl" size="sm" variant="muted">
-                      <Text className="text-destructive">{t('cancel')}</Text>
-                    </Button>
-                  </UserBar>
-                )
-            )}
+            {/* Add filter function inside the component */}
+            {(() => {
+              const filterInvitations = (invitations: any[], isSent: boolean) => {
+                if (!name.trim()) return invitations;
+                const query = name.trim().toLowerCase();
+                return invitations.filter((invitation) => {
+                  const nickname = isSent
+                    ? invitation.receiver.nickname.toLowerCase()
+                    : invitation.sender.nickname.toLowerCase();
+                  return nickname.startsWith(query);
+                });
+              };
+
+              const filteredReceived = filterInvitations(receivedInvitations, false);
+              const filteredSent = filterInvitations(sentInvitations, true);
+
+              return (
+                <>
+                  <Text className="my-2 text-center text-muted-foreground">{t('newRequests')}</Text>
+
+                  {receivedInvitations.length === 0 ? (
+                    <Text className="border-t border-muted py-4 text-center text-muted-foreground">
+                      {t('noRequests')}
+                    </Text>
+                  ) : filteredReceived.length === 0 ? (
+                    <Text className="border-t border-muted py-4 text-center text-muted-foreground">
+                      {name ? t('noMatches') : t('noMatches')}
+                    </Text>
+                  ) : (
+                    filteredReceived.map((invitation) => {
+                      const status = processedInvitations[invitation.id];
+                      const isProcessing = processingInvitations[invitation.id];
+
+                      return (
+                        <UserBar
+                          key={invitation.id}
+                          name={invitation.sender.nickname}
+                          className="border-t border-muted">
+                          {status ? (
+                            <Text className="text-muted-foreground">
+                              {t(status === 'accepted' ? 'accepted' : 'declined')}
+                            </Text>
+                          ) : (
+                            <View className="flex-row gap-2">
+                              {!isProcessing && (
+                                <Button
+                                  className="rounded-2xl"
+                                  size="sm"
+                                  variant="muted"
+                                  onPress={() => handleAction(invitation.id, 'decline')}
+                                  disabled={isProcessing}>
+                                  <Text
+                                    className={
+                                      isProcessing ? 'text-foreground' : 'text-destructive'
+                                    }>
+                                    {isProcessing ? t('loading') : t('decline')}
+                                  </Text>
+                                </Button>
+                              )}
+                              <Button
+                                className="rounded-2xl"
+                                size="sm"
+                                variant={isProcessing ? 'muted' : 'default'}
+                                onPress={() => handleAction(invitation.id, 'accept')}
+                                disabled={isProcessing}>
+                                <Text className={isProcessing ? 'text-foreground' : 'text-default'}>
+                                  {isProcessing ? t('loading') : t('accept')}
+                                </Text>
+                              </Button>
+                            </View>
+                          )}
+                        </UserBar>
+                      );
+                    })
+                  )}
+
+                  <Text className="mb-2 mt-8 text-center text-muted-foreground">
+                    {t('sentRequests')}
+                  </Text>
+
+                  {sentInvitations.length === 0 ? (
+                    <Text className="border-t border-muted py-4 text-center text-muted-foreground">
+                      {t('noSentRequests')}
+                    </Text>
+                  ) : filteredSent.length === 0 ? (
+                    <Text className="border-t border-muted py-4 text-center text-muted-foreground">
+                      {name ? t('noMatches') : t('noMatches')}
+                    </Text>
+                  ) : (
+                    filteredSent.map((invitation) => {
+                      const status = processedInvitations[invitation.id];
+                      const isProcessing = processingInvitations[invitation.id];
+
+                      return (
+                        <UserBar
+                          key={invitation.id}
+                          name={invitation.receiver.nickname}
+                          className="border-t border-muted">
+                          {status ? (
+                            <Text className="text-muted-foreground">{t('cancelled')}</Text>
+                          ) : (
+                            <Button
+                              className="rounded-2xl"
+                              size="sm"
+                              variant="muted"
+                              onPress={() => handleAction(invitation.id, 'cancel')}
+                              disabled={isProcessing}>
+                              <Text
+                                className={isProcessing ? 'text-foreground' : 'text-destructive'}>
+                                {isProcessing ? t('loading') : t('cancel')}
+                              </Text>
+                            </Button>
+                          )}
+                        </UserBar>
+                      );
+                    })
+                  )}
+                </>
+              );
+            })()}
           </ScrollView>
         </TabsContent>
       </Tabs>

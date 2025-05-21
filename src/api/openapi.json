@@ -2953,6 +2953,94 @@
           }
         }
       }
+    },
+    "/api/users/search": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Retrieves users whose username or nickname closely matches the provided query.",
+        "description": "Users are matched using the Levenshtein distance.\nThe comparison is case-insensitive.\nResults are ordered first by the distance to the username,\nthen by the distance to the nickname.",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "description": "The search string to compare against usernames and nicknames.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users matching the query were found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2966,8 +3054,7 @@
           "USER_NOT_FOUND",
           "INVALID_CURRENT_PASSWORD"
         ],
-        "type": "string",
-        "description": "Defines error codes related to authentication operations, returned in API error responses."
+        "type": "string"
       },
       "AuthErrorCodeErrorResponse": {
         "required": ["code"],
@@ -2978,12 +3065,10 @@
           },
           "message": {
             "type": "string",
-            "description": "The human-readable error message.",
             "nullable": true
           }
         },
-        "additionalProperties": false,
-        "description": "Represents a strongly-typed error response containing a machine-readable error code."
+        "additionalProperties": false
       },
       "AuthResponseDto": {
         "required": ["email", "id", "nickname", "refreshToken", "token", "username"],
@@ -3066,8 +3151,7 @@
           "SELF_INVITATION",
           "ACCESS_DENIED"
         ],
-        "type": "string",
-        "description": "Defines error codes for friend invitation operations,\nreturned in API error responses."
+        "type": "string"
       },
       "FriendInvitationErrorCodeErrorResponse": {
         "required": ["code"],
@@ -3078,12 +3162,10 @@
           },
           "message": {
             "type": "string",
-            "description": "The human-readable error message.",
             "nullable": true
           }
         },
-        "additionalProperties": false,
-        "description": "Represents a strongly-typed error response containing a machine-readable error code."
+        "additionalProperties": false
       },
       "FriendInvitationRequestDto": {
         "required": ["userId"],
@@ -3125,8 +3207,7 @@
           "USER_NOT_IN_GROUP",
           "ACCESS_DENIED"
         ],
-        "type": "string",
-        "description": "Defines error codes related to group operations, returned in API error responses."
+        "type": "string"
       },
       "GroupErrorCodeErrorResponse": {
         "required": ["code"],
@@ -3137,12 +3218,10 @@
           },
           "message": {
             "type": "string",
-            "description": "The human-readable error message.",
             "nullable": true
           }
         },
-        "additionalProperties": false,
-        "description": "Represents a strongly-typed error response containing a machine-readable error code."
+        "additionalProperties": false
       },
       "GroupMemberDto": {
         "required": ["id", "isCreator", "nickname", "username"],
@@ -3171,8 +3250,7 @@
       },
       "GroupPathErrorCode": {
         "enum": ["GROUP_NOT_FOUND", "PATH_NOT_FOUND", "PATH_NOT_IN_GROUP", "PATH_ALREADY_ACCEPTED"],
-        "type": "string",
-        "description": "Defines error codes related to group path operations,\nreturned in API error responses."
+        "type": "string"
       },
       "GroupPathErrorCodeErrorResponse": {
         "required": ["code"],
@@ -3183,17 +3261,14 @@
           },
           "message": {
             "type": "string",
-            "description": "The human-readable error message.",
             "nullable": true
           }
         },
-        "additionalProperties": false,
-        "description": "Represents a strongly-typed error response containing a machine-readable error code."
+        "additionalProperties": false
       },
       "InternalErrorCode": {
         "enum": ["INTERNAL_ERROR"],
-        "type": "string",
-        "description": "Defines error codes related to internal errors."
+        "type": "string"
       },
       "InternalErrorCodeErrorResponse": {
         "required": ["code"],
@@ -3204,12 +3279,10 @@
           },
           "message": {
             "type": "string",
-            "description": "The human-readable error message.",
             "nullable": true
           }
         },
-        "additionalProperties": false,
-        "description": "Represents a strongly-typed error response containing a machine-readable error code."
+        "additionalProperties": false
       },
       "Language": {
         "enum": ["Polish", "English"],
@@ -3217,8 +3290,7 @@
       },
       "LoginErrorCode": {
         "enum": ["INVALID_CREDENTIALS", "INVALID_EMAIL_FORMAT", "VALIDATION_ERROR"],
-        "type": "string",
-        "description": "Defines error codes returned by the login endpoint."
+        "type": "string"
       },
       "LoginErrorCodeErrorResponse": {
         "required": ["code"],
@@ -3229,12 +3301,10 @@
           },
           "message": {
             "type": "string",
-            "description": "The human-readable error message.",
             "nullable": true
           }
         },
-        "additionalProperties": false,
-        "description": "Represents a strongly-typed error response containing a machine-readable error code."
+        "additionalProperties": false
       },
       "LoginRequestDto": {
         "required": ["email", "password"],
@@ -3293,8 +3363,7 @@
       },
       "MessageErrorCode": {
         "enum": ["EMPTY_MESSAGE"],
-        "type": "string",
-        "description": "Defines error codes related to message operations, returned in API error responses."
+        "type": "string"
       },
       "MessageErrorCodeErrorResponse": {
         "required": ["code"],
@@ -3305,12 +3374,10 @@
           },
           "message": {
             "type": "string",
-            "description": "The human-readable error message.",
             "nullable": true
           }
         },
-        "additionalProperties": false,
-        "description": "Represents a strongly-typed error response containing a machine-readable error code."
+        "additionalProperties": false
       },
       "MessagePayloadDto": {
         "required": ["content"],
@@ -3389,8 +3456,7 @@
           "VALIDATION_ERROR",
           "USERNAME_RESERVED"
         ],
-        "type": "string",
-        "description": "Defines error codes returned by the registration endpoint."
+        "type": "string"
       },
       "RegisterErrorCodeErrorResponse": {
         "required": ["code"],
@@ -3401,12 +3467,10 @@
           },
           "message": {
             "type": "string",
-            "description": "The human-readable error message.",
             "nullable": true
           }
         },
-        "additionalProperties": false,
-        "description": "Represents a strongly-typed error response containing a machine-readable error code."
+        "additionalProperties": false
       },
       "RegisterRequestDto": {
         "required": ["email", "nickname", "password", "username"],
@@ -3615,8 +3679,7 @@
       },
       "UserConfigurationErrorCode": {
         "enum": ["USER_CONFIGURATION_NOT_FOUND", "VALIDATION_ERROR"],
-        "type": "string",
-        "description": "Defines error codes related to user configuration operations, returned in API error responses."
+        "type": "string"
       },
       "UserConfigurationErrorCodeErrorResponse": {
         "required": ["code"],
@@ -3627,12 +3690,10 @@
           },
           "message": {
             "type": "string",
-            "description": "The human-readable error message.",
             "nullable": true
           }
         },
-        "additionalProperties": false,
-        "description": "Represents a strongly-typed error response containing a machine-readable error code."
+        "additionalProperties": false
       },
       "UserDto": {
         "required": ["email", "id", "nickname", "username"],
@@ -3659,8 +3720,7 @@
       },
       "UserErrorCode": {
         "enum": ["USER_NOT_FOUND"],
-        "type": "string",
-        "description": "Defines error codes related to user operations, returned in API error responses."
+        "type": "string"
       },
       "UserErrorCodeErrorResponse": {
         "required": ["code"],
@@ -3671,12 +3731,10 @@
           },
           "message": {
             "type": "string",
-            "description": "The human-readable error message.",
             "nullable": true
           }
         },
-        "additionalProperties": false,
-        "description": "Represents a strongly-typed error response containing a machine-readable error code."
+        "additionalProperties": false
       },
       "UserLocationDto": {
         "required": ["latitude", "longitude", "updatedAt"],
@@ -3698,9 +3756,8 @@
         "additionalProperties": false
       },
       "UserLocationErrorCode": {
-        "enum": ["INVALID_COORDINATES"],
-        "type": "string",
-        "description": "Defines error codes related to user location operations, returned in API error responses."
+        "enum": ["INVALID_COORDINATES", "LOCATION_NOT_FOUND"],
+        "type": "string"
       },
       "UserLocationErrorCodeErrorResponse": {
         "required": ["code"],
@@ -3711,12 +3768,10 @@
           },
           "message": {
             "type": "string",
-            "description": "The human-readable error message.",
             "nullable": true
           }
         },
-        "additionalProperties": false,
-        "description": "Represents a strongly-typed error response containing a machine-readable error code."
+        "additionalProperties": false
       },
       "UserLocationRequestDto": {
         "required": ["latitude", "longitude"],
