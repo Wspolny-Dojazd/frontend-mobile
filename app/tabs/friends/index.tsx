@@ -4,15 +4,15 @@ import { useState, useEffect } from 'react';
 import { TouchableOpacity, View, Image, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { $api } from '@/src/api/api';
 import { Button } from '@/src/components/ui/button';
 import { InputText } from '@/src/components/ui/inputText';
 import { Text } from '@/src/components/ui/text';
 import { UserBar } from '@/src/components/userBar';
+import { useAuth } from '@/src/context/authContext';
 import { UserInfoModal } from '@/src/features/users/UserInfoModal';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
-import { $api } from '@/src/api/api';
-import { useAuth } from '@/src/context/authContext';
 
 const NAMESPACE = 'app/tabs/friends';
 const TRANSLATIONS = {
@@ -227,27 +227,31 @@ export default function App() {
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
   const [value, setValue] = useState('friends');
   const [name, setName] = useState('');
-  const [processedInvitations, setProcessedInvitations] = useState<Record<string, 'accepted' | 'declined' | 'cancelled'>>({});
+  const [processedInvitations, setProcessedInvitations] = useState<
+    Record<string, 'accepted' | 'declined' | 'cancelled'>
+  >({});
   const [processingInvitations, setProcessingInvitations] = useState<Record<string, boolean>>({});
   const [selectedFriend, setSelectedFriend] = useState<(typeof friends)[number] | null>(null);
   const router = useRouter();
 
   const { token } = useAuth();
 
-  const { 
-    data: sentInvitations = [], 
-    refetch: refetchSent 
-  } = $api.useQuery('get', '/api/friend-invitations/sent', {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  
-  const { 
-    data: receivedInvitations = [],
-    refetch: refetchReceived 
-  } = $api.useQuery('get', '/api/friend-invitations/received', {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  
+  const { data: sentInvitations = [], refetch: refetchSent } = $api.useQuery(
+    'get',
+    '/api/friend-invitations/sent',
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+
+  const { data: receivedInvitations = [], refetch: refetchReceived } = $api.useQuery(
+    'get',
+    '/api/friend-invitations/received',
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+
   useEffect(() => {
     if (value === 'requests') {
       refetchSent();
@@ -258,25 +262,32 @@ export default function App() {
   const mutationAccept = $api.useMutation('post', '/api/friend-invitations/{id}/accept');
   const mutationDecline = $api.useMutation('delete', '/api/friend-invitations/{id}');
 
-  const handleAction = async (invitationId: string, actionType: 'accept' | 'decline' | 'cancel') => {
+  const handleAction = async (
+    invitationId: string,
+    actionType: 'accept' | 'decline' | 'cancel'
+  ) => {
     try {
-      setProcessingInvitations(prev => ({ ...prev, [invitationId]: true }));
-      
+      setProcessingInvitations((prev) => ({ ...prev, [invitationId]: true }));
+
       const mutation = actionType === 'accept' ? mutationAccept : mutationDecline;
       await mutation.mutateAsync({
         headers: { Authorization: `Bearer ${token}` },
-        params: { path: { id: invitationId } }
+        params: { path: { id: invitationId } },
       });
-  
-      setProcessedInvitations(prev => ({
+
+      setProcessedInvitations((prev) => ({
         ...prev,
-        [invitationId]: actionType === 'accept' ? 'accepted' : 
-                        actionType === 'decline' ? 'declined' : 'cancelled'
+        [invitationId]:
+          actionType === 'accept'
+            ? 'accepted'
+            : actionType === 'decline'
+              ? 'declined'
+              : 'cancelled',
       }));
     } catch (error: any) {
       Alert.alert(error?.code ?? t('error'));
     } finally {
-      setProcessingInvitations(prev => ({ ...prev, [invitationId]: false }));
+      setProcessingInvitations((prev) => ({ ...prev, [invitationId]: false }));
     }
   };
 
@@ -290,10 +301,10 @@ export default function App() {
 
   const filterInvitations = (invitations: any[], searchQuery: string, isSent: boolean) => {
     if (!searchQuery.trim()) return invitations;
-    
+
     const query = searchQuery.trim().toLowerCase();
-    return invitations.filter(invitation => {
-      const nickname = isSent 
+    return invitations.filter((invitation) => {
+      const nickname = isSent
         ? invitation.receiver.nickname.toLowerCase()
         : invitation.sender.nickname.toLowerCase();
       return nickname.startsWith(query);
@@ -372,8 +383,8 @@ export default function App() {
               const filterInvitations = (invitations: any[], isSent: boolean) => {
                 if (!name.trim()) return invitations;
                 const query = name.trim().toLowerCase();
-                return invitations.filter(invitation => {
-                  const nickname = isSent 
+                return invitations.filter((invitation) => {
+                  const nickname = isSent
                     ? invitation.receiver.nickname.toLowerCase()
                     : invitation.sender.nickname.toLowerCase();
                   return nickname.startsWith(query);
@@ -387,98 +398,103 @@ export default function App() {
                 <>
                   <Text className="my-2 text-center text-muted-foreground">{t('newRequests')}</Text>
 
-                  { receivedInvitations.length === 0 ? (
-                    <Text className="py-4 text-center text-muted-foreground border-t border-muted">
+                  {receivedInvitations.length === 0 ? (
+                    <Text className="border-t border-muted py-4 text-center text-muted-foreground">
                       {t('noRequests')}
                     </Text>
                   ) : filteredReceived.length === 0 ? (
-                    <Text className="py-4 text-center text-muted-foreground border-t border-muted">
+                    <Text className="border-t border-muted py-4 text-center text-muted-foreground">
                       {name ? t('noMatches') : t('noMatches')}
                     </Text>
-                  ) : filteredReceived.map((invitation) => {
-                    const status = processedInvitations[invitation.id];
-                    const isProcessing = processingInvitations[invitation.id];
+                  ) : (
+                    filteredReceived.map((invitation) => {
+                      const status = processedInvitations[invitation.id];
+                      const isProcessing = processingInvitations[invitation.id];
 
-                    return (
-                      <UserBar
-                        key={invitation.id}
-                        name={invitation.sender.nickname}
-                        className="border-t border-muted"
-                      >
-                        {status ? (
-                          <Text className="text-muted-foreground">
-                            {t(status === 'accepted' ? 'accepted' : 'declined')}
-                          </Text>
-                        ) : (
-                          <View className="flex-row gap-2">
-                            {!isProcessing && (
+                      return (
+                        <UserBar
+                          key={invitation.id}
+                          name={invitation.sender.nickname}
+                          className="border-t border-muted">
+                          {status ? (
+                            <Text className="text-muted-foreground">
+                              {t(status === 'accepted' ? 'accepted' : 'declined')}
+                            </Text>
+                          ) : (
+                            <View className="flex-row gap-2">
+                              {!isProcessing && (
+                                <Button
+                                  className="rounded-2xl"
+                                  size="sm"
+                                  variant="muted"
+                                  onPress={() => handleAction(invitation.id, 'decline')}
+                                  disabled={isProcessing}>
+                                  <Text
+                                    className={
+                                      isProcessing ? 'text-foreground' : 'text-destructive'
+                                    }>
+                                    {isProcessing ? t('loading') : t('decline')}
+                                  </Text>
+                                </Button>
+                              )}
                               <Button
                                 className="rounded-2xl"
                                 size="sm"
-                                variant="muted"
-                                onPress={() => handleAction(invitation.id, 'decline')}
-                                disabled={isProcessing}
-                              >
-                                <Text className={isProcessing ? 'text-foreground' : 'text-destructive'}>
-                                  {isProcessing ? t('loading') : t('decline')}
+                                variant={isProcessing ? 'muted' : 'default'}
+                                onPress={() => handleAction(invitation.id, 'accept')}
+                                disabled={isProcessing}>
+                                <Text className={isProcessing ? 'text-foreground' : 'text-default'}>
+                                  {isProcessing ? t('loading') : t('accept')}
                                 </Text>
                               </Button>
-                            )}
-                            <Button
-                              className="rounded-2xl"
-                              size="sm"
-                              variant={isProcessing ? 'muted' : 'default'}
-                              onPress={() => handleAction(invitation.id, 'accept')}
-                              disabled={isProcessing}
-                            >
-                              <Text className={isProcessing ? 'text-foreground' : 'text-default'}>
-                                {isProcessing ? t('loading') : t('accept')}
-                              </Text>
-                            </Button>
-                          </View>
-                        )}
-                      </UserBar>
-                    );
-                  })}
+                            </View>
+                          )}
+                        </UserBar>
+                      );
+                    })
+                  )}
 
-                  <Text className="mb-2 mt-8 text-center text-muted-foreground">{t('sentRequests')}</Text>
-                      
-                  { sentInvitations.length === 0 ? (
-                    <Text className="py-4 text-center text-muted-foreground border-t border-muted">
+                  <Text className="mb-2 mt-8 text-center text-muted-foreground">
+                    {t('sentRequests')}
+                  </Text>
+
+                  {sentInvitations.length === 0 ? (
+                    <Text className="border-t border-muted py-4 text-center text-muted-foreground">
                       {t('noSentRequests')}
                     </Text>
                   ) : filteredSent.length === 0 ? (
-                    <Text className="py-4 text-center text-muted-foreground border-t border-muted">
+                    <Text className="border-t border-muted py-4 text-center text-muted-foreground">
                       {name ? t('noMatches') : t('noMatches')}
                     </Text>
-                  ) : filteredSent.map((invitation) => {
-                    const status = processedInvitations[invitation.id];
-                    const isProcessing = processingInvitations[invitation.id];
+                  ) : (
+                    filteredSent.map((invitation) => {
+                      const status = processedInvitations[invitation.id];
+                      const isProcessing = processingInvitations[invitation.id];
 
-                    return (
-                      <UserBar
-                        key={invitation.id}
-                        name={invitation.receiver.nickname}
-                        className="border-t border-muted"
-                      >
-                        {status ? (
-                          <Text className="text-muted-foreground">{t('cancelled')}</Text>
-                        ) : (
-                          <Button
-                            className="rounded-2xl"
-                            size="sm"
-                            variant="muted"
-                            onPress={() => handleAction(invitation.id, 'cancel')}
-                            disabled={isProcessing}
-                          >
-                            <Text className={isProcessing ? 'text-foreground' : 'text-destructive'}>
-                              {isProcessing ? t('loading') : t('cancel')}
-                            </Text>
-                          </Button>
-                        )}
-                      </UserBar>
-                    );
-                  })}
+                      return (
+                        <UserBar
+                          key={invitation.id}
+                          name={invitation.receiver.nickname}
+                          className="border-t border-muted">
+                          {status ? (
+                            <Text className="text-muted-foreground">{t('cancelled')}</Text>
+                          ) : (
+                            <Button
+                              className="rounded-2xl"
+                              size="sm"
+                              variant="muted"
+                              onPress={() => handleAction(invitation.id, 'cancel')}
+                              disabled={isProcessing}>
+                              <Text
+                                className={isProcessing ? 'text-foreground' : 'text-destructive'}>
+                                {isProcessing ? t('loading') : t('cancel')}
+                              </Text>
+                            </Button>
+                          )}
+                        </UserBar>
+                      );
+                    })
+                  )}
                 </>
               );
             })()}
