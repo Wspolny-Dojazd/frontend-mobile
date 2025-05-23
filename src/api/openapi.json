@@ -1014,6 +1014,94 @@
         }
       }
     },
+    "/api/friends": {
+      "get": {
+        "tags": ["Friends"],
+        "summary": "Retrieves a friend list for currently logged in user.",
+        "responses": {
+          "200": {
+            "description": "The friend list was successfully retrieved.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The friend list was not found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalErrorCodeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/groups/{groupId}/paths": {
       "post": {
         "tags": ["GroupPaths"],
@@ -1082,6 +1170,26 @@
           },
           "400": {
             "description": "Cannot generate paths because one has already been accepted.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The user is not a member of the group.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -1227,6 +1335,26 @@
               }
             }
           },
+          "403": {
+            "description": "The user is not a member of the group.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
           "404": {
             "description": "The group was not found.",
             "content": {
@@ -1323,6 +1451,26 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProposedPathDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The user is not a member of the group.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
                 }
               }
             }
@@ -1439,6 +1587,26 @@
           },
           "400": {
             "description": "The path is already accepted.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPathErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The user is not a member of the group.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -1922,6 +2090,26 @@
           "204": {
             "description": "The user was successfully removed from the group."
           },
+          "403": {
+            "description": "The user is not a member of the group.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              }
+            }
+          },
           "404": {
             "description": "The group or the user was not found.",
             "content": {
@@ -2053,7 +2241,7 @@
             }
           },
           "403": {
-            "description": "The user is the creator of the group and cannot be kicked from it.",
+            "description": "The user is not a member of the group.\nThe user is the creator of the group and cannot be kicked from it.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -2464,6 +2652,26 @@
                   "items": {
                     "$ref": "#/components/schemas/GroupMemberDto"
                   }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The user is not a member of the group.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupErrorCodeErrorResponse"
                 }
               }
             }
@@ -3249,7 +3457,13 @@
         "additionalProperties": false
       },
       "GroupPathErrorCode": {
-        "enum": ["GROUP_NOT_FOUND", "PATH_NOT_FOUND", "PATH_NOT_IN_GROUP", "PATH_ALREADY_ACCEPTED"],
+        "enum": [
+          "GROUP_NOT_FOUND",
+          "PATH_NOT_FOUND",
+          "PATH_NOT_IN_GROUP",
+          "PATH_ALREADY_ACCEPTED",
+          "ACCESS_DENIED"
+        ],
         "type": "string"
       },
       "GroupPathErrorCodeErrorResponse": {
@@ -3651,7 +3865,7 @@
         "additionalProperties": false
       },
       "Theme": {
-        "enum": ["Dark", "Light"],
+        "enum": ["Dark", "Light", "System"],
         "type": "string"
       },
       "TimeSystem": {
@@ -3886,6 +4100,10 @@
     {
       "name": "FriendInvitations",
       "description": "Provides API endpoints for managing friend invitations."
+    },
+    {
+      "name": "Friends",
+      "description": "Provides API endpoints for managing users' friendship relationships."
     },
     {
       "name": "GroupPaths",

@@ -762,6 +762,77 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/friends': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Retrieves a friend list for currently logged in user. */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description The friend list was successfully retrieved. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['UserDto'];
+            'application/json': components['schemas']['UserDto'];
+            'text/json': components['schemas']['UserDto'];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The friend list was not found. */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['UserErrorCodeErrorResponse'];
+            'application/json': components['schemas']['UserErrorCodeErrorResponse'];
+            'text/json': components['schemas']['UserErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/groups/{groupId}/paths': {
     parameters: {
       query?: never;
@@ -813,6 +884,17 @@ export interface paths {
             'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
             'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
             'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The user is not a member of the group. */
+        403: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
           };
         };
         /** @description The group was not found. */
@@ -894,6 +976,17 @@ export interface paths {
             'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
           };
         };
+        /** @description The user is not a member of the group. */
+        403: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
+          };
+        };
         /** @description The group was not found. */
         404: {
           headers: {
@@ -964,6 +1057,17 @@ export interface paths {
             'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
             'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
             'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The user is not a member of the group. */
+        403: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
           };
         };
         /** @description The group or the path was not found. */
@@ -1053,6 +1157,17 @@ export interface paths {
             'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
             'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
             'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The user is not a member of the group. */
+        403: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
           };
         };
         /** @description The group or the path was not found. */
@@ -1399,6 +1514,17 @@ export interface paths {
             'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
           };
         };
+        /** @description The user is not a member of the group. */
+        403: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupErrorCodeErrorResponse'];
+          };
+        };
         /** @description The group or the user was not found. */
         404: {
           headers: {
@@ -1486,7 +1612,8 @@ export interface paths {
             'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
           };
         };
-        /** @description The user is the creator of the group and cannot be kicked from it. */
+        /** @description The user is not a member of the group.
+         *     The user is the creator of the group and cannot be kicked from it. */
         403: {
           headers: {
             [name: string]: unknown;
@@ -1739,6 +1866,17 @@ export interface paths {
             'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
             'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
             'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The user is not a member of the group. */
+        403: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupErrorCodeErrorResponse'];
           };
         };
         /** @description The group was not found. */
@@ -2219,7 +2357,8 @@ export interface components {
       | 'GROUP_NOT_FOUND'
       | 'PATH_NOT_FOUND'
       | 'PATH_NOT_IN_GROUP'
-      | 'PATH_ALREADY_ACCEPTED';
+      | 'PATH_ALREADY_ACCEPTED'
+      | 'ACCESS_DENIED';
     GroupPathErrorCodeErrorResponse: {
       code: components['schemas']['GroupPathErrorCode'];
       message?: string | null;
@@ -2354,7 +2493,7 @@ export interface components {
       departureTime?: string | null;
     };
     /** @enum {string} */
-    Theme: 'Dark' | 'Light';
+    Theme: 'Dark' | 'Light' | 'System';
     /** @enum {string} */
     TimeSystem: 'TwelveHour' | 'TwentyFourHour';
     UserConfigurationDto: {
