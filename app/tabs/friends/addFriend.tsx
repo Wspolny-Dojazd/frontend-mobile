@@ -78,13 +78,9 @@ export default function AddFriendView() {
     }
   );
 
-  const { data: friendsList = [] } = $api.useQuery(
-    'get',
-    '/api/friends',
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    }
-  );
+  const { data: friendsList = [] } = $api.useQuery('get', '/api/friends', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 
   const friends: User[] = Array.isArray(friendsList) ? friendsList : [friendsList];
 
@@ -197,7 +193,7 @@ export default function AddFriendView() {
           users.map((user) => {
             const isSent = sentInvitations.some((invite) => invite.receiver.id === user.id);
             const isReceived = receivedInvitations.some((invite) => invite.sender.id === user.id);
-            const isFriend = friends.some(friend => friend.id === user.id);
+            const isFriend = friends.some((friend) => friend.id === user.id);
             const isSending =
               mutationSendRequest.isPending &&
               mutationSendRequest.variables?.body?.userId === user.id;
