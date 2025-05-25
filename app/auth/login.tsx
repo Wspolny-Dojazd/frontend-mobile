@@ -11,7 +11,7 @@ import { useAuth } from '@/src/context/authContext';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 
 const NAMESPACE = 'app/auth/login';
-const REDIRECT_DELAY_MS = 2500; // Redirect delay duration
+const REDIRECT_DELAY_MS = 2500;
 
 const TRANSLATIONS = {
   en: {
@@ -45,38 +45,37 @@ export default function Login() {
   const { login, isLoading, error: authError, token, isInitializing } = useAuth();
   const router = useRouter();
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [loginSucceeded, setLoginSucceeded] = useState(false);
 
   useEffect(() => {
     // Clear previous timer
     if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current);
 
-    // Redirect logic for logged-in users
-    if (!isInitializing && token) {
-      console.log('Login Screen: Detected logged-in user. Setting redirect timer.');
-      setIsRedirecting(true);
+    const shouldRedirect = !isInitializing && hasSubmitted && token && !authError && !isLoading;
+
+    if (shouldRedirect) {
+      setLoginSucceeded(true);
+      setHasSubmitted(false);
       redirectTimerRef.current = setTimeout(() => {
-        console.log('Login Screen: Redirect timer fired. Redirecting to /auth/profile.');
-        // router.replace('/auth/profile');
         router.replace('/tabs');
       }, REDIRECT_DELAY_MS);
-    } else {
-      setIsRedirecting(false);
     }
 
     // Cleanup timer on unmount or dependency change
     return () => {
       if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current);
     };
-  }, [isInitializing, token, router]);
+  }, [isInitializing, hasSubmitted, token, authError, isLoading]);
 
   const handleLogin = () => {
     if (!email.trim() || !password.trim()) return;
+    setHasSubmitted(true);
+    setLoginSucceeded(false);
     login({ email: email.trim(), password: password.trim() });
   };
 
-  // Show redirect message if applicable
-  if (isRedirecting) {
+  if (loginSucceeded) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-background p-8">
         <ActivityIndicator size="large" className="mb-4" />
