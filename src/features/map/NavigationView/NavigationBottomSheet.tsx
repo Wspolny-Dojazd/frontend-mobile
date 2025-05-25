@@ -25,6 +25,7 @@ const TRANSLATIONS = {
     newRide: 'New Ride',
     meters: 'm',
     walk: 'Walk',
+    stop: 'stop',
     stops: 'stops',
     onTime: 'On time',
     delayed: 'Delayed',
@@ -36,12 +37,38 @@ const TRANSLATIONS = {
     newRide: 'Nowy Przejazd',
     meters: 'm',
     walk: 'Pieszo',
-    stops: 'przystanki',
+    stop: 'przystanek',
+    stops2to4: 'przystanki',
+    stops5plus: 'przystanków',
     onTime: 'Zgodnie z rozkładem',
     delayed: 'Opóźnienie',
     joinRideWith: 'Dołączasz do przejazdu z',
     getOffAt: 'Wysiądź na',
   },
+};
+
+// Helper function to get pluralized stops text using translation system
+const getPluralizedStops = (count: number, t: (key: string) => string, language: string): string => {
+  if (language === 'pl') {
+    if (count === 1) {
+      return t('stop');
+    } else {
+      // Polish pluralization rules:
+      // - Numbers ending in 2, 3, 4 (except 12, 13, 14) use "przystanki"
+      // - All other numbers use "przystanków"
+      const lastDigit = count % 10;
+      const lastTwoDigits = count % 100;
+      
+      if (lastDigit >= 2 && lastDigit <= 4 && (lastTwoDigits < 12 || lastTwoDigits > 14)) {
+        return t('stops2to4');
+      } else {
+        return t('stops5plus');
+      }
+    }
+  } else {
+    // English
+    return count === 1 ? t('stop') : t('stops');
+  }
 };
 
 const Divider = ({ className }: { className?: string }) => {
@@ -206,7 +233,7 @@ const TransitPartVehicle = ({
   color,
 }: TransitPartVehicleProps) => {
   const theme = useTheme();
-  const { t } = useInlineTranslations(NAMESPACE, TRANSLATIONS);
+  const { t, i18n } = useInlineTranslations(NAMESPACE, TRANSLATIONS);
 
   const [open, setOpen] = useState(false);
 
@@ -265,7 +292,7 @@ const TransitPartVehicle = ({
           <CollapsibleTrigger className="flex-row items-center justify-start gap-3">
             <ChevronDown className="text-foreground" />
             <Text className="text-foreground">
-              {stops.length} {t('stops')}
+              {stops.length} {getPluralizedStops(stops.length, t, i18n.language)}
             </Text>
           </CollapsibleTrigger>
           <CollapsibleContent>
