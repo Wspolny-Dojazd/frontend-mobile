@@ -44,6 +44,30 @@ const TRANSLATIONS = {
   },
 };
 
+// Helper function to get pluralized stops text using translation system
+const getPluralizedStops = (count: number, t: (key: string) => string, language: string): string => {
+  if (language === 'pl') {
+    if (count === 1) {
+      return t('stop');
+    } else {
+      // Polish pluralization rules:
+      // - Numbers ending in 2, 3, 4 (except 12, 13, 14) use "przystanki"
+      // - All other numbers use "przystanków"
+      const lastDigit = count % 10;
+      const lastTwoDigits = count % 100;
+      
+      if (lastDigit >= 2 && lastDigit <= 4 && (lastTwoDigits < 12 || lastTwoDigits > 14)) {
+        return t('stops2to4');
+      } else {
+        return t('stops5plus');
+      }
+    }
+  } else {
+    // English
+    return count === 1 ? t('stop') : t('stops');
+  }
+};
+
 const Divider = ({ className }: { className?: string }) => {
   return <View className={cn('h-0.5 w-full bg-gray-200 dark:bg-gray-600', className)} />;
 };
@@ -57,7 +81,7 @@ const CustomHandle = () => {
 };
 
 type TopBarItemProps = {
-  type: 'walk' | 'bus' | 'subway' | 'tram';
+  type: 'walk' | 'bus' | 'metro' | 'tram' | 'rail' | 'funicular' | 'ferry' | 'cablecar' | 'trolleybus' | 'monorail';
   label?: string;
   color?: string;
 };
@@ -67,11 +91,17 @@ const TopBarItem = ({ type, label, color }: TopBarItemProps) => {
 
   const iconMap = {
     bus: 'ion:bus-outline',
-    subway: 'ic:outline-subway',
-    tram: 'ph:tram',
+    metro: 'material-symbols:subway-outline',
+    tram: 'ph:tram-bold',
     walk: 'bx:walk',
+    rail: 'maki:rail',
+    funicular: 'material-symbols:funicular-rounded',
+    ferry: 'fa6-solid:ferry',
+    cablecar: 'ph:cable-car-fill',
+    trolleybus: 'mdi:bus-electric',
+    monorail: 'material-symbols:monorail-outline-rounded',
   };
-  const icon = iconMap[type];
+  const icon = iconMap[type] || 'ri:question-line';
 
   return (
     <View className="flex-row items-center gap-1">
@@ -180,7 +210,7 @@ const TransitPartWalk = ({ estimatedTime, distance }: TransitPartWalkProps) => {
 };
 
 type TransitPartVehicleProps = {
-  vehicleType: 'Bus' | 'Subway' | 'Tram';
+  vehicleType: 'Bus' | 'Tram' | 'Metro' | 'Rail' | 'Funicular' | 'Ferry' | 'CableCar' | 'Trolleybus' | 'Monorail';
 
   startStop: string;
   endStop: string;
@@ -206,16 +236,23 @@ const TransitPartVehicle = ({
   color,
 }: TransitPartVehicleProps) => {
   const theme = useTheme();
-  const { t } = useInlineTranslations(NAMESPACE, TRANSLATIONS);
+  const { t, i18n } = useInlineTranslations(NAMESPACE, TRANSLATIONS);
 
   const [open, setOpen] = useState(false);
 
   const iconMap = {
-    Bus: 'ion:bus-outline',
-    Subway: 'ic:outline-subway',
-    Tram: 'ph:tram',
+    bus: 'ion:bus-outline',
+    metro: 'material-symbols:subway-outline',
+    tram: 'ph:tram-bold',
+    walk: 'bx:walk',
+    rail: 'maki:rail',
+    funicular: 'material-symbols:funicular-rounded',
+    ferry: 'fa6-solid:ferry',
+    cablecar: 'ph:cable-car-fill',
+    trolleybus: 'mdi:bus-electric',
+    monorail: 'material-symbols:monorail-outline-rounded',
   };
-  const icon = iconMap[vehicleType];
+  const icon = iconMap[vehicleType.toLowerCase() as keyof typeof iconMap] || 'ri:question-line';
 
   return (
     <View className="mt-1 flex-row items-start justify-start gap-4 px-4">
@@ -265,7 +302,7 @@ const TransitPartVehicle = ({
           <CollapsibleTrigger className="flex-row items-center justify-start gap-3">
             <ChevronDown className="text-foreground" />
             <Text className="text-foreground">
-              {stops.length} {t('stops')}
+              {stops.length} {getPluralizedStops(stops.length, t, i18n.language)}
             </Text>
           </CollapsibleTrigger>
           <CollapsibleContent>
@@ -332,7 +369,7 @@ export const NavigationBottomSheet = React.memo(({ path }: NavigationBottomSheet
           return (
             <TransitPartVehicle
               key={key}
-              vehicleType={segment.line?.type as 'Bus' | 'Subway' | 'Tram'}
+              vehicleType={segment.line?.type as 'Bus' | 'Metro' | 'Tram'}
               startStop={startStopName}
               endStop={endStopName}
               lineNumber={segment.line?.shortName ?? ''}
@@ -375,7 +412,7 @@ export const NavigationBottomSheet = React.memo(({ path }: NavigationBottomSheet
         const type = segment.type === 'Walk' ? 'walk' : segment.line?.type.toLowerCase();
 
         return {
-          type: type as 'walk' | 'bus' | 'subway' | 'tram',
+          type: type as 'walk' | 'bus' | 'metro' | 'tram' | 'rail' | 'funicular' | 'ferry' | 'cablecar' | 'monorail',
           label: segment.line?.shortName,
           color: segment.line?.color,
         };
