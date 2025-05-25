@@ -1,7 +1,8 @@
+/* eslint-disable prettier/prettier */
 import { Link, useRouter } from 'expo-router';
 import { Lock, UserRound, Mail } from 'lucide-react-native';
 import { useState, useEffect, useRef } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/src/components/ui/button';
@@ -99,6 +100,10 @@ export default function Register() {
   // Render the normal register form if not redirecting
   return (
     <SafeAreaView className="flex min-h-full flex-1 flex-col items-center justify-between bg-background px-8">
+      
+      <ScrollView className='w-full'                                
+        contentContainerStyle={{ flexGrow: 1, justifyContent: 'center'}}  
+        keyboardShouldPersistTaps="handled">
       <View className="mt-16 flex w-full flex-1 items-center">
         <Text className="mb-12 text-4xl font-bold text-foreground">{t('register')}</Text>
 
@@ -181,7 +186,7 @@ export default function Register() {
           </View>
         </View>
       </View>
-
+      
       {/* Login Link */}
       <View className="mb-4 items-center justify-center">
         <Text className="text-muted-foreground">{t('loginPrompt')} </Text>
@@ -204,6 +209,7 @@ export default function Register() {
           <Text className="text-lg font-semibold text-white">{t('registerButton')}</Text>
         )}
       </Button>
+     </ScrollView>  
     </SafeAreaView>
   );
 }
