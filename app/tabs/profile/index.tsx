@@ -1,6 +1,6 @@
 import { useRouter, Link } from 'expo-router';
 import React, { useMemo } from 'react';
-import { View, FlatList, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { View, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 
 // Debug auth
@@ -21,12 +21,6 @@ import {
   XCircle,
   Pencil,
 } from '@/src/lib/icons';
-
-// handling dummy image, and fallback image
-const avatarImage = require('../../../assets/dummy-avatar.png'); // Import the image dynamically
-const DEFAULT_IMAGE = avatarImage
-  ? Image.resolveAssetSource(avatarImage).uri
-  : Image.resolveAssetSource(require('../../../assets/fallback-avatar.png')).uri;
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -76,7 +70,6 @@ const SettingItem: React.FC<SettingItemProps> = ({
       <View className="h-10 w-10 items-center justify-center rounded-md bg-gray-100 dark:bg-gray-800">
         {icon}
       </View>
-
       <Text
         className="ml-3 flex-1 text-gray-900 dark:text-gray-100"
         style={textColor ? { color: textColor } : {}}>
@@ -89,7 +82,6 @@ const SettingItem: React.FC<SettingItemProps> = ({
 
 export default function App({ username }: { username: string }) {
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
-
   const router = useRouter();
   const { logout, token } = useAuth();
   const queryMe = $api.useQuery('get', '/api/auth/me', {
@@ -159,13 +151,14 @@ export default function App({ username }: { username: string }) {
       );
     }
 
+    const initials = username?.slice(0, 2).toUpperCase() ?? '??';
+
     return (
       <View className="mb-12 mt-6 flex-row items-center justify-between rounded-xl bg-gray-50 p-4 dark:bg-gray-900">
         <View className="flex-row items-center">
-          <Image
-            source={{ uri: DEFAULT_IMAGE }}
-            className="h-12 w-12 rounded-full border-2 border-gray-100 dark:border-gray-700"
-          />
+          <View className="h-12 w-12 flex-row items-center justify-center rounded-full border-2 border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800">
+            <Text className="font-bold text-gray-800 dark:text-white text-lg">{initials}</Text>
+          </View>
           <Text className="ml-3 text-lg font-medium text-gray-900 dark:text-white">
             {t('profile_greeting', { name: username })}
           </Text>
@@ -175,7 +168,7 @@ export default function App({ username }: { username: string }) {
           onPress={() => {
             router.push({
               pathname: '/tabs/profile/my-profile',
-              params: { username, image: DEFAULT_IMAGE }, // passing the image URI
+              params: { username },
             });
           }}>
           <Pencil size={24} className="text-gray-500 dark:text-gray-400" />
