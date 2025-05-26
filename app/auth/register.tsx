@@ -11,7 +11,7 @@ import { useAuth } from '@/src/context/authContext';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 
 const NAMESPACE = 'app/auth/register';
-const REDIRECT_DELAY_MS = 2500; //  Redirect delay duration
+const REDIRECT_DELAY_MS = 2500;
 
 const TRANSLATIONS = {
   en: {
@@ -47,35 +47,35 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { register, isLoading, error: authError, token, isInitializing } = useAuth();
-  const router = useRouter(); // Added router
+  const router = useRouter();
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const [isRedirecting, setIsRedirecting] = useState(false); // State to show redirect message
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [registerSucceeded, setRegisterSucceeded] = useState(false);
 
   useEffect(() => {
     // Clear previous timer
     if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current);
 
-    // Redirect logic for logged-in users
-    if (!isInitializing && token) {
-      console.log('Register Screen: Detected logged-in user. Setting redirect timer.');
-      setIsRedirecting(true);
+    const shouldRedirect = !isInitializing && hasSubmitted && token && !authError && !isLoading;
+
+    if (shouldRedirect) {
+      setRegisterSucceeded(true);
+      setHasSubmitted(false);
       redirectTimerRef.current = setTimeout(() => {
-        console.log('Register Screen: Redirect timer fired. Redirecting to /auth/profile.');
-        // router.replace('/auth/profile');
         router.replace('/tabs');
       }, REDIRECT_DELAY_MS);
-    } else {
-      setIsRedirecting(false);
     }
 
     // Cleanup timer on unmount or dependency change
     return () => {
       if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current);
     };
-  }, [isInitializing, token, router]);
+  }, [isInitializing, hasSubmitted, token, authError, isLoading]);
 
   const handleRegister = () => {
     if (!username.trim() || !nickname.trim() || !email.trim() || !password.trim()) return;
+    setHasSubmitted(true);
+    setRegisterSucceeded(false);
     register({
       username: username.trim(),
       nickname: nickname.trim(),
@@ -86,8 +86,7 @@ export default function Register() {
 
   const iconPaddingClass = 'ps-[14px]';
 
-  // Show redirect message if applicable
-  if (isRedirecting) {
+  if (registerSucceeded) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-background p-8">
         <ActivityIndicator size="large" className="mb-4" />
@@ -102,13 +101,11 @@ export default function Register() {
       <View className="mt-16 flex w-full flex-1 items-center">
         <Text className="mb-12 text-4xl font-bold text-foreground">{t('register')}</Text>
 
-        {/* Error Display */}
-        {authError &&
-          !isLoading && ( // Only show register errors
-            <View className="mb-4 w-full rounded border border-destructive bg-destructive/10 p-3">
-              <Text className="text-center font-semibold text-destructive">{authError}</Text>
-            </View>
-          )}
+        {authError && !isLoading && (
+          <View className="mb-4 w-full rounded border border-destructive bg-destructive/10 p-3">
+            <Text className="text-center font-semibold text-destructive">{authError}</Text>
+          </View>
+        )}
 
         {/* Username Input*/}
         <View className="relative mb-6 w-full">
@@ -155,7 +152,7 @@ export default function Register() {
             autoComplete="email"
             className="rounded-2xl py-3 pl-12 text-black"
             placeholderTextColor="text-muted-foreground"
-            editable={!isLoading} // Disable if registering
+            editable={!isLoading}
           />
           <View
             className={`pointer-events-none absolute inset-y-0 left-0 top-2 flex items-center ${iconPaddingClass}`}>
@@ -173,7 +170,7 @@ export default function Register() {
             autoComplete="new-password"
             className="w-full rounded-2xl bg-field py-3 pl-12 text-black"
             placeholderTextColor="text-muted-foreground"
-            editable={!isLoading} // Disable if registering
+            editable={!isLoading}
           />
           <View
             className={`pointer-events-none absolute inset-y-0 left-0 top-2 flex items-center ${iconPaddingClass}`}>

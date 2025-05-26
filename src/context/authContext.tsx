@@ -466,49 +466,60 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = useCallback(
     async (credentials: LoginCredentials) => {
       setError(null);
-      isRefreshing.current = false; // Ensure no pending refresh conflicts
+      isRefreshing.current = false;
       try {
         const data = (await loginMutation.mutateAsync({ body: credentials })) as AuthResponseDto;
         await handleTokenUpdate(data);
-        router.replace('/tabs'); // Navigate to main app area after successful login
+        router.replace('/tabs'); // redirect on success
       } catch (err: unknown) {
         console.error('Login failed:', err);
         const apiError = err as ApiError<LoginErrorCode>;
         const errorCode = apiError.data?.code;
-        // Use central logout handler for cleanup, passing the translated error
-        await handleLogout(errorCode ? tLoginError(errorCode) : 'Login failed. Please try again.');
+        const errorMessage = errorCode
+          ? tLoginError(errorCode)
+          : 'Login failed. Please try again.';
+ 
+        // 🔧 NIE wykonuj handleLogout tutaj:
+        setToken(null);
+        setUser(null);
+        setError(errorMessage);
       }
     },
-    [loginMutation, handleTokenUpdate, handleLogout, router, tLoginError]
+    [loginMutation, handleTokenUpdate, router, tLoginError]
   );
+ 
 
   // --- Register Function ---
   // Exposed via context for components to call.
   const register = useCallback(
     async (registrationData: RegisterData) => {
       setError(null);
-      isRefreshing.current = false; // Ensure no pending refresh conflicts
+      isRefreshing.current = false;
       try {
         const data = (await registerMutation.mutateAsync({
           body: registrationData,
         })) as AuthResponseDto;
         await handleTokenUpdate(data);
-        router.replace('/tabs'); // Navigate to main app area after successful registration
+        router.replace('/tabs'); // redirect on success
       } catch (err: unknown) {
         console.error('Registration failed:', err);
         const apiError = err as ApiError<RegisterErrorCode>;
         const errorCode = apiError?.data?.code;
         const backendMessage = apiError?.data?.message ?? (err as any)?.message;
-        // Use central logout handler for cleanup, passing the translated error
-        await handleLogout(
+ 
+        // 🔧 NIE wykonuj handleLogout tutaj:
+        setToken(null);
+        setUser(null);
+        setError(
           errorCode
             ? tRegisterError(errorCode)
             : backendMessage || 'Registration failed. Please try again.'
         );
       }
     },
-    [registerMutation, handleTokenUpdate, handleLogout, router, tRegisterError]
+    [registerMutation, handleTokenUpdate, router, tRegisterError]
   );
+ 
 
   // --- Manual Logout Function ---
   // Exposed via context, simply calls the central handler.
