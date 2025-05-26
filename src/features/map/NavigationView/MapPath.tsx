@@ -54,24 +54,42 @@ const RouteMarker = React.memo(
     coordinate,
     segmentColor,
     shortName,
+    lineType,
   }: {
     coordinate: { latitude: number; longitude: number };
     segmentColor: string;
     shortName: string;
-  }) => (
-    <Marker
-      coordinate={coordinate}
-      anchor={{ x: 0.5, y: 0.5 }}
-      style={{ overflow: 'visible', zIndex: 100 }}
-      tracksViewChanges={false}>
-      <View
-        className="flex-row items-center justify-center gap-1 rounded border border-gray-800 px-1 py-0.5"
-        style={{ backgroundColor: segmentColor }}>
-        <Monicon name="ion:bus-outline" size={16} color="#FFF" />
-        <Text className="text-sm font-bold text-white">{shortName}</Text>
-      </View>
-    </Marker>
-  )
+    lineType?: string;
+  }) => {
+    const iconMap = {
+      Bus: 'ion:bus-outline',
+      Metro: 'material-symbols:subway-outline',
+      Tram: 'ph:tram-bold',
+      Rail: 'maki:rail',
+      Funicular: 'material-symbols:funicular-rounded',
+      Ferry: 'fa6-solid:ferry',
+      CableCar: 'ph:cable-car-fill',
+      Trolleybus: 'mdi:bus-electric',
+      Monorail: 'material-symbols:monorail-outline-rounded',
+    };
+    
+    const icon = iconMap[lineType as keyof typeof iconMap] || 'ri:question-line';
+    
+    return (
+      <Marker
+        coordinate={coordinate}
+        anchor={{ x: 0.5, y: 0.5 }}
+        style={{ overflow: 'visible', zIndex: 100 }}
+        tracksViewChanges={false}>
+        <View
+          className="flex-row items-center justify-center gap-1 rounded border border-gray-800 px-1 py-0.5"
+          style={{ backgroundColor: segmentColor }}>
+          <Monicon name={icon} size={16} color="#FFF" />
+          <Text className="text-sm font-bold text-white">{shortName}</Text>
+        </View>
+      </Marker>
+    );
+  }
 );
 
 const PathShape = React.memo(
@@ -132,6 +150,7 @@ const PathSegment = React.memo(
             coordinate={firstStop}
             segmentColor={segmentColor}
             shortName={segment.line?.shortName ?? '?'}
+            lineType={segment.line?.type}
           />
         )}
 

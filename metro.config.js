@@ -40,7 +40,15 @@ const configureMetro = async () => {
     icons: [
       'bx:walk',
       'ion:bus-outline',
-      'ic:outline-subway',
+      'material-symbols:subway-outline',
+      'ph:tram-bold',
+      'maki:rail',
+      'material-symbols:funicular-rounded',
+      'fa6-solid:ferry',
+      'ph:cable-car-fill',
+      'mdi:bus-electric',
+      'material-symbols:monorail-outline-rounded',
+      'ri:question-line',
       'material-symbols-light:chevron-right',
       'heroicons:home-solid',
       'pajamas:profile',
@@ -49,7 +57,6 @@ const configureMetro = async () => {
       'majesticons:map-marker',
       'uil:map-marker',
       'bi:chat-square-text',
-      'ph:tram',
       'circum:edit',
       'famicons:calendar-sharp',
       'iconamoon:exit-fill',
@@ -57,7 +64,7 @@ const configureMetro = async () => {
       'streamline:crown-solid',
       'fa:send-o',
       'tabler:chevron-left',
-      'tabler:location-filled',
+      'tabler:location-filled'
     ],
     // Load all icons from the listed collections
     // collections: ['radix-icons'],

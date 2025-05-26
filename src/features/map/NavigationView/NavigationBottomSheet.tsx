@@ -84,7 +84,7 @@ const CustomHandle = () => {
 };
 
 type TopBarItemProps = {
-  type: 'walk' | 'bus' | 'subway' | 'tram';
+  type: 'walk' | 'bus' | 'metro' | 'tram' | 'rail' | 'funicular' | 'ferry' | 'cablecar' | 'trolleybus' | 'monorail';
   label?: string;
   color?: string;
 };
@@ -94,11 +94,17 @@ const TopBarItem = ({ type, label, color }: TopBarItemProps) => {
 
   const iconMap = {
     bus: 'ion:bus-outline',
-    subway: 'ic:outline-subway',
-    tram: 'ph:tram',
+    metro: 'material-symbols:subway-outline',
+    tram: 'ph:tram-bold',
     walk: 'bx:walk',
+    rail: 'maki:rail',
+    funicular: 'material-symbols:funicular-rounded',
+    ferry: 'fa6-solid:ferry',
+    cablecar: 'ph:cable-car-fill',
+    trolleybus: 'mdi:bus-electric',
+    monorail: 'material-symbols:monorail-outline-rounded',
   };
-  const icon = iconMap[type];
+  const icon = iconMap[type] || 'ri:question-line';
 
   return (
     <View className="flex-row items-center gap-1">
@@ -207,7 +213,7 @@ const TransitPartWalk = ({ estimatedTime, distance }: TransitPartWalkProps) => {
 };
 
 type TransitPartVehicleProps = {
-  vehicleType: 'Bus' | 'Subway' | 'Tram';
+  vehicleType: 'Bus' | 'Tram' | 'Metro' | 'Rail' | 'Funicular' | 'Ferry' | 'CableCar' | 'Trolleybus' | 'Monorail';
 
   startStop: string;
   endStop: string;
@@ -238,11 +244,18 @@ const TransitPartVehicle = ({
   const [open, setOpen] = useState(false);
 
   const iconMap = {
-    Bus: 'ion:bus-outline',
-    Subway: 'ic:outline-subway',
-    Tram: 'ph:tram',
+    bus: 'ion:bus-outline',
+    metro: 'material-symbols:subway-outline',
+    tram: 'ph:tram-bold',
+    walk: 'bx:walk',
+    rail: 'maki:rail',
+    funicular: 'material-symbols:funicular-rounded',
+    ferry: 'fa6-solid:ferry',
+    cablecar: 'ph:cable-car-fill',
+    trolleybus: 'mdi:bus-electric',
+    monorail: 'material-symbols:monorail-outline-rounded',
   };
-  const icon = iconMap[vehicleType];
+  const icon = iconMap[vehicleType.toLowerCase() as keyof typeof iconMap] || 'ri:question-line';
 
   return (
     <View className="mt-1 flex-row items-start justify-start gap-4 px-4">
@@ -359,7 +372,7 @@ export const NavigationBottomSheet = React.memo(({ path }: NavigationBottomSheet
           return (
             <TransitPartVehicle
               key={key}
-              vehicleType={segment.line?.type as 'Bus' | 'Subway' | 'Tram'}
+              vehicleType={segment.line?.type as 'Bus' | 'Metro' | 'Tram'}
               startStop={startStopName}
               endStop={endStopName}
               lineNumber={segment.line?.shortName ?? ''}
@@ -402,7 +415,7 @@ export const NavigationBottomSheet = React.memo(({ path }: NavigationBottomSheet
         const type = segment.type === 'Walk' ? 'walk' : segment.line?.type.toLowerCase();
 
         return {
-          type: type as 'walk' | 'bus' | 'subway' | 'tram',
+          type: type as 'walk' | 'bus' | 'metro' | 'tram' | 'rail' | 'funicular' | 'ferry' | 'cablecar' | 'monorail',
           label: segment.line?.shortName,
           color: segment.line?.color,
         };
