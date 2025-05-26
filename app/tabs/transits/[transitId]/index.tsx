@@ -155,7 +155,7 @@ export default function TransitGroup() {
   const { transitId } = useLocalSearchParams<{ transitId: string }>();
   const theme = useTheme();
   const router = useRouter();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
 
   const [selectedDateTime, setSelectedDateTime] = useState<Date>(new Date());
   const [dateTimeISO, setDateTimeISO] = useState<string>(new Date().toISOString());
@@ -286,6 +286,8 @@ export default function TransitGroup() {
     ?.segments?.at(-1)
     ?.stops?.at(-1)?.name;
 
+  const amIACreator = queryMembers.data?.find((member) => member.isCreator)?.id === user?.id;
+
   if (queryGroup.isLoading || queryMembers.isLoading) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center">
@@ -389,7 +391,7 @@ export default function TransitGroup() {
         invitingEnabled={!isPathAccepted}
       />
 
-      {!isPathAccepted && (
+      {!isPathAccepted && amIACreator && (
         <Pressable
           disabled={mutationFindPaths.isPending}
           className="mb-4 flex flex-row items-center justify-center rounded-2xl bg-primary py-4"

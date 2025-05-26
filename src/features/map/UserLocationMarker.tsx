@@ -21,7 +21,7 @@ const UserLocationMarker = React.memo(
         key={`user-location-marker-${userName}`}
         coordinate={{ latitude, longitude }}
         anchor={{ x: 0.5, y: 0.5 }}
-        style={{ overflow: 'visible', zIndex: 200 }}>
+        style={{ overflow: 'visible', zIndex: 2000 }}>
         <View
           className={cn(
             'h-10 w-10 flex-row items-center justify-center rounded-full border-2 border-gray-200 dark:border-gray-700',

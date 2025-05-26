@@ -23,10 +23,18 @@ const TRANSLATIONS = {
   en: {
     acceptPath: 'Accept path',
     acceptingPath: 'Accepting path...',
+    noPathFoundMessage:
+      'No path was found. Please try selecting a different destination or adjusting the date.',
+    loadingPaths: 'Loading paths...',
+    errorLoadingPaths: 'Error loading paths. Please try again later.',
   },
   pl: {
     acceptPath: 'Akceptuj trasę',
     acceptingPath: 'Akceptowanie trasy...',
+    noPathFoundMessage:
+      'Nie znaleziono trasy. Spróbuj wybrać inny cel podróży lub dostosować datę.',
+    loadingPaths: 'Wczytywanie tras...',
+    errorLoadingPaths: 'Błąd wczytywania tras. Spróbuj ponownie później.',
   },
 };
 
@@ -34,7 +42,6 @@ type NavigationViewProps = {
   groupId: number;
 };
 
-// Threshold for showing detailed stops on the map
 const DELTA_THRESHOLD = 0.24;
 
 type MemberMarkersProps = {
@@ -72,7 +79,7 @@ const MemberMarkers = React.memo(({ groupId, selectedUserId }: MemberMarkersProp
   );
 });
 
-MemberMarkers.displayName = 'MemberMarkers'; // Helpful for debugging
+MemberMarkers.displayName = 'MemberMarkers';
 
 export const NavigationView = ({ groupId }: NavigationViewProps) => {
   const { t } = useInlineTranslations(NAMESPACE, TRANSLATIONS);
@@ -90,6 +97,20 @@ export const NavigationView = ({ groupId }: NavigationViewProps) => {
   const { data: user } = $api.useQuery('get', '/api/auth/me', {
     headers: { Authorization: `Bearer ${token}` },
   });
+
+  const { data: groupMembers } = $api.useQuery(
+    'get',
+    '/api/groups/{id}/members',
+    {
+      headers: { Authorization: `Bearer ${token}` },
+      params: { path: { id: groupId } },
+    },
+    {
+      enabled: !!token,
+    }
+  );
+
+  const amIACreator = groupMembers?.find((member) => member.isCreator)?.id === user?.id;
 
   const queryProposedPaths = $api.useQuery(
     'get',
@@ -116,6 +137,30 @@ export const NavigationView = ({ groupId }: NavigationViewProps) => {
       refetchInterval: 5000,
     }
   );
+
+  const isLoading = queryProposedPaths.isLoading || queryAcceptedPath.isLoading;
+
+  // Track if initial loading is complete to avoid showing loading on refetches
+  const [isInitialLoadCycleOver, setIsInitialLoadCycleOver] = useState(false);
+
+  useEffect(() => {
+    if (!isInitialLoadCycleOver) {
+      // If we have data (cached or fresh) or finished fetching, mark initial load as complete
+      const hasData = queryProposedPaths.data !== undefined || queryAcceptedPath.data !== undefined;
+      const hasFetched = queryProposedPaths.isFetched || queryAcceptedPath.isFetched;
+
+      if (hasData || (!isLoading && hasFetched)) {
+        setIsInitialLoadCycleOver(true);
+      }
+    }
+  }, [
+    isLoading,
+    queryProposedPaths.data,
+    queryProposedPaths.isFetched,
+    queryAcceptedPath.data,
+    queryAcceptedPath.isFetched,
+    isInitialLoadCycleOver,
+  ]);
 
   const isPathAccepted = useMemo(
     () => queryAcceptedPath.data !== undefined,
@@ -146,8 +191,6 @@ export const NavigationView = ({ groupId }: NavigationViewProps) => {
       );
     }
   }, [mutationAcceptPath, token, groupId, selectedPathId]);
-
-  // const members = useMembers(groupId);
 
   useEffect(() => {
     if (queryProposedPaths.data && queryProposedPaths.data.length > 0) {
@@ -193,10 +236,6 @@ export const NavigationView = ({ groupId }: NavigationViewProps) => {
     }
 
     return null;
-
-    // Fallback to mock data if no path is selected or available
-    // return proposedPaths.length > 0 ? proposedPaths[0].paths : MOCK_PATHS[0]?.paths || [];
-    // return MOCK_PATHS[0]!.paths;
   }, [selectedPathOption, proposedPaths]);
 
   const [selectedUserId, setSelectedUserId] = useState<string | null>(user?.id ?? null);
@@ -224,7 +263,7 @@ export const NavigationView = ({ groupId }: NavigationViewProps) => {
   const handleSelectPathOption = useCallback(
     (pathId: string) => {
       setSelectedPathId(pathId);
-      // Reset selected user when changing path option
+
       const newPathOption = proposedPaths.find((path) => path.id === pathId);
       if (newPathOption && newPathOption.paths.length > 0 && user?.id) {
         setSelectedUserId(user.id);
@@ -249,9 +288,34 @@ export const NavigationView = ({ groupId }: NavigationViewProps) => {
         <MemberMarkers groupId={groupId} selectedUserId={selectedUserId} />
       </CustomMapView>
 
-      {/* TODO: This should be like on mockups */}
+      {/* Loading Indicator */}
+      {isLoading &&
+        !isInitialLoadCycleOver &&
+        !queryProposedPaths.data &&
+        !queryAcceptedPath.data && (
+          <View className="absolute left-0 right-0 top-16 z-10 flex items-center justify-center">
+            <View
+              className={`rounded-lg p-4 shadow-md ${
+                colorScheme === 'dark' ? 'bg-gray-800' : 'bg-white'
+              }`}>
+              <ActivityIndicator
+                size="large"
+                color={colorScheme === 'dark' ? '#FFFFFF' : '#0000FF'}
+                className="mb-2"
+              />
+              <Text
+                className={`text-center text-sm ${
+                  colorScheme === 'dark' ? 'text-gray-200' : 'text-gray-700'
+                }`}>
+                {t('loadingPaths')}
+              </Text>
+            </View>
+          </View>
+        )}
+
       <View className="absolute left-0 right-0 top-0 mx-8 mt-12 shadow-lg">
-        {!isPathAccepted && proposedPaths.length > 0 && (
+        {/* Path Options - show when we have proposed paths and no accepted path */}
+        {isInitialLoadCycleOver && !isPathAccepted && proposedPaths.length > 0 && (
           <PathOptions
             proposedPaths={proposedPaths}
             selectedPathId={selectedPathId}
@@ -259,13 +323,29 @@ export const NavigationView = ({ groupId }: NavigationViewProps) => {
           />
         )}
 
-        {usersPaths && usersPaths.length > 0 && (
+        {/* User Path Options - show when we have users paths */}
+        {isInitialLoadCycleOver && usersPaths && usersPaths.length > 0 && (
           <UserPathOptions
             usersPaths={usersPaths}
             groupId={groupId}
             selectedUserId={selectedUserId}
             onSelectUser={handleSelectUser}
           />
+        )}
+
+        {/* No Paths Found Alert - show when loading is done and no proposed paths */}
+        {isInitialLoadCycleOver && proposedPaths.length === 0 && !isPathAccepted && (
+          <View
+            className={`mt-2 rounded-lg p-3 shadow-md ${
+              colorScheme === 'dark' ? 'bg-yellow-700' : 'bg-yellow-100'
+            }`}>
+            <Text
+              className={`text-center text-sm ${
+                colorScheme === 'dark' ? 'text-yellow-100' : 'text-yellow-700'
+              }`}>
+              {t('noPathFoundMessage')}
+            </Text>
+          </View>
         )}
       </View>
 
@@ -278,28 +358,27 @@ export const NavigationView = ({ groupId }: NavigationViewProps) => {
         className="absolute bottom-44 right-5"
       />
 
-      {!queryProposedPaths.isLoading &&
-        !queryAcceptedPath.isLoading &&
-        queryProposedPaths.data !== undefined &&
-        queryProposedPaths.data.length > 0 &&
-        selectedPathId !== null &&
-        !isPathAccepted && (
-          <Pressable
-            className="absolute bottom-28 left-0 right-0 mx-8 flex-row items-center justify-center rounded-lg bg-primary py-2"
-            onPress={handleAcceptPath}
-            disabled={mutationAcceptPath.isPending}>
-            {mutationAcceptPath.isPending ? (
-              <View className="flex-row items-center justify-center">
-                <ActivityIndicator size="small" color="#ffffff" className="mr-2" />
-                <Text className="text-lg font-semibold text-white">{t('acceptingPath')}</Text>
-              </View>
-            ) : (
-              <Text className="text-lg font-semibold text-white">{t('acceptPath')}</Text>
-            )}
-          </Pressable>
-        )}
+      {/* Accept Path Button - show when we have selected path and not accepted yet */}
+      {isInitialLoadCycleOver && selectedPathId && !isPathAccepted && amIACreator && (
+        <Pressable
+          className="absolute bottom-28 left-0 right-0 mx-8 flex-row items-center justify-center rounded-lg bg-primary py-2"
+          onPress={handleAcceptPath}
+          disabled={mutationAcceptPath.isPending}>
+          {mutationAcceptPath.isPending ? (
+            <View className="flex-row items-center justify-center">
+              <ActivityIndicator size="small" color="#ffffff" className="mr-2" />
+              <Text className="text-lg font-semibold text-white">{t('acceptingPath')}</Text>
+            </View>
+          ) : (
+            <Text className="text-lg font-semibold text-white">{t('acceptPath')}</Text>
+          )}
+        </Pressable>
+      )}
 
-      {selectedUserPath && <NavigationBottomSheet path={selectedUserPath} />}
+      {/* Navigation Bottom Sheet - show when we have selected user path */}
+      {isInitialLoadCycleOver && selectedUserPath && (
+        <NavigationBottomSheet path={selectedUserPath} />
+      )}
     </>
   );
 };
