@@ -21,6 +21,12 @@ export default function MapTestLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="change-password"
+        options={{
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }
