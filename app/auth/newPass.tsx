@@ -12,6 +12,7 @@ import { Text } from '@/src/components/ui/text';
 import { useAuth } from '@/src/context/authContext';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 import { ChevronLeft } from '@/src/lib/icons';
+import { validatePasswordWithMessages } from '@/src/utils/passwordValidation';
 
 const NAMESPACE = 'app/auth/newPass';
 const TRANSLATIONS = {
@@ -22,9 +23,13 @@ const TRANSLATIONS = {
     confirmPassword: 'Confirm New Password',
     save: 'Save Changes',
     passwordsDoNotMatch: 'Passwords do not match',
-    passwordTooShort: 'Password must be at least 6 characters long',
+    passwordTooShort: 'Password must be at least 8 characters long',
+    passwordMissingUppercase: 'Password must contain at least one uppercase letter',
+    passwordMissingNumber: 'Password must contain at least one number',
+    passwordMissingSpecialChar: 'Password must contain at least one special character',
     passwordChanged: 'Password changed successfully!',
     fillAllFields: 'Please fill in all fields',
+    passwordRequirements: 'Password must be at least 8 characters with 1 uppercase letter, 1 number, and 1 special character',
   },
   pl: {
     changePassword: 'Zmień hasło',
@@ -33,9 +38,13 @@ const TRANSLATIONS = {
     confirmPassword: 'Potwierdź nowe hasło',
     save: 'Zapisz zmiany',
     passwordsDoNotMatch: 'Hasła nie są identyczne',
-    passwordTooShort: 'Hasło musi mieć co najmniej 6 znaków',
+    passwordTooShort: 'Hasło musi mieć co najmniej 8 znaków',
+    passwordMissingUppercase: 'Hasło musi zawierać co najmniej jedną wielką literę',
+    passwordMissingNumber: 'Hasło musi zawierać co najmniej jedną cyfrę',
+    passwordMissingSpecialChar: 'Hasło musi zawierać co najmniej jeden znak specjalny',
     passwordChanged: 'Hasło zostało zmienione pomyślnie!',
     fillAllFields: 'Proszę wypełnić wszystkie pola',
+    passwordRequirements: 'Hasło musi mieć co najmniej 8 znaków z 1 wielką literą, 1 cyfrą i 1 znakiem specjalnym',
   },
 };
 
@@ -61,8 +70,19 @@ export default function ChangePassword() {
       return false;
     }
     
-    if (newPassword.length < 6) {
-      setValidationError(t('passwordTooShort'));
+    // Validate new password
+    const passwordValidation = validatePasswordWithMessages(newPassword, {
+      tooShort: t('passwordTooShort'),
+      missingUppercase: t('passwordMissingUppercase'),
+      missingNumber: t('passwordMissingNumber'),
+      missingSpecialChar: t('passwordMissingSpecialChar'),
+    });
+    if (!passwordValidation.isValid) {
+      // Get the first validation error
+      const firstError = passwordValidation.errors[0];
+      if (firstError) {
+        setValidationError(firstError);
+      }
       return false;
     }
     
@@ -143,17 +163,30 @@ export default function ChangePassword() {
         </View>
 
         {/* New Password */}
-        <View className="relative w-full mb-6">
+        <View className="relative w-full mb-2">
           <InputText
             placeholder={t('newPassword')}
             secureTextEntry
             value={newPassword}
-            onChangeText={setNewPassword}
+            onChangeText={(text) => {
+              setNewPassword(text);
+              // Clear validation error when user starts typing
+              if (validationError) {
+                setValidationError('');
+              }
+            }}
             className="rounded-2xl bg-field pl-12"
           />
           <View className="pointer-events-none absolute inset-y-0 left-0 top-2 flex items-center ps-3">
             <Lock size={24} strokeWidth={3} color="#909597" />
           </View>
+        </View>
+
+        {/* Password Requirements */}
+        <View className="w-full mb-6">
+          <Text className="text-xs text-muted-foreground text-center">
+            {t('passwordRequirements')}
+          </Text>
         </View>
 
         {/* Confirm Password */}
