@@ -157,7 +157,7 @@ export default function App({ username }: { username: string }) {
       <View className="mb-12 mt-6 flex-row items-center justify-between rounded-xl bg-gray-50 p-4 dark:bg-gray-900">
         <View className="flex-row items-center">
           <View className="h-12 w-12 flex-row items-center justify-center rounded-full border-2 border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800">
-            <Text className="font-bold text-gray-800 dark:text-white text-lg">{initials}</Text>
+            <Text className="text-lg font-bold text-gray-800 dark:text-white">{initials}</Text>
           </View>
           <Text className="ml-3 text-lg font-medium text-gray-900 dark:text-white">
             {t('profile_greeting', { name: username })}

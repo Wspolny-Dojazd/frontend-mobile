@@ -48,7 +48,11 @@ const TRANSLATIONS = {
 };
 
 // Helper function to get pluralized stops text using translation system
-const getPluralizedStops = (count: number, t: (key: string) => string, language: string): string => {
+const getPluralizedStops = (
+  count: number,
+  t: (key: string) => string,
+  language: string
+): string => {
   if (language === 'pl') {
     if (count === 1) {
       return t('stop');
@@ -58,7 +62,7 @@ const getPluralizedStops = (count: number, t: (key: string) => string, language:
       // - All other numbers use "przystanków"
       const lastDigit = count % 10;
       const lastTwoDigits = count % 100;
-      
+
       if (lastDigit >= 2 && lastDigit <= 4 && (lastTwoDigits < 12 || lastTwoDigits > 14)) {
         return t('stops2to4');
       } else {
@@ -84,7 +88,17 @@ const CustomHandle = () => {
 };
 
 type TopBarItemProps = {
-  type: 'walk' | 'bus' | 'metro' | 'tram' | 'rail' | 'funicular' | 'ferry' | 'cablecar' | 'trolleybus' | 'monorail';
+  type:
+    | 'walk'
+    | 'bus'
+    | 'metro'
+    | 'tram'
+    | 'rail'
+    | 'funicular'
+    | 'ferry'
+    | 'cablecar'
+    | 'trolleybus'
+    | 'monorail';
   label?: string;
   color?: string;
 };
@@ -213,7 +227,16 @@ const TransitPartWalk = ({ estimatedTime, distance }: TransitPartWalkProps) => {
 };
 
 type TransitPartVehicleProps = {
-  vehicleType: 'Bus' | 'Tram' | 'Metro' | 'Rail' | 'Funicular' | 'Ferry' | 'CableCar' | 'Trolleybus' | 'Monorail';
+  vehicleType:
+    | 'Bus'
+    | 'Tram'
+    | 'Metro'
+    | 'Rail'
+    | 'Funicular'
+    | 'Ferry'
+    | 'CableCar'
+    | 'Trolleybus'
+    | 'Monorail';
 
   startStop: string;
   endStop: string;
@@ -415,7 +438,16 @@ export const NavigationBottomSheet = React.memo(({ path }: NavigationBottomSheet
         const type = segment.type === 'Walk' ? 'walk' : segment.line?.type.toLowerCase();
 
         return {
-          type: type as 'walk' | 'bus' | 'metro' | 'tram' | 'rail' | 'funicular' | 'ferry' | 'cablecar' | 'monorail',
+          type: type as
+            | 'walk'
+            | 'bus'
+            | 'metro'
+            | 'tram'
+            | 'rail'
+            | 'funicular'
+            | 'ferry'
+            | 'cablecar'
+            | 'monorail',
           label: segment.line?.shortName,
           color: segment.line?.color,
         };

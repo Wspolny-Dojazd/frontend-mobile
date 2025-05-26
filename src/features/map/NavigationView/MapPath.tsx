@@ -1,6 +1,5 @@
 import Monicon from '@monicon/native';
-import hash, { HashName } from 'object-hash';
-import React, { Fragment, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Text, View } from 'react-native';
 import { Marker, Polyline } from 'react-native-maps';
 
@@ -72,9 +71,9 @@ const RouteMarker = React.memo(
       Trolleybus: 'mdi:bus-electric',
       Monorail: 'material-symbols:monorail-outline-rounded',
     };
-    
+
     const icon = iconMap[lineType as keyof typeof iconMap] || 'ri:question-line';
-    
+
     return (
       <Marker
         coordinate={coordinate}

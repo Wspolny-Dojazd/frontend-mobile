@@ -64,7 +64,7 @@ const configureMetro = async () => {
       'streamline:crown-solid',
       'fa:send-o',
       'tabler:chevron-left',
-      'tabler:location-filled'
+      'tabler:location-filled',
     ],
     // Load all icons from the listed collections
     // collections: ['radix-icons'],

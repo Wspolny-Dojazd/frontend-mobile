@@ -475,10 +475,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.error('Login failed:', err);
         const apiError = err as ApiError<LoginErrorCode>;
         const errorCode = apiError.data?.code;
-        const errorMessage = errorCode
-          ? tLoginError(errorCode)
-          : 'Login failed. Please try again.';
- 
+        const errorMessage = errorCode ? tLoginError(errorCode) : 'Login failed. Please try again.';
+
         // 🔧 NIE wykonuj handleLogout tutaj:
         setToken(null);
         setUser(null);
@@ -487,7 +485,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     },
     [loginMutation, handleTokenUpdate, router, tLoginError]
   );
- 
 
   // --- Register Function ---
   // Exposed via context for components to call.
@@ -506,7 +503,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const apiError = err as ApiError<RegisterErrorCode>;
         const errorCode = apiError?.data?.code;
         const backendMessage = apiError?.data?.message ?? (err as any)?.message;
- 
+
         // 🔧 NIE wykonuj handleLogout tutaj:
         setToken(null);
         setUser(null);
@@ -519,7 +516,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     },
     [registerMutation, handleTokenUpdate, router, tRegisterError]
   );
- 
 
   // --- Manual Logout Function ---
   // Exposed via context, simply calls the central handler.

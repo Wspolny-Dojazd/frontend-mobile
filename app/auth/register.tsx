@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import { Link, useRouter } from 'expo-router';
 import { Lock, UserRound, Mail } from 'lucide-react-native';
 import { useState, useEffect, useRef } from 'react';
@@ -99,114 +98,114 @@ export default function Register() {
   // Render the normal register form if not redirecting
   return (
     <SafeAreaView className="flex min-h-full flex-1 flex-col items-center justify-between bg-background px-8">
-      
-      <ScrollView className='w-full'                                
-        contentContainerStyle={{ flexGrow: 1, justifyContent: 'center'}}  
+      <ScrollView
+        className="w-full"
+        contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
         keyboardShouldPersistTaps="handled">
-      <View className="mt-16 flex w-full flex-1 items-center">
-        <Text className="mb-12 text-4xl font-bold text-foreground">{t('register')}</Text>
+        <View className="mt-16 flex w-full flex-1 items-center">
+          <Text className="mb-12 text-4xl font-bold text-foreground">{t('register')}</Text>
 
-        {authError && !isLoading && (
-          <View className="mb-4 w-full rounded border border-destructive bg-destructive/10 p-3">
-            <Text className="text-center font-semibold text-destructive">{authError}</Text>
+          {authError && !isLoading && (
+            <View className="mb-4 w-full rounded border border-destructive bg-destructive/10 p-3">
+              <Text className="text-center font-semibold text-destructive">{authError}</Text>
+            </View>
+          )}
+
+          {/* Username Input*/}
+          <View className="relative mb-6 w-full">
+            <InputText
+              placeholder={t('username')}
+              value={username}
+              onChangeText={setUsername}
+              autoCapitalize="none"
+              className="rounded-2xl py-3 pl-12 text-black"
+              placeholderTextColor="text-muted-foreground"
+              editable={!isLoading}
+            />
+            <View
+              className={`pointer-events-none absolute inset-y-0 left-0 top-2 flex items-center ${iconPaddingClass}`}>
+              <UserRound size={24} strokeWidth={3} color="#909597" />
+            </View>
           </View>
-        )}
 
-        {/* Username Input*/}
-        <View className="relative mb-6 w-full">
-          <InputText
-            placeholder={t('username')}
-            value={username}
-            onChangeText={setUsername}
-            autoCapitalize="none"
-            className="rounded-2xl py-3 pl-12 text-black"
-            placeholderTextColor="text-muted-foreground"
-            editable={!isLoading}
-          />
-          <View
-            className={`pointer-events-none absolute inset-y-0 left-0 top-2 flex items-center ${iconPaddingClass}`}>
-            <UserRound size={24} strokeWidth={3} color="#909597" />
+          {/* Nickname Input*/}
+          <View className="relative mb-6 w-full">
+            <InputText
+              placeholder={t('nickname')}
+              value={nickname}
+              onChangeText={setNickname}
+              autoCapitalize="none"
+              className="rounded-2xl py-3 pl-12 text-black"
+              placeholderTextColor="text-muted-foreground"
+              editable={!isLoading}
+            />
+            <View
+              className={`pointer-events-none absolute inset-y-0 left-0 top-2 flex items-center ${iconPaddingClass}`}>
+              <UserRound size={24} strokeWidth={3} color="#909597" />
+            </View>
+          </View>
+
+          {/* Email Input*/}
+          <View className="relative mb-6 w-full">
+            <InputText
+              placeholder={t('email')}
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoComplete="email"
+              className="rounded-2xl py-3 pl-12 text-black"
+              placeholderTextColor="text-muted-foreground"
+              editable={!isLoading}
+            />
+            <View
+              className={`pointer-events-none absolute inset-y-0 left-0 top-2 flex items-center ${iconPaddingClass}`}>
+              <Mail size={24} strokeWidth={3} color="#909597" />
+            </View>
+          </View>
+
+          {/* Password Input*/}
+          <View className="relative mb-8 w-full">
+            <InputText
+              placeholder={t('password')}
+              secureTextEntry
+              value={password}
+              onChangeText={setPassword}
+              autoComplete="new-password"
+              className="w-full rounded-2xl bg-field py-3 pl-12 text-black"
+              placeholderTextColor="text-muted-foreground"
+              editable={!isLoading}
+            />
+            <View
+              className={`pointer-events-none absolute inset-y-0 left-0 top-2 flex items-center ${iconPaddingClass}`}>
+              <Lock size={24} strokeWidth={3} color="#909597" />
+            </View>
           </View>
         </View>
 
-        {/* Nickname Input*/}
-        <View className="relative mb-6 w-full">
-          <InputText
-            placeholder={t('nickname')}
-            value={nickname}
-            onChangeText={setNickname}
-            autoCapitalize="none"
-            className="rounded-2xl py-3 pl-12 text-black"
-            placeholderTextColor="text-muted-foreground"
-            editable={!isLoading}
-          />
-          <View
-            className={`pointer-events-none absolute inset-y-0 left-0 top-2 flex items-center ${iconPaddingClass}`}>
-            <UserRound size={24} strokeWidth={3} color="#909597" />
-          </View>
+        {/* Login Link */}
+        <View className="mb-4 items-center justify-center">
+          <Text className="text-muted-foreground">{t('loginPrompt')} </Text>
+          <Link href="/auth/login" asChild>
+            <Text className="font-semibold text-white">{t('loginLink')}</Text>
+          </Link>
         </View>
 
-        {/* Email Input*/}
-        <View className="relative mb-6 w-full">
-          <InputText
-            placeholder={t('email')}
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoComplete="email"
-            className="rounded-2xl py-3 pl-12 text-black"
-            placeholderTextColor="text-muted-foreground"
-            editable={!isLoading}
-          />
-          <View
-            className={`pointer-events-none absolute inset-y-0 left-0 top-2 flex items-center ${iconPaddingClass}`}>
-            <Mail size={24} strokeWidth={3} color="#909597" />
-          </View>
-        </View>
-
-        {/* Password Input*/}
-        <View className="relative mb-8 w-full">
-          <InputText
-            placeholder={t('password')}
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-            autoComplete="new-password"
-            className="w-full rounded-2xl bg-field py-3 pl-12 text-black"
-            placeholderTextColor="text-muted-foreground"
-            editable={!isLoading}
-          />
-          <View
-            className={`pointer-events-none absolute inset-y-0 left-0 top-2 flex items-center ${iconPaddingClass}`}>
-            <Lock size={24} strokeWidth={3} color="#909597" />
-          </View>
-        </View>
-      </View>
-      
-      {/* Login Link */}
-      <View className="mb-4 items-center justify-center">
-        <Text className="text-muted-foreground">{t('loginPrompt')} </Text>
-        <Link href="/auth/login" asChild>
-          <Text className="font-semibold text-white">{t('loginLink')}</Text>
-        </Link>
-      </View>
-
-      {/* Submit Button */}
-      <Button
-        onPress={handleRegister}
-        disabled={isLoading}
-        className="mb-6 w-full rounded-2xl bg-primary py-3">
-        {isLoading ? (
-          <View className="flex-row items-center justify-center">
-            <ActivityIndicator size="small" color="#ffffff" className="mr-2" />
-            <Text className="text-lg font-semibold text-white">{t('registering')}</Text>
-          </View>
-        ) : (
-          <Text className="text-lg font-semibold text-white">{t('registerButton')}</Text>
-        )}
-      </Button>
-     </ScrollView>  
+        {/* Submit Button */}
+        <Button
+          onPress={handleRegister}
+          disabled={isLoading}
+          className="mb-6 w-full rounded-2xl bg-primary py-3">
+          {isLoading ? (
+            <View className="flex-row items-center justify-center">
+              <ActivityIndicator size="small" color="#ffffff" className="mr-2" />
+              <Text className="text-lg font-semibold text-white">{t('registering')}</Text>
+            </View>
+          ) : (
+            <Text className="text-lg font-semibold text-white">{t('registerButton')}</Text>
+          )}
+        </Button>
+      </ScrollView>
     </SafeAreaView>
   );
 }
