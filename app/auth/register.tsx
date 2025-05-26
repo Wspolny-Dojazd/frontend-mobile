@@ -45,7 +45,7 @@ const TRANSLATIONS = {
     loginLink: 'Zaloguj się',
     registering: 'Rejestrowanie...',
     loggedInRedirect: 'Jesteś już zalogowany. Przekierowanie do profilu...',
-    passwordRequirements: 'Hasło musi mieć co najmniej 8 znaków z 1 wielką literą, 1 cyfrą i 1 znakiem specjalnym',
+    passwordRequirements: 'Hasło musi mieć co najmniej 8 znaków, w tym przynajmniej 1 wielką literą, 1 cyfrę i 1 znak specjalny',
     passwordTooShort: 'Hasło musi mieć co najmniej 8 znaków',
     passwordMissingUppercase: 'Hasło musi zawierać co najmniej jedną wielką literę',
     passwordMissingNumber: 'Hasło musi zawierać co najmniej jedną cyfrę',
