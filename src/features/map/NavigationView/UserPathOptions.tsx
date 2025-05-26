@@ -44,7 +44,7 @@ export const UserPathOptions = ({
     },
     {
       enabled: !!token,
-      refetchInterval: 1000,
+      refetchInterval: 5000, // Reduced from 1000ms to 5000ms to prevent flashing
       // select(data) {
       //   return useMemo(() => data, [JSON.stringify(data)]);
       // },

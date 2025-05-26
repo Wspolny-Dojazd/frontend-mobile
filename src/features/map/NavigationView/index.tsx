@@ -61,7 +61,7 @@ const MemberMarkers = React.memo(({ groupId, selectedUserId }: MemberMarkersProp
     },
     {
       enabled: !!token,
-      refetchInterval: 1000,
+      refetchInterval: 5000, // Reduced from 1000ms to 5000ms to prevent flashing
     }
   );
 

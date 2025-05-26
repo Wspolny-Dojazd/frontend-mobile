@@ -114,7 +114,7 @@ export default function App({ username }: { username: string }) {
         id: '4',
         icon: <Lock size={20} className="text-gray-500 dark:text-gray-400" />,
         title: t('change_password'),
-        onPress: () => console.log('Change password pressed'),
+        onPress: () => router.push('/tabs/profile/change-password'),
       },
       {
         id: '5',

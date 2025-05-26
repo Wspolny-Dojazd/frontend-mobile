@@ -4,11 +4,13 @@ import { useState, useEffect, useRef } from 'react';
 import { View, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useRegisterErrorTranslations } from '@/src/api/errors/auth/register';
 import { Button } from '@/src/components/ui/button';
 import { InputText } from '@/src/components/ui/inputText';
 import { Text } from '@/src/components/ui/text';
 import { useAuth } from '@/src/context/authContext';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
+import { validatePasswordWithMessages } from '@/src/utils/passwordValidation';
 
 const NAMESPACE = 'app/auth/register';
 const REDIRECT_DELAY_MS = 2500;
@@ -25,6 +27,12 @@ const TRANSLATIONS = {
     loginLink: 'Login here',
     registering: 'Registering...',
     loggedInRedirect: 'Already logged in. Redirecting to profile...',
+    passwordRequirements: 'Password must be at least 8 characters with 1 uppercase letter, 1 number, and 1 special character',
+    passwordTooShort: 'Password must be at least 8 characters long',
+    passwordMissingUppercase: 'Password must contain at least one uppercase letter',
+    passwordMissingNumber: 'Password must contain at least one number',
+    passwordMissingSpecialChar: 'Password must contain at least one special character',
+    fillAllFields: 'Please fill in all fields',
   },
   pl: {
     register: 'Utwórz konto',
@@ -37,15 +45,23 @@ const TRANSLATIONS = {
     loginLink: 'Zaloguj się',
     registering: 'Rejestrowanie...',
     loggedInRedirect: 'Jesteś już zalogowany. Przekierowanie do profilu...',
+    passwordRequirements: 'Hasło musi mieć co najmniej 8 znaków, w tym przynajmniej 1 wielką literą, 1 cyfrę i 1 znak specjalny',
+    passwordTooShort: 'Hasło musi mieć co najmniej 8 znaków',
+    passwordMissingUppercase: 'Hasło musi zawierać co najmniej jedną wielką literę',
+    passwordMissingNumber: 'Hasło musi zawierać co najmniej jedną cyfrę',
+    passwordMissingSpecialChar: 'Hasło musi zawierać co najmniej jeden znak specjalny',
+    fillAllFields: 'Proszę wypełnić wszystkie pola',
   },
 };
 
 export default function Register() {
   const { t } = useTypedTranslation(NAMESPACE, TRANSLATIONS);
+  const { t: tError } = useRegisterErrorTranslations();
   const [username, setUsername] = useState('');
   const [nickname, setNickname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const { register, isLoading, error: authError, token, isInitializing } = useAuth();
   const router = useRouter();
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -72,8 +88,34 @@ export default function Register() {
     };
   }, [isInitializing, hasSubmitted, token, authError, isLoading]);
 
+  const validateForm = () => {
+    const errors: string[] = [];
+    
+    // Check if all fields are filled
+    if (!username.trim() || !nickname.trim() || !email.trim() || !password.trim()) {
+      errors.push(t('fillAllFields'));
+      setValidationErrors(errors);
+      return false;
+    }
+    
+    // Validate password
+    const passwordValidation = validatePasswordWithMessages(password, {
+      tooShort: t('passwordTooShort'),
+      missingUppercase: t('passwordMissingUppercase'),
+      missingNumber: t('passwordMissingNumber'),
+      missingSpecialChar: t('passwordMissingSpecialChar'),
+    });
+    if (!passwordValidation.isValid) {
+      errors.push(...passwordValidation.errors);
+    }
+    
+    setValidationErrors(errors);
+    return errors.length === 0;
+  };
+
   const handleRegister = () => {
-    if (!username.trim() || !nickname.trim() || !email.trim() || !password.trim()) return;
+    if (!validateForm()) return;
+    
     setHasSubmitted(true);
     setRegisterSucceeded(false);
     register({
@@ -108,6 +150,16 @@ export default function Register() {
           {authError && !isLoading && (
             <View className="mb-4 w-full rounded border border-destructive bg-destructive/10 p-3">
               <Text className="text-center font-semibold text-destructive">{authError}</Text>
+            </View>
+          )}
+
+          {validationErrors.length > 0 && (
+            <View className="mb-4 w-full rounded border border-destructive bg-destructive/10 p-3">
+              {validationErrors.map((error, index) => (
+                <Text key={index} className="text-center font-semibold text-destructive">
+                  {error}
+                </Text>
+              ))}
             </View>
           )}
 
@@ -165,12 +217,18 @@ export default function Register() {
           </View>
 
           {/* Password Input*/}
-          <View className="relative mb-8 w-full">
+          <View className="relative mb-2 w-full">
             <InputText
               placeholder={t('password')}
               secureTextEntry
               value={password}
-              onChangeText={setPassword}
+              onChangeText={(text) => {
+                setPassword(text);
+                // Clear validation errors when user starts typing
+                if (validationErrors.length > 0) {
+                  setValidationErrors([]);
+                }
+              }}
               autoComplete="new-password"
               className="w-full rounded-2xl bg-field py-3 pl-12 text-black"
               placeholderTextColor="text-muted-foreground"
@@ -180,6 +238,13 @@ export default function Register() {
               className={`pointer-events-none absolute inset-y-0 left-0 top-2 flex items-center ${iconPaddingClass}`}>
               <Lock size={24} strokeWidth={3} color="#909597" />
             </View>
+          </View>
+
+          {/* Password Requirements */}
+          <View className="mb-8 w-full">
+            <Text className="text-xs text-muted-foreground text-center">
+              {t('passwordRequirements')}
+            </Text>
           </View>
         </View>
 

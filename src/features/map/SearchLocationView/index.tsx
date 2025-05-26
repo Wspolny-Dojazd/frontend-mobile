@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { useColorScheme } from 'nativewind';
 import { useMemo, useRef, useCallback, useEffect, useState } from 'react';
 import { Text, View, Pressable } from 'react-native';
-import MapView, { Marker, MapPressEvent } from 'react-native-maps';
+import MapView, { Marker, MapPressEvent, PoiClickEvent, LongPressEvent } from 'react-native-maps';
 
 import UserLocationMarker from '../UserLocationMarker';
 
@@ -29,7 +29,7 @@ const TRANSLATIONS = {
     newRide: 'New Ride',
     meters: 'm',
     kilometers: 'km',
-    pressAndHoldToDropPin: 'Or tap on the map to drop a pin',
+    pressAndHoldToDropPin: 'Tap anywhere on the map to drop a pin',
   },
   pl: {
     whereAreYouGoing: 'Wyszukaj miejsce, do którego chcesz się dostać...',
@@ -37,7 +37,7 @@ const TRANSLATIONS = {
     newRide: 'Nowy Przejazd',
     meters: 'm',
     kilometers: 'km',
-    pressAndHoldToDropPin: 'Lub naciśnij na mapie, aby upuścić pinezkę',
+    pressAndHoldToDropPin: 'Naciśnij w dowolnym miejscu na mapie, aby upuścić pinezkę',
   },
 };
 
@@ -270,7 +270,28 @@ export const SearchLocationView = ({
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [bottomSheetIndex, setBottomSheetIndex] = useState(-1); // -1 for closed
 
+  // Handle map press events to place pins
+  // This is the primary method for pin placement
   const handleMapPress = useCallback((event: MapPressEvent) => {
+    const { coordinate } = event.nativeEvent;
+    setSelectedCoordinate(coordinate);
+    setBottomSheetIndex(0);
+    setSelectedPlace(null);
+  }, []);
+
+  // Handle POI (Point of Interest) clicks to place pins
+  // This prevents POI markers from interfering with pin placement
+  // When users tap on restaurants, shops, etc., we still place a pin
+  const handlePoiClick = useCallback((event: PoiClickEvent) => {
+    const { coordinate } = event.nativeEvent;
+    setSelectedCoordinate(coordinate);
+    setBottomSheetIndex(0);
+    setSelectedPlace(null);
+  }, []);
+
+  // Handle long press events as a fallback for pin placement
+  // This provides an alternative method when single taps don't work
+  const handleLongPress = useCallback((event: LongPressEvent) => {
     const { coordinate } = event.nativeEvent;
     setSelectedCoordinate(coordinate);
     setBottomSheetIndex(0);
@@ -362,7 +383,17 @@ export const SearchLocationView = ({
         showsMyLocationButton={false}
         onRegionChangeComplete={handleMapChange}
         onPress={handleMapPress}
-        showsCompass={false}>
+        onLongPress={handleLongPress} // Fallback for when onPress doesn't work
+        onPoiClick={handlePoiClick} // Handle POI clicks the same as map presses
+        showsPointsOfInterest={false} // Disable POI markers to prevent interference
+        showsCompass={false}
+        // Additional props to improve touch reliability
+        scrollEnabled={true}
+        zoomEnabled={true}
+        rotateEnabled={true}
+        pitchEnabled={true}
+        // Ensure map can receive touch events
+        pointerEvents="auto">
         {selectedCoordinate && (
           <Marker
             coordinate={selectedCoordinate}
