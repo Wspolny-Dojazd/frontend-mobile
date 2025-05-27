@@ -8,7 +8,9 @@ This project is a group assignment for university studies. Only designated group
 
 On computer you need to have Node.js installed.
 
-On phone you need to have Expo Go (SDK 51) app installed. Do not download it from the Play Store, download .apk from the [expo website](https://expo.dev/go?sdkVersion=51&platform=android&device=true). Expo with SDK 52 or greated use new architecture with React 19, which is cumbersome right now, because react-native-maps does not support it yet.
+~~On phone you need to have Expo Go (SDK 51) app installed. Do not download it from the Play Store, download .apk from the [expo website](https://expo.dev/go?sdkVersion=51&platform=android&device=true). Expo with SDK 52 or greated use new architecture with React 19, which is cumbersome right now, because react-native-maps does not support it yet.~~
+
+Download this [development build](https://drive.google.com/file/d/1xcgE38d60CNpiQhcmTmt9Q489L385EQv/view?usp=drive_link) and install it on your phone. It is a development build with Expo Go (SDK 51). For some reason the Expo Go app may not work, but this development build does.
 
 ## First time setup
 
