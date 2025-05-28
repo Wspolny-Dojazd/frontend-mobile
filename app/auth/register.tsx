@@ -90,14 +90,14 @@ export default function Register() {
 
   const validateForm = () => {
     const errors: string[] = [];
-    
+
     // Check if all fields are filled
     if (!username.trim() || !nickname.trim() || !email.trim() || !password.trim()) {
       errors.push(t('fillAllFields'));
       setValidationErrors(errors);
       return false;
     }
-    
+
     // Validate password
     const passwordValidation = validatePasswordWithMessages(password, {
       tooShort: t('passwordTooShort'),
@@ -108,14 +108,14 @@ export default function Register() {
     if (!passwordValidation.isValid) {
       errors.push(...passwordValidation.errors);
     }
-    
+
     setValidationErrors(errors);
     return errors.length === 0;
   };
 
   const handleRegister = () => {
     if (!validateForm()) return;
-    
+
     setHasSubmitted(true);
     setRegisterSucceeded(false);
     register({
