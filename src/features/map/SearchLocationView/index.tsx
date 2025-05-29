@@ -32,7 +32,7 @@ const TRANSLATIONS = {
     pressAndHoldToDropPin: 'Tap anywhere on the map to drop a pin',
   },
   pl: {
-    whereAreYouGoing: 'Wyszukaj miejsce, do którego chcesz się dostać...',
+    whereAreYouGoing: 'Wyszukaj miejsce docelowe',
     selectedPlace: 'Wybrane miejsce',
     newRide: 'Nowy Przejazd',
     meters: 'm',
@@ -372,7 +372,7 @@ export const SearchLocationView = ({
           </Text>
         </Pressable>
 
-        <View className="mt-4 h-10 w-full flex-row items-center justify-center rounded-md bg-white/80 px-3 dark:bg-gray-700/50">
+        <View className="mt-4 h-10 w-full flex-row items-center justify-center rounded-md bg-white/80 px-0 dark:bg-gray-700/50">
           <Text className="text-sm text-muted-foreground">{t('pressAndHoldToDropPin')}</Text>
         </View>
       </View>
