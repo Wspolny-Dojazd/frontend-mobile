@@ -13,8 +13,16 @@ export const CustomMapView = forwardRef((props: MapViewProps, ref: Ref<MapView>)
       provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
       userInterfaceStyle={colorScheme === 'dark' ? 'dark' : 'light'}
       customMapStyle={Platform.OS === 'android' && colorScheme === 'dark' ? darkMapStyle : []}
+      toolbarEnabled={false}
+      showsCompass={false}
+      showsScale={false}
+      showsMyLocationButton={false}
+      showsPointsOfInterest={false}
+      showsIndoors={false}
+      showsBuildings={false}
       {...props}
-    />
+  />
+
   );
 });
 
