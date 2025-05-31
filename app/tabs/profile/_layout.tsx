@@ -27,6 +27,12 @@ export default function MapTestLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="help"
+        options={{
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }
