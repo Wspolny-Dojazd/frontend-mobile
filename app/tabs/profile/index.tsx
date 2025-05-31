@@ -120,7 +120,7 @@ export default function App({ username }: { username: string }) {
         id: '5',
         icon: <HelpCircle size={20} className="text-gray-500 dark:text-gray-400" />,
         title: t('help'),
-        onPress: () => console.log('Help pressed'),
+        onPress: () => router.push('/tabs/profile/help'),
       },
       {
         id: '6',
