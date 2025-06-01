@@ -194,13 +194,15 @@ export default function App({ username }: { username: string }) {
         />
 
         <View className="flex-col items-center justify-center">
-          <Link href="/debug-auth" style={{ marginBottom: 5 }}>
-            <Text style={{ color: 'white', textDecorationLine: 'underline' }}>
+          <Link href="/debug-auth" className="mb-1">
+            <Text className="underline text-black dark:text-white">
               Show Auth Debug Info
             </Text>
           </Link>
 
-          <Text className="text-foreground">Backend URL: {BACKEND_URL}</Text>
+          <Text className="text-black dark:text-white">
+            Backend URL: {BACKEND_URL}
+          </Text>
         </View>
       </SafeAreaView>
     </SafeAreaProvider>
