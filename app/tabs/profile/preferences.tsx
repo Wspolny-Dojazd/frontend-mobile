@@ -127,7 +127,7 @@ export default function Preferences() {
     defaultValues: {
       distanceUnit: 'Kilometers',
       timeSystem: 'TwentyFourHour',
-      theme: colorScheme === 'dark' ? 'dark' : 'light',
+      theme: colorScheme,
       language: i18n.language as Language,
     },
   });
@@ -138,7 +138,7 @@ export default function Preferences() {
 
   // Update external state when form values change
   useEffect(() => {
-    if (watchTheme) {
+    if (watchTheme && watchTheme != colorScheme) {
       setColorScheme(watchTheme);
     }
   }, [watchTheme, setColorScheme]);
@@ -166,10 +166,6 @@ export default function Preferences() {
       const config = userConfigQuery.data as UserConfigurationDto;
       setValue('distanceUnit', config.distanceUnit);
       setValue('timeSystem', config.timeSystem);
-
-      if (config.theme === 'Dark' || config.theme === 'Light') {
-        setValue('theme', config.theme.toLowerCase() as 'dark' | 'light');
-      }
 
       if (config.language === 'English') {
         setValue('language', 'en');
