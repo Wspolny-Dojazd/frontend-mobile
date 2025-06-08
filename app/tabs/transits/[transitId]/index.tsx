@@ -39,6 +39,9 @@ const TRANSLATIONS = {
     inviteToGroup: 'Invite to group',
     findRoute: 'Find Route',
     joinTransit: 'Join Transit',
+    selectDestination: 'Select destination',
+    wait: 'Wait...',
+    findAgain: 'Find again',
   },
   pl: {
     transit: 'Przejazd',
@@ -47,6 +50,9 @@ const TRANSLATIONS = {
     inviteToGroup: 'Zaproś do grupy',
     findRoute: 'Wyznacz trasę',
     joinTransit: 'Kod dołączenia',
+    selectDestination: 'Wybierz cel pordóży',
+    wait: 'Czekaj...',
+    findAgain: 'Znajdź ponownie',
   },
 };
 
@@ -341,7 +347,7 @@ export default function TransitGroup() {
               ? destinationName
               : destinationCoordinate
                 ? `Lat: ${destinationCoordinate.latitude.toFixed(6)}, Lng: ${destinationCoordinate.longitude.toFixed(6)}`
-                : 'Select destination'
+                : {t('selectDestination')}
           }
           leftSection={<Monicon name="uil:map-marker" size={24} color={theme.text} />}
           rightSection={
@@ -400,13 +406,13 @@ export default function TransitGroup() {
             <View className="flex-row items-center justify-center">
               <ActivityIndicator size="small" color="#ffffff" className="mr-2" />
               {/* TODO: Add to dictionary */}
-              <Text className="text-lg font-semibold text-white">Wait...</Text>
+              <Text className="text-lg font-semibold text-white">{t('wait')}</Text>
             </View>
           ) : (
             <>
               {queryPaths.data?.length && queryPaths.data.length > 0 ? (
                 // TODO: Add to dictionary
-                <Text className="text-lg text-white">Find again</Text>
+                <Text className="text-lg text-white">{t('findAgain')}</Text>
               ) : (
                 <Text className="text-lg text-white">{t('findRoute')}</Text>
               )}
