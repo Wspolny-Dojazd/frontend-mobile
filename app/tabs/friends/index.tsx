@@ -329,15 +329,15 @@ export default function App() {
         </View>
 
         <TabsContent value="friends">
-          <View className="relative my-4 w-full px-7">
+          <View className="w-full flex-row items-center gap-2 rounded-md bg-white px-3 py-3 dark:bg-black dark:text-white">
             <InputText
               placeholder={t('search')}
               value={name}
               onChangeText={setName}
-              className="rounded-2xl bg-field pl-12"
+              className="rounded-md bg-gray-900 pl-12"
             />
-            <View className="pointer-events-none absolute inset-y-0 left-7 top-3 flex items-center ps-3">
-              <Search size={24} strokeWidth={3} color="#909597" />
+            <View className="pointer-events-none absolute inset-y-0 left-4 top-7 flex items-center ps-3">
+              <Search size={20} color="#000000" />
             </View>
           </View>
           <ScrollView contentContainerStyle={{ paddingBottom: 320 }}>
@@ -366,15 +366,15 @@ export default function App() {
         </TabsContent>
 
         <TabsContent value="requests">
-          <View className="relative my-4 w-full px-7">
+          <View className="w-full flex-row items-center gap-2 rounded-md bg-white px-3 py-3 dark:bg-black dark:text-white">
             <InputText
               placeholder={t('search')}
               value={name}
               onChangeText={setName}
-              className="rounded-2xl bg-field pl-12"
+              className="rounded-2xl bg-gray-900 pl-12"
             />
-            <View className="pointer-events-none absolute inset-y-0 left-7 top-3 flex items-center ps-3">
-              <Search size={24} strokeWidth={3} color="#909597" />
+            <View className="pointer-events-none absolute inset-y-0 left-4 top-7 flex items-center ps-3">
+              <Search size={20} color="#000000" />
             </View>
           </View>
           <ScrollView contentContainerStyle={{ paddingBottom: 320 }}>
