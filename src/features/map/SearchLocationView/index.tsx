@@ -1,8 +1,9 @@
 import { useRouter } from 'expo-router';
 import { useColorScheme } from 'nativewind';
 import { useMemo, useRef, useCallback, useEffect, useState } from 'react';
-import { Text, View, Pressable, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { Text, View, Pressable, TouchableOpacity, StyleSheet } from 'react-native';
 import MapView, { Marker, MapPressEvent, PoiClickEvent, LongPressEvent } from 'react-native-maps';
+import Monicon from '@monicon/native';
 
 import UserLocationMarker from '../UserLocationMarker';
 
@@ -364,11 +365,9 @@ export const SearchLocationView = ({
           onPress={handleCenterOnUser}
           style={styles.locationButton}
         />
+        {}
         <TouchableOpacity style={styles.chatButton} onPress={() => console.log('Chat button pressed')}>
-          <Image
-            source={require('@/assets/icons/chat.png')}
-            style={styles.chatIcon}
-          />
+          <Monicon name="bi:chat-square-text" size={24} color={theme.text} />
         </TouchableOpacity>
       </View>
 
@@ -420,10 +419,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-  },
-  chatIcon: {
-    width: 24,
-    height: 24,
-    tintColor: 'gray',
   },
 });

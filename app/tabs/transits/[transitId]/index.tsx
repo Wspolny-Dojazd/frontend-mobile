@@ -1,7 +1,7 @@
 import Monicon from '@monicon/native';
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useState, memo, useEffect, useRef } from 'react';
+import { useCallback, useState, memo, useEffect, useRef, StyleSheet } from 'react';
 import {
   View,
   Text,
@@ -24,9 +24,10 @@ import DateTimeInput from '@/src/components/DateTimeInput';
 import { Input } from '@/src/components/ui/input';
 import { useAuth } from '@/src/context/authContext';
 import { CustomMapView } from '@/src/features/map/CustomMapView';
+import UserLocationMarker from '@/src/features/map/UserLocationMarker';
 import { useDebugCounter } from '@/src/hooks/useDebugCounter';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
-import { ChevronLeft, Plus, XCircle } from '@/src/lib/icons';
+import { ChevronLeft, Plus, XCircle, LocateFixed } from '@/src/lib/icons';
 import { useTheme } from '@/src/lib/useTheme';
 import { cn } from '@/src/lib/utils';
 
@@ -39,6 +40,7 @@ const TRANSLATIONS = {
     inviteToGroup: 'Invite to group',
     findRoute: 'Find Route',
     joinTransit: 'Join Transit',
+    centerMap: 'Center Map',
   },
   pl: {
     transit: 'Przejazd',
@@ -47,6 +49,7 @@ const TRANSLATIONS = {
     inviteToGroup: 'Zaproś do grupy',
     findRoute: 'Wyznacz trasę',
     joinTransit: 'Kod dołączenia',
+    centerMap: 'Wyśrodkuj mapę',
   },
 };
 
@@ -103,12 +106,6 @@ const MembersList = memo(
               <Text className="text-lg text-foreground">{member.nickname}</Text>
             </View>
 
-            {/* {member.location && (
-            <Text className="ml-2 mr-auto text-sm text-muted-foreground">
-              {member.location.latitude.toFixed(6)}, {member.location.longitude.toFixed(6)}
-            </Text>
-          )} */}
-
             {isUserCreator && !member.isCreator && member.id !== me?.id && (
               <Pressable
                 className="ml-auto flex h-8 w-8 items-center justify-center"
@@ -138,6 +135,13 @@ export default function TransitGroup() {
   const initialDestinationSetRef = useRef(false);
   const { latitude, longitude } = useLocalSearchParams<{ latitude?: string; longitude?: string }>();
   const { destinationCoordinate, setDestinationCoordinate } = useCoordinateContext();
+  const [currentRegion, setCurrentRegion] = useState({
+    latitude: destinationCoordinate?.latitude || 52.231958,
+    longitude: destinationCoordinate?.longitude || 21.006725,
+    latitudeDelta: 0.01,
+    longitudeDelta: 0.01,
+  });
+  const mapRef = useRef(null);
 
   useEffect(() => {
     if (latitude && longitude && !initialDestinationSetRef.current) {
@@ -157,6 +161,35 @@ export default function TransitGroup() {
   const router = useRouter();
   const { token, user } = useAuth();
 
+  const { data: me } = $api.useQuery('get', '/api/auth/me', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  const queryMemberLocations = $api.useQuery(
+    'get',
+    '/api/groups/{id}/members',
+    {
+      headers: { Authorization: `Bearer ${token}` },
+      params: { path: { id: Number(transitId) } },
+    },
+    {
+      refetchInterval: 5000,
+    }
+  );
+
+  const handleCenterMap = useCallback(() => {
+    if (mapRef.current && me?.location) {
+      mapRef.current.animateToRegion({
+        latitude: me.location.latitude,
+        longitude: me.location.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      }, 500);
+    } else {
+      ToastAndroid.show('Nie można wyśrodkować mapy. Brak lokalizacji.', ToastAndroid.SHORT);
+    }
+  }, [me?.location]);
+
   const [selectedDateTime, setSelectedDateTime] = useState<Date>(new Date());
   const [dateTimeISO, setDateTimeISO] = useState<string>(new Date().toISOString());
 
@@ -173,7 +206,7 @@ export default function TransitGroup() {
       params: { path: { id: Number(transitId) } },
     },
     {
-      refetchInterval: 5000, // Reduced from 1000ms to 5000ms to prevent flashing
+      refetchInterval: 5000,
     }
   );
 
@@ -185,7 +218,7 @@ export default function TransitGroup() {
       params: { path: { id: Number(transitId) } },
     },
     {
-      refetchInterval: 5000, // Reduced from 1000ms to 5000ms to prevent flashing
+      refetchInterval: 5000,
     }
   );
 
@@ -202,7 +235,6 @@ export default function TransitGroup() {
           router.replace('/tabs/transits');
         },
         onError(error, variables, context) {
-          // TODO: Show translated error
           Alert.alert(error?.code ?? 'Some error occurred');
         },
       }
@@ -249,8 +281,8 @@ export default function TransitGroup() {
           destinationLongitude: destinationCoordinate.longitude,
           userLocations: queryMembers.data.map((member) => ({
             userId: member.id,
-            latitude: member.location!.latitude,
-            longitude: member.location!.longitude,
+            latitude: member.location.latitude,
+            longitude: member.location.longitude,
           })),
         },
         headers: { Authorization: `Bearer ${token}` },
@@ -308,126 +340,187 @@ export default function TransitGroup() {
   }
 
   return (
-    <SafeAreaView className="relative flex-1 p-4">
-      <View className="relative mb-4 flex flex-row items-center justify-center">
-        <TouchableOpacity
-          onPress={() => router.replace('/tabs/transits')}
-          className="absolute left-0 top-0">
-          <ChevronLeft className="text-gray-400" />
-        </TouchableOpacity>
-        <Text className="text-xl font-bold text-foreground">
-          {t('transit')} #{transitId}
-        </Text>
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        <View className="relative mb-4 flex flex-row items-center justify-center">
+          <TouchableOpacity
+            onPress={() => router.replace('/tabs/transits')}
+            className="absolute left-0 top-0">
+            <ChevronLeft className="text-gray-400" />
+          </TouchableOpacity>
+          <Text className="text-xl font-bold text-foreground">
+            {t('transit')} #{transitId}
+          </Text>
 
-        <Pressable onPress={handleLeaveGroup} className="absolute right-0 top-0">
-          <Monicon name="iconamoon:exit-fill" size={24} color={theme.notification} />
-        </Pressable>
-      </View>
+          <Pressable onPress={handleLeaveGroup} className="absolute right-0 top-0">
+            <Monicon name="iconamoon:exit-fill" size={24} color={theme.notification} />
+          </Pressable>
+        </View>
 
-      <View className="mb-4 flex-row items-center justify-center gap-1 rounded-2xl bg-subtle py-2">
-        <Text className="text-foreground">{t('joinTransit')}:</Text>
-        <Text className="ml-2 text-xl font-bold text-foreground">#</Text>
-        <Text className="text-foreground">{queryGroup.data?.joiningCode}</Text>
-      </View>
+        <View className="mb-4 flex-row items-center justify-center gap-1 rounded-2xl bg-subtle py-2">
+          <Text className="text-foreground">{t('joinTransit')}:</Text>
+          <Text className="ml-2 text-xl font-bold text-foreground">#</Text>
+          <Text className="text-foreground">{queryGroup.data?.joiningCode}</Text>
+        </View>
 
-      <Pressable
-        disabled={isPathAccepted}
-        onPress={() => router.push(`/tabs/transits/${transitId}/chooseDestination`)}>
-        <Input
-          containerClassName="mb-4"
-          readOnly
-          value={
-            isPathAccepted
-              ? destinationName
-              : destinationCoordinate
-                ? `Lat: ${destinationCoordinate.latitude.toFixed(6)}, Lng: ${destinationCoordinate.longitude.toFixed(6)}`
-                : 'Select destination'
-          }
-          leftSection={<Monicon name="uil:map-marker" size={24} color={theme.text} />}
-          rightSection={
-            !isPathAccepted && <Monicon name="circum:edit" size={24} color={theme.text} />
-          }
-        />
-      </Pressable>
-
-      <DateTimeInput
-        selectedDateTime={selectedDateTime}
-        onDateTimeChange={handleDateTimeChange}
-        disabled={isPathAccepted}
-      />
-
-      <Pressable
-        disabled={isPathAccepted}
-        className="mb-4 h-[200px] w-full overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800"
-        onPress={() => router.push(`/tabs/transits/${transitId}/chooseDestination`)}>
-        <CustomMapView
-          region={{
-            latitude: destinationCoordinate?.latitude || 52.231958,
-            longitude: destinationCoordinate?.longitude || 21.006725,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          }}
-          scrollEnabled={false}
-          zoomEnabled={false}
-          rotateEnabled={false}
-          pitchEnabled={false}>
-          {destinationCoordinate && (
-            <Marker
-              coordinate={{
-                latitude: destinationCoordinate.latitude,
-                longitude: destinationCoordinate.longitude,
-              }}
-            />
-          )}
-        </CustomMapView>
-      </Pressable>
-
-      <Text className="mb-2 text-lg font-bold text-foreground">{t('groupMembers')}</Text>
-
-      <MembersList
-        groupId={transitId}
-        handleRemoveMember={handleRemoveMember}
-        inviteText={t('inviteToGroup')}
-        invitingEnabled={!isPathAccepted}
-      />
-
-      {!isPathAccepted && amIACreator && (
         <Pressable
-          disabled={mutationFindPaths.isPending}
-          className="mb-4 flex flex-row items-center justify-center rounded-2xl bg-primary py-4"
-          onPress={handleFindPaths}>
-          {mutationFindPaths.isPending ? (
-            <View className="flex-row items-center justify-center">
-              <ActivityIndicator size="small" color="#ffffff" className="mr-2" />
-              {/* TODO: Add to dictionary */}
-              <Text className="text-lg font-semibold text-white">Wait...</Text>
-            </View>
-          ) : (
-            <>
-              {queryPaths.data?.length && queryPaths.data.length > 0 ? (
-                // TODO: Add to dictionary
-                <Text className="text-lg text-white">Find again</Text>
-              ) : (
-                <Text className="text-lg text-white">{t('findRoute')}</Text>
-              )}
-            </>
-          )}
+          disabled={isPathAccepted}
+          onPress={() => router.push(`/tabs/transits/${transitId}/chooseDestination`)}>
+          <Input
+            containerClassName="mb-4"
+            readOnly
+            value={
+              isPathAccepted
+                ? destinationName
+                : destinationCoordinate
+                  ? `Lat: ${destinationCoordinate.latitude.toFixed(6)}, Lng: ${destinationCoordinate.longitude.toFixed(6)}`
+                  : 'Select destination'
+            }
+            leftSection={<Monicon name="uil:map-marker" size={24} color={theme.text} />}
+            rightSection={
+              !isPathAccepted && <Monicon name="circum:edit" size={24} color={theme.text} />
+            }
+          />
         </Pressable>
-      )}
+
+        <DateTimeInput
+          selectedDateTime={selectedDateTime}
+          onDateTimeChange={handleDateTimeChange}
+          disabled={isPathAccepted}
+        />
+
+        <Pressable
+          disabled={isPathAccepted}
+          className="mb-4 h-[200px] w-full overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800"
+          onPress={() => router.push(`/tabs/transits/${transitId}/chooseDestination`)}>
+          <CustomMapView
+            ref={mapRef}
+            region={currentRegion}
+            onRegionChangeComplete={setCurrentRegion}
+            scrollEnabled={false}
+            zoomEnabled={false}
+            rotateEnabled={false}
+            pitchEnabled={false}>
+            {destinationCoordinate && (
+              <Marker
+                coordinate={{
+                  latitude: destinationCoordinate.latitude,
+                  longitude: destinationCoordinate.longitude,
+                }}
+              />
+            )}
+            {queryMemberLocations.data?.map((member) => (
+              member.location && (
+                <UserLocationMarker
+                  key={member.id}
+                  latitude={member.location.latitude}
+                  longitude={member.location.longitude}
+                  userName={member.nickname}
+                  isSelected={false}
+                />
+              )
+            ))}
+          </CustomMapView>
+        </Pressable>
+
+        <Text className="mb-2 text-lg font-bold text-foreground">{t('groupMembers')}</Text>
+
+        <MembersList
+          groupId={transitId}
+          handleRemoveMember={handleRemoveMember}
+          inviteText={t('inviteToGroup')}
+          invitingEnabled={!isPathAccepted}
+        />
+
+        {!isPathAccepted && amIACreator && (
+          <Pressable
+            disabled={mutationFindPaths.isPending}
+            className="mb-4 flex flex-row items-center justify-center rounded-2xl bg-primary py-4"
+            onPress={handleFindPaths}>
+            {mutationFindPaths.isPending ? (
+              <View className="flex-row items-center justify-center">
+                <ActivityIndicator size="small" color="#ffffff" className="mr-2" />
+                <Text className="text-lg font-semibold text-white">Wait...</Text>
+              </View>
+            ) : (
+              <>
+                {queryPaths.data?.length && queryPaths.data.length > 0 ? (
+                  <Text className="text-lg text-white">Find again</Text>
+                ) : (
+                  <Text className="text-lg text-white">{t('findRoute')}</Text>
+                )}
+              </>
+            )}
+          </Pressable>
+        )}
+      </ScrollView>
+
+      <TouchableOpacity
+        style={styles.centerLocationButton}
+        onPress={handleCenterMap}>
+        <LocateFixed size={24} color={theme.text} />
+      </TouchableOpacity>
 
       <Pressable
         onPress={() =>
           router.push({
-            pathname: `chat/${queryGroup.data?.id}`,
+            pathname: `chat`,
             params: {
+              transitId: transitId,
               members: JSON.stringify(queryGroup.data?.groupMembers),
               chatType: 'group',
             },
           })
         }
-        className="absolute bottom-32 right-5 flex h-14 w-14 items-center justify-center rounded-full bg-primary">
+        style={styles.chatButton}>
         <Monicon name="bi:chat-square-text" size={24} color="white" />
       </Pressable>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    position: 'relative',
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+    padding: 16,
+    paddingBottom: 120,
+  },
+  centerLocationButton: {
+    position: 'absolute',
+    bottom: 90,
+    right: 20,
+    backgroundColor: 'white',
+    borderRadius: 28,
+    width: 56,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    zIndex: 10,
+  },
+  chatButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#007AFF', // Adjust if you have a theme.primary equivalent hex value
+    borderRadius: 28,
+    width: 56,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    zIndex: 10,
+  },
+});
