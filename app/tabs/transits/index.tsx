@@ -29,6 +29,7 @@ const TRANSLATIONS = {
     search: 'Search...',
     inProgress: 'In progress',
     id: 'Group ID: ',
+    currentGroupChange: 'To create or join a new group, you need to leave your current group',
   },
   pl: {
     goal: 'Cel:',
@@ -43,6 +44,7 @@ const TRANSLATIONS = {
     search: 'Szukaj...',
     inProgress: 'W trakcie',
     id: 'Group ID: ',
+    currentGroupChange: 'Aby stworzyć albo dołączyć do nowej grupy, musisz opuścić aktualną grupę',
   },
 };
 
@@ -141,7 +143,7 @@ export default function App() {
       ) : (
         <View className="mt-4 flex-row gap-2 rounded-2xl bg-subtle p-4 dark:bg-gray-900">
           <Text className="text-center text-gray-600 dark:text-gray-400">
-            To create or join a new group, you need to leave your current group
+            {t('currentGroupChange')}
           </Text>
         </View>
       )}
