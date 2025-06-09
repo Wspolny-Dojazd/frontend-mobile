@@ -24,7 +24,11 @@ import DateTimeInput from '@/src/components/DateTimeInput';
 import { Input } from '@/src/components/ui/input';
 import { useAuth } from '@/src/context/authContext';
 import { CustomMapView } from '@/src/features/map/CustomMapView';
+<<<<<<< Updated upstream
 import UserLocationMarker from '@/src/features/map/UserLocationMarker';
+=======
+import useLiveLocation from '@/src/features/map/useLiveLocation';
+>>>>>>> Stashed changes
 import { useDebugCounter } from '@/src/hooks/useDebugCounter';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 import { ChevronLeft, Plus, XCircle, LocateFixed } from '@/src/lib/icons';
@@ -135,6 +139,7 @@ export default function TransitGroup() {
   const initialDestinationSetRef = useRef(false);
   const { latitude, longitude } = useLocalSearchParams<{ latitude?: string; longitude?: string }>();
   const { destinationCoordinate, setDestinationCoordinate } = useCoordinateContext();
+<<<<<<< Updated upstream
   const [currentRegion, setCurrentRegion] = useState({
     latitude: destinationCoordinate?.latitude || 52.231958,
     longitude: destinationCoordinate?.longitude || 21.006725,
@@ -142,6 +147,9 @@ export default function TransitGroup() {
     longitudeDelta: 0.01,
   });
   const mapRef = useRef(null);
+=======
+  const { location } = useLiveLocation();
+>>>>>>> Stashed changes
 
   useEffect(() => {
     if (latitude && longitude && !initialDestinationSetRef.current) {
@@ -363,6 +371,81 @@ export default function TransitGroup() {
           <Text className="text-foreground">{queryGroup.data?.joiningCode}</Text>
         </View>
 
+<<<<<<< Updated upstream
+=======
+      <Pressable
+        disabled={isPathAccepted || !amIACreator}
+        onPress={() => router.push(`/tabs/transits/${transitId}/chooseDestination`)}>
+        <Input
+          containerClassName="mb-4"
+          readOnly
+          value={
+            isPathAccepted
+              ? destinationName
+              : destinationCoordinate
+                ? `Lat: ${destinationCoordinate.latitude.toFixed(6)}, Lng: ${destinationCoordinate.longitude.toFixed(6)}`
+                : t('selectDestination')
+          }
+          leftSection={<Monicon name="uil:map-marker" size={24} color={theme.text} />}
+          rightSection={
+            !isPathAccepted &&
+            amIACreator && <Monicon name="circum:edit" size={24} color={theme.text} />
+          }
+        />
+      </Pressable>
+
+      <DateTimeInput
+        selectedDateTime={selectedDateTime}
+        onDateTimeChange={handleDateTimeChange}
+        disabled={isPathAccepted || !amIACreator}
+      />
+
+      <Pressable
+        disabled={isPathAccepted || !amIACreator}
+        className="mb-4 h-[200px] w-full overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800"
+        onPress={() => router.push(`/tabs/transits/${transitId}/chooseDestination`)}>
+        <CustomMapView
+          region={{
+            latitude: destinationCoordinate?.latitude || 52.231958,
+            longitude: destinationCoordinate?.longitude || 21.006725,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          }}
+          scrollEnabled={false}
+          zoomEnabled={false}
+          rotateEnabled={false}
+          pitchEnabled={false}>
+          {destinationCoordinate && (
+            <Marker
+              coordinate={{
+                latitude: destinationCoordinate.latitude,
+                longitude: destinationCoordinate.longitude,
+              }}
+            />
+          )}
+          {location && ( // Optionally add a marker for the user's current location if desired
+            <Marker
+              coordinate={{
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude,
+              }}
+              pinColor="blue" // You can customize the marker color
+            />
+          )}
+        </CustomMapView>
+      </Pressable>
+
+      <Text className="mb-2 text-lg font-bold text-foreground">{t('groupMembers')}</Text>
+
+      <MembersList
+        groupId={transitId}
+        handleRemoveMember={handleRemoveMember}
+        inviteText={t('inviteToGroup')}
+        invitingEnabled={!isPathAccepted}
+      />
+
+      {!isPathAccepted && amIACreator && (
+>>>>>>> Stashed changes
         <Pressable
           disabled={isPathAccepted}
           onPress={() => router.push(`/tabs/transits/${transitId}/chooseDestination`)}>
