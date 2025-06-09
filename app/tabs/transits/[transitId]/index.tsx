@@ -347,7 +347,7 @@ export default function TransitGroup() {
               ? destinationName
               : destinationCoordinate
                 ? `Lat: ${destinationCoordinate.latitude.toFixed(6)}, Lng: ${destinationCoordinate.longitude.toFixed(6)}`
-                : {t('selectDestination')}
+                : t('selectDestination')
           }
           leftSection={<Monicon name="uil:map-marker" size={24} color={theme.text} />}
           rightSection={
