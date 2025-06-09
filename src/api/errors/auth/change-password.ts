@@ -29,4 +29,4 @@ const TRANSLATIONS = {
 
 export const useChangePasswordErrorTranslations = () => {
   return useTypedTranslation(NAMESPACE, TRANSLATIONS);
-}; 
+};

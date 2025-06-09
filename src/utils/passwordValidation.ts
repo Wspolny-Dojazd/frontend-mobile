@@ -98,24 +98,24 @@ export const validatePasswordWithMessages = (
 
 export const getPasswordStrength = (password: string): 'weak' | 'medium' | 'strong' => {
   const validation = validatePassword(password);
-  
+
   if (!validation.isValid) {
     return 'weak';
   }
 
   let score = 0;
-  
+
   // Length bonus
   if (password.length >= 12) score += 2;
   else if (password.length >= 8) score += 1;
-  
+
   // Character variety bonus
   if (/[a-z]/.test(password)) score += 1;
   if (/[A-Z]/.test(password)) score += 1;
   if (/\d/.test(password)) score += 1;
   if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) score += 1;
-  
+
   if (score >= 5) return 'strong';
   if (score >= 3) return 'medium';
   return 'weak';
-}; 
+};

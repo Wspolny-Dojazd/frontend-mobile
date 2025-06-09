@@ -27,7 +27,8 @@ const TRANSLATIONS = {
     loginLink: 'Login here',
     registering: 'Registering...',
     loggedInRedirect: 'Already logged in. Redirecting to profile...',
-    passwordRequirements: 'Password must be at least 8 characters with 1 uppercase letter, 1 number, and 1 special character',
+    passwordRequirements:
+      'Password must be at least 8 characters with 1 uppercase letter, 1 number, and 1 special character',
     passwordTooShort: 'Password must be at least 8 characters long',
     passwordMissingUppercase: 'Password must contain at least one uppercase letter',
     passwordMissingNumber: 'Password must contain at least one number',
@@ -45,7 +46,8 @@ const TRANSLATIONS = {
     loginLink: 'Zaloguj się',
     registering: 'Rejestrowanie...',
     loggedInRedirect: 'Jesteś już zalogowany. Przekierowanie do profilu...',
-    passwordRequirements: 'Hasło musi mieć co najmniej 8 znaków, w tym przynajmniej 1 wielką literą, 1 cyfrę i 1 znak specjalny',
+    passwordRequirements:
+      'Hasło musi mieć co najmniej 8 znaków, w tym przynajmniej 1 wielką literą, 1 cyfrę i 1 znak specjalny',
     passwordTooShort: 'Hasło musi mieć co najmniej 8 znaków',
     passwordMissingUppercase: 'Hasło musi zawierać co najmniej jedną wielką literę',
     passwordMissingNumber: 'Hasło musi zawierać co najmniej jedną cyfrę',
@@ -242,7 +244,7 @@ export default function Register() {
 
           {/* Password Requirements */}
           <View className="mb-8 w-full">
-            <Text className="text-xs text-muted-foreground text-center">
+            <Text className="text-center text-xs text-muted-foreground">
               {t('passwordRequirements')}
             </Text>
           </View>

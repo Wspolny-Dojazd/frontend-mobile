@@ -388,10 +388,10 @@ export const SearchLocationView = ({
         showsPointsOfInterest={false} // Disable POI markers to prevent interference
         showsCompass={false}
         // Additional props to improve touch reliability
-        scrollEnabled={true}
-        zoomEnabled={true}
-        rotateEnabled={true}
-        pitchEnabled={true}
+        scrollEnabled
+        zoomEnabled
+        rotateEnabled
+        pitchEnabled
         // Ensure map can receive touch events
         pointerEvents="auto">
         {selectedCoordinate && (

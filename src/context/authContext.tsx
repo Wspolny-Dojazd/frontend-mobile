@@ -501,7 +501,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } catch (err: unknown) {
         console.error('Registration failed:', err);
         const apiError = err as ApiError<RegisterErrorCode>;
-        const errorCode = (err as any).code;//apiError?.data?.code;
+        const errorCode = (err as any).code; //apiError?.data?.code;
         const backendMessage = apiError?.data?.message ?? (err as any)?.message;
 
         // 🔧 NIE wykonuj handleLogout tutaj:
