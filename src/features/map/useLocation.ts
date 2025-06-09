@@ -1,5 +1,5 @@
 import * as Location from 'expo-location';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react'; // Dodano useRef, jeśli jest używany w hooku
 import MapView from 'react-native-maps';
 
 type UseLocationReturn = {
@@ -54,13 +54,7 @@ export const useLocation = ({ mapRef }: UseLocationProps): UseLocationReturn => 
           accuracy: Location.Accuracy.High,
         });
 
-<<<<<<< Updated upstream
-        // Sprawdź poprawność danych lokalizacji
-=======
         console.log('useLocation: Otrzymano surową lokalizację:', currentLocation);
-
-        // Walidacja danych lokalizacji przed ustawieniem
->>>>>>> Stashed changes
         if (currentLocation && currentLocation.coords) {
           console.log(
             'useLocation: Uzyskano prawidłową lokalizację:',
@@ -80,24 +74,16 @@ export const useLocation = ({ mapRef }: UseLocationProps): UseLocationReturn => 
           return null;
         }
       } catch (error) {
-<<<<<<< Updated upstream
-        console.error('Error getting location:', error); // Zmień na error dla lepszej widoczności w konsoli
-
-        // Logika ponawiania prób w przypadku błędu
-=======
         console.error('useLocation: Błąd podczas pobierania lokalizacji w getUserLocation:', error);
         // Ponów próbę z opóźnieniem, jeśli to właściwe
->>>>>>> Stashed changes
         if (retries > 0) {
           console.log(`useLocation: Ponawianie próby po błędzie (${retries} pozostało)...`);
           await new Promise((resolve) => setTimeout(resolve, 1000));
           return getUserLocation(retries - 1); // Ponów próbę
         }
-<<<<<<< Updated upstream
 
         setErrorMsg('Nie udało się pobrać Twojej lokalizacji.'); // Ustaw błąd tylko po wyczerpaniu ponownych prób
-=======
->>>>>>> Stashed changes
+
         return null;
       }
     },
@@ -108,33 +94,22 @@ export const useLocation = ({ mapRef }: UseLocationProps): UseLocationReturn => 
   const centerOnUserLocation = useCallback(
     async (mapRef: React.RefObject<MapView>): Promise<boolean> => {
       try {
-<<<<<<< Updated upstream
         // Pobierz aktualną lokalizację (getUserLocation teraz obsługuje uprawnienia)
-=======
-        // Jeśli nie mamy jeszcze uprawnień, poproś o nie
-        if (errorMsg) {
-          // Możesz też sprawdzić status bezpośrednio: const { status } = await Location.getForegroundPermissionsAsync(); if (status !== 'granted')
-          const permissionGranted = await requestLocationPermission();
-          if (!permissionGranted) {
-            console.log('useLocation: Uprawnienia nie zostały udzielone do centrowania.');
-            return false;
-          }
-        }
+        // const permissionGranted = await requestLocationPermission(); // Już obsłużone w getUserLocation
+        // if (!permissionGranted) {
+        //   console.log('useLocation: Uprawnienia nie zostały udzielone do centrowania.');
+        //   return false;
+        // }
 
         console.log(
           'useLocation: Czy mapRef.current jest dostępny do centrowania:',
           !!mapRef.current
         );
         // Pobierz nową lokalizację i użyj zwróconej wartości natychmiast
->>>>>>> Stashed changes
         const newLocation = await getUserLocation();
         console.log('useLocation: Lokalizacja uzyskana do centrowania:', newLocation);
 
-<<<<<<< Updated upstream
         // Jeśli lokalizacja i referencja do mapy są dostępne, wyśrodkuj mapę
-=======
-        // Użyj nowej lokalizacji bezpośrednio
->>>>>>> Stashed changes
         if (newLocation && mapRef.current && newLocation.coords) {
           console.log(
             'useLocation: Próba animacji mapy do regionu:',
@@ -155,23 +130,13 @@ export const useLocation = ({ mapRef }: UseLocationProps): UseLocationReturn => 
         }
         return false;
       } catch (error) {
-<<<<<<< Updated upstream
-        console.error('Error centering on user location:', error);
-        // Nie ustawiaj tutaj errorMsg, ponieważ getUserLocation już to zrobiło, jeśli to był błąd pobierania
-=======
         console.error('useLocation: Błąd podczas centrowania na lokalizacji użytkownika:', error);
->>>>>>> Stashed changes
         return false;
       }
     },
     [getUserLocation] // Zależy od getUserLocation
   );
 
-<<<<<<< Updated upstream
-  // Resetuje status centrowania mapy, gdy użytkownik ręcznie przesunie mapę
-=======
-  // Zresetuj status centrowania, gdy mapa zostanie przesunięta przez użytkownika
->>>>>>> Stashed changes
   const handleMapChange = useCallback(() => {
     if (isMapCentered) {
       setIsMapCentered(false);
@@ -181,28 +146,14 @@ export const useLocation = ({ mapRef }: UseLocationProps): UseLocationReturn => 
     }
   }, [isMapCentered]);
 
-<<<<<<< Updated upstream
   // Główna funkcja wywoływana przez przycisk centrowania
   const handleCenterOnUser = useCallback(async () => {
     setIsLocating(true); // Rozpocznij stan ładowania
-    try {
-      const success = await centerOnUserLocation(mapRef);
-      if (success) {
-        setIsMapCentered(true); // Ustaw na true, jeśli centrowanie się powiodło
-      }
-    } catch (error) {
-      console.error('Error in handleCenterOnUser:', error);
-    } finally {
-      setIsLocating(false); // Zakończ stan ładowania
-=======
-  // Wyśrodkuj mapę na lokalizacji użytkownika i zaktualizuj status centrowania
-  const handleCenterOnUser = useCallback(async () => {
-    setIsLocating(true);
     console.log('useLocation: Wywołano handleCenterOnUser.');
     try {
       const success = await centerOnUserLocation(mapRef);
       if (success) {
-        setIsMapCentered(true);
+        setIsMapCentered(true); // Ustaw na true, jeśli centrowanie się powiodło
         console.log('useLocation: Mapa pomyślnie wyśrodkowana.');
       } else {
         console.log('useLocation: Wyśrodkowanie mapy nie powiodło się.');
@@ -211,39 +162,44 @@ export const useLocation = ({ mapRef }: UseLocationProps): UseLocationReturn => 
       console.error('useLocation: Błąd przechwycony w handleCenterOnUser:', error);
       // Nie rzucaj ponownie błędu, aby zapobiec awariom aplikacji
     } finally {
-      setIsLocating(false);
+      setIsLocating(false); // Zakończ stan ładowania
       console.log('useLocation: isLocating ustawione na false.');
->>>>>>> Stashed changes
     }
   }, [centerOnUserLocation, mapRef]); // Zależy od centerOnUserLocation i mapRef
 
-  // Efekt uruchamiany raz przy montowaniu komponentu w celu początkowego centrowania mapy
+  // Efekt uruchamiany raz przy montowaniu komponentu w celu pobrania początkowej lokalizacji
+  // i/lub spróbowania wyśrodkowania mapy na starcie.
   useEffect(() => {
     (async () => {
-<<<<<<< Updated upstream
+      console.log('useLocation: Efekt useEffect uruchomiony.');
       setIsLocating(true); // Rozpocznij stan ładowania dla początkowego centrowania
       try {
-        // Użyj centerOnUserLocation, aby spróbować wyśrodkować mapę na starcie
-        const success = await centerOnUserLocation(mapRef);
-        if (success) {
+        // Spróbuj uzyskać lokalizację i wyśrodkować mapę przy starcie.
+        // getUserLocation już obsługuje prośbę o uprawnienia.
+        const initialLocation = await getUserLocation();
+        if (initialLocation && mapRef.current) {
+          console.log(
+            'useLocation: Próba początkowego wyśrodkowania mapy po uzyskaniu lokalizacji.'
+          );
+          mapRef.current.animateToRegion({
+            latitude: initialLocation.coords.latitude,
+            longitude: initialLocation.coords.longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          });
           setIsMapCentered(true);
+        } else {
+          console.log(
+            'useLocation: Nie udało się wyśrodkować mapy na starcie (brak lokalizacji lub refa mapy).'
+          );
         }
       } catch (error) {
-        console.error('Initial map centering error:', error);
+        console.error('useLocation: Błąd podczas początkowego uruchomienia useEffect:', error);
       } finally {
         setIsLocating(false); // Zakończ stan ładowania
       }
     })();
-  }, [mapRef, centerOnUserLocation]); // Zależy od mapRef i centerOnUserLocation
-=======
-      console.log('useLocation: Efekt useEffect uruchomiony.');
-      const permissionGranted = await requestLocationPermission();
-      if (permissionGranted) {
-        getUserLocation(); // Pobierz początkową lokalizację po uzyskaniu uprawnień
-      }
-    })();
-  }, []); // Pusta tablica zależności sprawia, że to uruchamia się tylko raz przy zamontowaniu
->>>>>>> Stashed changes
+  }, [mapRef, getUserLocation]); // Zależy od mapRef i getUserLocation
 
   return {
     location,

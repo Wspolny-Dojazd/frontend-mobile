@@ -24,11 +24,8 @@ import DateTimeInput from '@/src/components/DateTimeInput';
 import { Input } from '@/src/components/ui/input';
 import { useAuth } from '@/src/context/authContext';
 import { CustomMapView } from '@/src/features/map/CustomMapView';
-<<<<<<< Updated upstream
 import UserLocationMarker from '@/src/features/map/UserLocationMarker';
-=======
-import useLiveLocation from '@/src/features/map/useLiveLocation';
->>>>>>> Stashed changes
+import useLiveLocation from '@/src/features/map/useLiveLocation'; // WAŻNE: Zachowujemy import useLiveLocation
 import { useDebugCounter } from '@/src/hooks/useDebugCounter';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 import { ChevronLeft, Plus, XCircle, LocateFixed } from '@/src/lib/icons';
@@ -45,6 +42,7 @@ const TRANSLATIONS = {
     findRoute: 'Find Route',
     joinTransit: 'Join Transit',
     centerMap: 'Center Map',
+    selectDestination: 'Select destination', // Dodany brakujący tekst
   },
   pl: {
     transit: 'Przejazd',
@@ -54,6 +52,7 @@ const TRANSLATIONS = {
     findRoute: 'Wyznacz trasę',
     joinTransit: 'Kod dołączenia',
     centerMap: 'Wyśrodkuj mapę',
+    selectDestination: 'Wybierz cel podróży', // Dodany brakujący tekst
   },
 };
 
@@ -139,17 +138,18 @@ export default function TransitGroup() {
   const initialDestinationSetRef = useRef(false);
   const { latitude, longitude } = useLocalSearchParams<{ latitude?: string; longitude?: string }>();
   const { destinationCoordinate, setDestinationCoordinate } = useCoordinateContext();
-<<<<<<< Updated upstream
+
+  // Zachowujemy mapRef i currentRegion do kontrolowania mapy
+  const mapRef = useRef(null);
   const [currentRegion, setCurrentRegion] = useState({
     latitude: destinationCoordinate?.latitude || 52.231958,
     longitude: destinationCoordinate?.longitude || 21.006725,
     latitudeDelta: 0.01,
     longitudeDelta: 0.01,
   });
-  const mapRef = useRef(null);
-=======
-  const { location } = useLiveLocation();
->>>>>>> Stashed changes
+
+  // Używamy useLiveLocation do śledzenia aktualnej lokalizacji użytkownika
+  const { location, errorMsg: liveLocationErrorMsg } = useLiveLocation();
 
   useEffect(() => {
     if (latitude && longitude && !initialDestinationSetRef.current) {
@@ -186,17 +186,47 @@ export default function TransitGroup() {
   );
 
   const handleCenterMap = useCallback(() => {
-    if (mapRef.current && me?.location) {
-      mapRef.current.animateToRegion({
-        latitude: me.location.latitude,
-        longitude: me.location.longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      }, 500);
+    // Używamy lokalizacji z useLiveLocation, jeśli jest dostępna i poprawna
+    if (mapRef.current && location?.coords) {
+      mapRef.current.animateToRegion(
+        {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        },
+        500
+      );
+      ToastAndroid.show('Mapa wyśrodkowana na Twojej lokalizacji.', ToastAndroid.SHORT);
     } else {
-      ToastAndroid.show('Nie można wyśrodkować mapy. Brak lokalizacji.', ToastAndroid.SHORT);
+      // Jeśli useLiveLocation nie ma danych, spróbuj użyć lokalizacji 'me' z API
+      if (mapRef.current && me?.location) {
+        mapRef.current.animateToRegion(
+          {
+            latitude: me.location.latitude,
+            longitude: me.location.longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          },
+          500
+        );
+        ToastAndroid.show('Mapa wyśrodkowana na lokalizacji z profilu.', ToastAndroid.SHORT);
+      } else {
+        // Jeśli żadna lokalizacja nie jest dostępna
+        ToastAndroid.show(
+          'Nie można wyśrodkować mapy. Brak dostępnej lokalizacji.',
+          ToastAndroid.SHORT
+        );
+        console.log('handleCenterMap: Brak lokalizacji do wyśrodkowania mapy.', {
+          liveLocation: location,
+          myLocationFromApi: me?.location,
+        });
+        if (liveLocationErrorMsg) {
+          console.log('handleCenterMap: Błąd z useLiveLocation:', liveLocationErrorMsg);
+        }
+      }
     }
-  }, [me?.location]);
+  }, [location, me?.location, liveLocationErrorMsg]); // Dodajemy liveLocationErrorMsg do zależności
 
   const [selectedDateTime, setSelectedDateTime] = useState<Date>(new Date());
   const [dateTimeISO, setDateTimeISO] = useState<string>(new Date().toISOString());
@@ -267,17 +297,17 @@ export default function TransitGroup() {
 
   const handleFindPaths = useCallback(() => {
     if (!destinationCoordinate) {
-      Alert.alert('Please select a destination first');
+      Alert.alert('Proszę najpierw wybrać cel podróży'); // Zmieniono tekst
       return;
     }
 
     if (!queryMembers.data) {
-      Alert.alert('No members found');
+      Alert.alert('Nie znaleziono członków grupy'); // Zmieniono tekst
       return;
     }
 
     if (!queryMembers.data.every((member) => member.location)) {
-      Alert.alert('Not every member has a location');
+      Alert.alert('Nie każdy członek ma ustawioną lokalizację'); // Zmieniono tekst
       return;
     }
 
@@ -308,7 +338,17 @@ export default function TransitGroup() {
         },
       }
     );
-  }, [transitId, mutationFindPaths, token, dateTimeISO, destinationCoordinate, queryMembers.data]);
+  }, [
+    transitId,
+    mutationFindPaths,
+    token,
+    dateTimeISO,
+    destinationCoordinate,
+    queryMembers.data,
+    tFindPathsError,
+    router,
+    queryClient,
+  ]); // Dodano zależności
 
   const queryPaths = $api.useQuery('get', '/api/groups/{groupId}/paths', {
     headers: { Authorization: `Bearer ${token}` },
@@ -371,83 +411,9 @@ export default function TransitGroup() {
           <Text className="text-foreground">{queryGroup.data?.joiningCode}</Text>
         </View>
 
-<<<<<<< Updated upstream
-=======
-      <Pressable
-        disabled={isPathAccepted || !amIACreator}
-        onPress={() => router.push(`/tabs/transits/${transitId}/chooseDestination`)}>
-        <Input
-          containerClassName="mb-4"
-          readOnly
-          value={
-            isPathAccepted
-              ? destinationName
-              : destinationCoordinate
-                ? `Lat: ${destinationCoordinate.latitude.toFixed(6)}, Lng: ${destinationCoordinate.longitude.toFixed(6)}`
-                : t('selectDestination')
-          }
-          leftSection={<Monicon name="uil:map-marker" size={24} color={theme.text} />}
-          rightSection={
-            !isPathAccepted &&
-            amIACreator && <Monicon name="circum:edit" size={24} color={theme.text} />
-          }
-        />
-      </Pressable>
-
-      <DateTimeInput
-        selectedDateTime={selectedDateTime}
-        onDateTimeChange={handleDateTimeChange}
-        disabled={isPathAccepted || !amIACreator}
-      />
-
-      <Pressable
-        disabled={isPathAccepted || !amIACreator}
-        className="mb-4 h-[200px] w-full overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800"
-        onPress={() => router.push(`/tabs/transits/${transitId}/chooseDestination`)}>
-        <CustomMapView
-          region={{
-            latitude: destinationCoordinate?.latitude || 52.231958,
-            longitude: destinationCoordinate?.longitude || 21.006725,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          }}
-          scrollEnabled={false}
-          zoomEnabled={false}
-          rotateEnabled={false}
-          pitchEnabled={false}>
-          {destinationCoordinate && (
-            <Marker
-              coordinate={{
-                latitude: destinationCoordinate.latitude,
-                longitude: destinationCoordinate.longitude,
-              }}
-            />
-          )}
-          {location && ( // Optionally add a marker for the user's current location if desired
-            <Marker
-              coordinate={{
-                latitude: location.coords.latitude,
-                longitude: location.coords.longitude,
-              }}
-              pinColor="blue" // You can customize the marker color
-            />
-          )}
-        </CustomMapView>
-      </Pressable>
-
-      <Text className="mb-2 text-lg font-bold text-foreground">{t('groupMembers')}</Text>
-
-      <MembersList
-        groupId={transitId}
-        handleRemoveMember={handleRemoveMember}
-        inviteText={t('inviteToGroup')}
-        invitingEnabled={!isPathAccepted}
-      />
-
-      {!isPathAccepted && amIACreator && (
->>>>>>> Stashed changes
+        {/* Sekcja wyboru celu podróży i mapy - scalona i poprawiona */}
         <Pressable
-          disabled={isPathAccepted}
+          disabled={isPathAccepted || !amIACreator}
           onPress={() => router.push(`/tabs/transits/${transitId}/chooseDestination`)}>
           <Input
             containerClassName="mb-4"
@@ -457,11 +423,12 @@ export default function TransitGroup() {
                 ? destinationName
                 : destinationCoordinate
                   ? `Lat: ${destinationCoordinate.latitude.toFixed(6)}, Lng: ${destinationCoordinate.longitude.toFixed(6)}`
-                  : 'Select destination'
+                  : t('selectDestination')
             }
             leftSection={<Monicon name="uil:map-marker" size={24} color={theme.text} />}
             rightSection={
-              !isPathAccepted && <Monicon name="circum:edit" size={24} color={theme.text} />
+              !isPathAccepted &&
+              amIACreator && <Monicon name="circum:edit" size={24} color={theme.text} />
             }
           />
         </Pressable>
@@ -469,17 +436,17 @@ export default function TransitGroup() {
         <DateTimeInput
           selectedDateTime={selectedDateTime}
           onDateTimeChange={handleDateTimeChange}
-          disabled={isPathAccepted}
+          disabled={isPathAccepted || !amIACreator}
         />
 
         <Pressable
-          disabled={isPathAccepted}
+          disabled={isPathAccepted || !amIACreator}
           className="mb-4 h-[200px] w-full overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800"
           onPress={() => router.push(`/tabs/transits/${transitId}/chooseDestination`)}>
           <CustomMapView
-            ref={mapRef}
-            region={currentRegion}
-            onRegionChangeComplete={setCurrentRegion}
+            ref={mapRef} // Zachowujemy ref do mapy
+            region={currentRegion} // Kontrolujemy region stanem
+            onRegionChangeComplete={setCurrentRegion} // Umożliwiamy użytkownikowi zmienianie regionu
             scrollEnabled={false}
             zoomEnabled={false}
             rotateEnabled={false}
@@ -492,17 +459,27 @@ export default function TransitGroup() {
                 }}
               />
             )}
-            {queryMemberLocations.data?.map((member) => (
-              member.location && (
-                <UserLocationMarker
-                  key={member.id}
-                  latitude={member.location.latitude}
-                  longitude={member.location.longitude}
-                  userName={member.nickname}
-                  isSelected={false}
-                />
-              )
-            ))}
+            {queryMemberLocations.data?.map(
+              (member) =>
+                member.location && (
+                  <UserLocationMarker
+                    key={member.id}
+                    latitude={member.location.latitude}
+                    longitude={member.location.longitude}
+                    userName={member.nickname}
+                    isSelected={false}
+                  />
+                )
+            )}
+            {location && ( // Dodajemy znacznik dla lokalizacji z useLiveLocation
+              <Marker
+                coordinate={{
+                  latitude: location.coords.latitude,
+                  longitude: location.coords.longitude,
+                }}
+                pinColor="blue" // Możesz dostosować kolor markera
+              />
+            )}
           </CustomMapView>
         </Pressable>
 
@@ -538,18 +515,18 @@ export default function TransitGroup() {
         )}
       </ScrollView>
 
-      <TouchableOpacity
-        style={styles.centerLocationButton}
-        onPress={handleCenterMap}>
+      {/* Przycisk centrowania mapy */}
+      <TouchableOpacity style={styles.centerLocationButton} onPress={handleCenterMap}>
         <LocateFixed size={24} color={theme.text} />
       </TouchableOpacity>
 
+      {/* Przycisk czatu */}
       <Pressable
         onPress={() =>
           router.push({
             pathname: `chat`,
             params: {
-              transitId: transitId,
+              transitId,
               members: JSON.stringify(queryGroup.data?.groupMembers),
               chatType: 'group',
             },
