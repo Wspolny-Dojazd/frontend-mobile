@@ -337,7 +337,7 @@ export default function TransitGroup() {
       </View>
 
       <Pressable
-        disabled={isPathAccepted}
+        disabled={isPathAccepted || !amIACreator}
         onPress={() => router.push(`/tabs/transits/${transitId}/chooseDestination`)}>
         <Input
           containerClassName="mb-4"
@@ -351,7 +351,8 @@ export default function TransitGroup() {
           }
           leftSection={<Monicon name="uil:map-marker" size={24} color={theme.text} />}
           rightSection={
-            !isPathAccepted && <Monicon name="circum:edit" size={24} color={theme.text} />
+            !isPathAccepted &&
+            amIACreator && <Monicon name="circum:edit" size={24} color={theme.text} />
           }
         />
       </Pressable>
@@ -359,11 +360,11 @@ export default function TransitGroup() {
       <DateTimeInput
         selectedDateTime={selectedDateTime}
         onDateTimeChange={handleDateTimeChange}
-        disabled={isPathAccepted}
+        disabled={isPathAccepted || !amIACreator}
       />
 
       <Pressable
-        disabled={isPathAccepted}
+        disabled={isPathAccepted || !amIACreator}
         className="mb-4 h-[200px] w-full overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800"
         onPress={() => router.push(`/tabs/transits/${transitId}/chooseDestination`)}>
         <CustomMapView
