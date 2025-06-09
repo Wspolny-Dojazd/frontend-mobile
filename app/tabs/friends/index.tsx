@@ -334,10 +334,10 @@ export default function App() {
               placeholder={t('search')}
               value={name}
               onChangeText={setName}
-              className="rounded-md bg-gray-900 pl-12"
+              className="rounded-md bg-gray-100 pl-12 dark:bg-gray-800"
             />
             <View className="pointer-events-none absolute inset-y-0 left-4 top-7 flex items-center ps-3">
-              <Search size={20} color="#000000" />
+              <Search size={20} className="text-gray-500 dark:text-gray-400" />
             </View>
           </View>
           <ScrollView contentContainerStyle={{ paddingBottom: 320 }}>
@@ -371,10 +371,10 @@ export default function App() {
               placeholder={t('search')}
               value={name}
               onChangeText={setName}
-              className="rounded-2xl bg-gray-900 pl-12"
+              className="rounded-2xl bg-gray-100 pl-12 dark:bg-gray-800"
             />
             <View className="pointer-events-none absolute inset-y-0 left-4 top-7 flex items-center ps-3">
-              <Search size={20} color="#000000" />
+              <Search size={20} className="text-gray-500 dark:text-gray-400" />
             </View>
           </View>
           <ScrollView contentContainerStyle={{ paddingBottom: 320 }}>
