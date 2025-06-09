@@ -50,7 +50,7 @@ const TRANSLATIONS = {
     inviteToGroup: 'Zaproś do grupy',
     findRoute: 'Wyznacz trasę',
     joinTransit: 'Kod dołączenia',
-    selectDestination: 'Wybierz cel pordóży',
+    selectDestination: 'Wybierz cel podróży',
     wait: 'Czekaj...',
     findAgain: 'Znajdź ponownie',
   },
@@ -139,8 +139,6 @@ const MembersList = memo(
 );
 
 export default function TransitGroup() {
-  useDebugCounter('TransitGroup');
-
   const initialDestinationSetRef = useRef(false);
   const { latitude, longitude } = useLocalSearchParams<{ latitude?: string; longitude?: string }>();
   const { destinationCoordinate, setDestinationCoordinate } = useCoordinateContext();
