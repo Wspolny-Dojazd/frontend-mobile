@@ -385,7 +385,15 @@ export const NavigationBottomSheet = React.memo(({ path }: NavigationBottomSheet
       segments?.map((segment, index) => {
         if (segment.type === 'Walk') {
           const key = `walk-${segment.from?.id ?? index}`;
-          return <TransitPartWalk key={key} estimatedTime={1} distance={100} />;
+          return (
+            <TransitPartWalk
+              key={key}
+              // @ts-expect-error
+              estimatedTime={segment.duration}
+              // @ts-expect-error
+              distance={segment.distance}
+            />
+          );
         } else if (segment.type === 'Route') {
           const key = `vehicle-${segment.line?.type}-${segment.line?.shortName ?? index}`;
 
