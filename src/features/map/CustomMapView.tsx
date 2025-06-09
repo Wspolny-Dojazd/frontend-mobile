@@ -21,8 +21,7 @@ export const CustomMapView = forwardRef((props: MapViewProps, ref: Ref<MapView>)
       showsIndoors={false}
       showsBuildings={false}
       {...props}
-  />
-
+    />
   );
 });
 

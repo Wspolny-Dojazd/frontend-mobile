@@ -1,8 +1,8 @@
+import { useRouter } from 'expo-router';
 import { Lock } from 'lucide-react-native';
 import { useState } from 'react';
 import { View, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
 
 import { $api } from '@/src/api/api';
 import { useChangePasswordErrorTranslations } from '@/src/api/errors/auth/change-password';
@@ -29,7 +29,8 @@ const TRANSLATIONS = {
     passwordMissingSpecialChar: 'Password must contain at least one special character',
     passwordChanged: 'Password changed successfully!',
     fillAllFields: 'Please fill in all fields',
-    passwordRequirements: 'Password must be at least 8 characters with 1 uppercase letter, 1 number, and 1 special character',
+    passwordRequirements:
+      'Password must be at least 8 characters with 1 uppercase letter, 1 number, and 1 special character',
   },
   pl: {
     changePassword: 'Zmień hasło',
@@ -44,7 +45,8 @@ const TRANSLATIONS = {
     passwordMissingSpecialChar: 'Hasło musi zawierać co najmniej jeden znak specjalny',
     passwordChanged: 'Hasło zostało zmienione pomyślnie!',
     fillAllFields: 'Proszę wypełnić wszystkie pola',
-    passwordRequirements: 'Hasło musi mieć co najmniej 8 znaków z 1 wielką literą, 1 cyfrą i 1 znakiem specjalnym',
+    passwordRequirements:
+      'Hasło musi mieć co najmniej 8 znaków z 1 wielką literą, 1 cyfrą i 1 znakiem specjalnym',
   },
 };
 
@@ -53,7 +55,7 @@ export default function ChangePassword() {
   const { t: tError } = useChangePasswordErrorTranslations();
   const { token } = useAuth();
   const router = useRouter();
-  
+
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -64,12 +66,12 @@ export default function ChangePassword() {
 
   const validateForm = () => {
     setValidationError('');
-    
+
     if (!currentPassword || !newPassword || !confirmPassword) {
       setValidationError(t('fillAllFields'));
       return false;
     }
-    
+
     // Validate new password
     const passwordValidation = validatePasswordWithMessages(newPassword, {
       tooShort: t('passwordTooShort'),
@@ -85,20 +87,20 @@ export default function ChangePassword() {
       }
       return false;
     }
-    
+
     if (newPassword !== confirmPassword) {
       setValidationError(t('passwordsDoNotMatch'));
       return false;
     }
-    
+
     return true;
   };
 
   const handleChangePassword = async () => {
     if (!validateForm()) return;
-    
+
     setSuccessMessage('');
-    
+
     try {
       await changePasswordMutation.mutateAsync({
         body: {
@@ -109,17 +111,16 @@ export default function ChangePassword() {
           Authorization: `Bearer ${token}`,
         },
       });
-      
+
       setSuccessMessage(t('passwordChanged'));
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-      
+
       // Navigate back after a short delay
       setTimeout(() => {
         router.back();
       }, 2000);
-      
     } catch (error) {
       console.error('Change password error:', error);
       // Error will be displayed via the mutation error state
@@ -136,9 +137,7 @@ export default function ChangePassword() {
     <SafeAreaView className="flex min-h-full flex-1 flex-col px-8">
       {/* Header */}
       <View className="relative mt-4 w-full flex-row items-center justify-center py-4">
-        <TouchableOpacity
-          className="absolute left-0 z-10"
-          onPress={() => router.back()}>
+        <TouchableOpacity className="absolute left-0 z-10" onPress={() => router.back()}>
           <ChevronLeft size={24} className="text-gray-600 dark:text-gray-400" />
         </TouchableOpacity>
 
@@ -149,7 +148,7 @@ export default function ChangePassword() {
 
       <View className="mt-8 flex w-full flex-1 items-center">
         {/* Current Password */}
-        <View className="relative w-full mb-6">
+        <View className="relative mb-6 w-full">
           <InputText
             placeholder={t('currentPassword')}
             secureTextEntry
@@ -163,7 +162,7 @@ export default function ChangePassword() {
         </View>
 
         {/* New Password */}
-        <View className="relative w-full mb-2">
+        <View className="relative mb-2 w-full">
           <InputText
             placeholder={t('newPassword')}
             secureTextEntry
@@ -183,14 +182,14 @@ export default function ChangePassword() {
         </View>
 
         {/* Password Requirements */}
-        <View className="w-full mb-6">
-          <Text className="text-xs text-muted-foreground text-center">
+        <View className="mb-6 w-full">
+          <Text className="text-center text-xs text-muted-foreground">
             {t('passwordRequirements')}
           </Text>
         </View>
 
         {/* Confirm Password */}
-        <View className="relative w-full mb-6">
+        <View className="relative mb-6 w-full">
           <InputText
             placeholder={t('confirmPassword')}
             secureTextEntry
@@ -205,31 +204,30 @@ export default function ChangePassword() {
 
         {/* Error Messages */}
         {validationError && (
-          <View className="w-full mb-4">
-            <Text className="text-red-500 text-center">{validationError}</Text>
+          <View className="mb-4 w-full">
+            <Text className="text-center text-red-500">{validationError}</Text>
           </View>
         )}
 
         {errorMessage && (
-          <View className="w-full mb-4">
-            <Text className="text-red-500 text-center">{errorMessage}</Text>
+          <View className="mb-4 w-full">
+            <Text className="text-center text-red-500">{errorMessage}</Text>
           </View>
         )}
 
         {/* Success Message */}
         {successMessage && (
-          <View className="w-full mb-4">
-            <Text className="text-green-500 text-center">{successMessage}</Text>
+          <View className="mb-4 w-full">
+            <Text className="text-center text-green-500">{successMessage}</Text>
           </View>
         )}
       </View>
 
       {/* Save Button */}
-      <Button 
-        onPress={handleChangePassword} 
+      <Button
+        onPress={handleChangePassword}
         disabled={changePasswordMutation.isPending}
-        className="mb-4 w-full rounded-2xl bg-primary py-2 text-center"
-      >
+        className="mb-4 w-full rounded-2xl bg-primary py-2 text-center">
         {changePasswordMutation.isPending ? (
           <ActivityIndicator size="small" color="#fff" />
         ) : (

@@ -1,8 +1,10 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { View, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import { useAuth } from '../../../src/context/authContext';
 
 import { Input } from '@/src/components/ui/input';
 import { Label } from '@/src/components/ui/label';
@@ -10,7 +12,6 @@ import { Text } from '@/src/components/ui/text';
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 import { Pencil, ChevronLeft } from '@/src/lib/icons';
 import { useColorScheme } from '@/src/lib/useColorScheme';
-import { useAuth } from '../../../src/context/authContext';
 
 const avatarImage = require('../../../assets/fallback-avatar.png');
 const DEFAULT_IMAGE = Image.resolveAssetSource(avatarImage).uri;
@@ -137,7 +138,9 @@ export default function App() {
       <View className="mt-10 w-full px-4">
         {/* Nickname */}
         <View className="mb-6 w-full">
-          <Label className="mb-2 text-base font-medium text-gray-700 dark:text-gray-300" nativeID="nicknameLabel">
+          <Label
+            className="mb-2 text-base font-medium text-gray-700 dark:text-gray-300"
+            nativeID="nicknameLabel">
             {t('nickname.text')}
           </Label>
           <View className="relative">
@@ -167,7 +170,9 @@ export default function App() {
 
         {/* Email */}
         <View className="mb-6 w-full">
-          <Label className="mb-2 text-base font-medium text-gray-700 dark:text-gray-300" nativeID="emailLabel">
+          <Label
+            className="mb-2 text-base font-medium text-gray-700 dark:text-gray-300"
+            nativeID="emailLabel">
             {t('email.text')}
           </Label>
           <View className="relative">
@@ -192,9 +197,7 @@ export default function App() {
               </TouchableOpacity>
             )}
           </View>
-          {emailError ? (
-            <Text className="mt-2 text-sm text-red-500">{emailError}</Text>
-          ) : null}
+          {emailError ? <Text className="mt-2 text-sm text-red-500">{emailError}</Text> : null}
         </View>
       </View>
 
