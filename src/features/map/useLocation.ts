@@ -24,25 +24,33 @@ export const useLocation = ({ mapRef }: UseLocationProps): UseLocationReturn => 
   const [isLocating, setIsLocating] = useState(false);
   const [isMapCentered, setIsMapCentered] = useState(false);
 
+  // Funkcja do proszenia o uprawnienia do lokalizacji
   const requestLocationPermission = useCallback(async (): Promise<boolean> => {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
       setErrorMsg('Permission to access location was denied');
       return false;
     }
-
-    setErrorMsg(null);
+    setErrorMsg(null); // Wyczyść błąd, jeśli uprawnienia zostały przyznane
     return true;
   }, []);
 
+  // Funkcja do pobierania lokalizacji użytkownika, teraz odpowiedzialna również za uprawnienia
   const getUserLocation = useCallback(
     async (retries = 3): Promise<Location.LocationObject | null> => {
+      // Najpierw upewnij się, że uprawnienia są przyznane
+      const permissionGranted = await requestLocationPermission();
+      if (!permissionGranted) {
+        // Błąd uprawnień jest już ustawiony w requestLocationPermission
+        return null;
+      }
+
       try {
         const currentLocation = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.High,
         });
 
-        // Validate location data before setting
+        // Sprawdź poprawność danych lokalizacji
         if (currentLocation && currentLocation.coords) {
           setLocation(currentLocation);
           return currentLocation;
@@ -51,83 +59,87 @@ export const useLocation = ({ mapRef }: UseLocationProps): UseLocationReturn => 
           return null;
         }
       } catch (error) {
-        console.log('Error getting location:', error);
+        console.error('Error getting location:', error); // Zmień na error dla lepszej widoczności w konsoli
 
-        // Retry with a delay if appropriate
+        // Logika ponawiania prób w przypadku błędu
         if (retries > 0) {
           await new Promise((resolve) => setTimeout(resolve, 1000));
-          return getUserLocation(retries - 1);
+          return getUserLocation(retries - 1); // Ponów próbę
         }
 
+        setErrorMsg('Nie udało się pobrać Twojej lokalizacji.'); // Ustaw błąd tylko po wyczerpaniu ponownych prób
         return null;
       }
     },
-    []
+    [requestLocationPermission] // Zależy od requestLocationPermission
   );
 
+  // Funkcja do centrowania mapy na lokalizacji użytkownika
   const centerOnUserLocation = useCallback(
     async (mapRef: React.RefObject<MapView>): Promise<boolean> => {
       try {
-        // If we don't have permission yet, request it
-        if (errorMsg) {
-          const permissionGranted = await requestLocationPermission();
-          if (!permissionGranted) return false;
-        }
-
-        // Get a new location and use the returned value immediately
-        // instead of relying on the state update
+        // Pobierz aktualną lokalizację (getUserLocation teraz obsługuje uprawnienia)
         const newLocation = await getUserLocation();
 
-        // Use the new location directly
+        // Jeśli lokalizacja i referencja do mapy są dostępne, wyśrodkuj mapę
         if (newLocation && mapRef.current && newLocation.coords) {
           mapRef.current.animateToRegion({
             latitude: newLocation.coords.latitude,
             longitude: newLocation.coords.longitude,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
+            latitudeDelta: 0.01, // Standardowe wartości dla bliższego zoomu
+            longitudeDelta: 0.01,
           });
           return true;
         }
         return false;
       } catch (error) {
         console.error('Error centering on user location:', error);
+        // Nie ustawiaj tutaj errorMsg, ponieważ getUserLocation już to zrobiło, jeśli to był błąd pobierania
         return false;
       }
     },
-    [errorMsg, getUserLocation, requestLocationPermission]
+    [getUserLocation] // Zależy od getUserLocation
   );
 
-  // Reset centered status when map is moved by user
+  // Resetuje status centrowania mapy, gdy użytkownik ręcznie przesunie mapę
   const handleMapChange = useCallback(() => {
     if (isMapCentered) {
       setIsMapCentered(false);
     }
   }, [isMapCentered]);
 
-  // Center map on user location and update centered status
+  // Główna funkcja wywoływana przez przycisk centrowania
   const handleCenterOnUser = useCallback(async () => {
-    setIsLocating(true);
+    setIsLocating(true); // Rozpocznij stan ładowania
     try {
       const success = await centerOnUserLocation(mapRef);
       if (success) {
-        setIsMapCentered(true);
+        setIsMapCentered(true); // Ustaw na true, jeśli centrowanie się powiodło
       }
     } catch (error) {
       console.error('Error in handleCenterOnUser:', error);
-      // Don't rethrow the error to prevent app crashes
     } finally {
-      setIsLocating(false);
+      setIsLocating(false); // Zakończ stan ładowania
     }
-  }, [centerOnUserLocation, mapRef]);
+  }, [centerOnUserLocation, mapRef]); // Zależy od centerOnUserLocation i mapRef
 
+  // Efekt uruchamiany raz przy montowaniu komponentu w celu początkowego centrowania mapy
   useEffect(() => {
     (async () => {
-      const permissionGranted = await requestLocationPermission();
-      if (permissionGranted) {
-        getUserLocation();
+      setIsLocating(true); // Rozpocznij stan ładowania dla początkowego centrowania
+      try {
+        // Użyj centerOnUserLocation, aby spróbować wyśrodkować mapę na starcie
+        const success = await centerOnUserLocation(mapRef);
+        if (success) {
+          setIsMapCentered(true);
+        }
+      } catch (error) {
+        console.error('Initial map centering error:', error);
+      } finally {
+        setIsLocating(false); // Zakończ stan ładowania
       }
     })();
-  }, []);
+  }, [mapRef, centerOnUserLocation]); // Zależy od mapRef i centerOnUserLocation
 
   return {
     location,
