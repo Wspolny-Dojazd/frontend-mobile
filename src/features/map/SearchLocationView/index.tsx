@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { useColorScheme } from 'nativewind';
 import { useMemo, useRef, useCallback, useEffect, useState } from 'react';
-import { Text, View, Pressable } from 'react-native';
+import { Text, View, Pressable, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import MapView, { Marker, MapPressEvent, PoiClickEvent, LongPressEvent } from 'react-native-maps';
 
 import UserLocationMarker from '../UserLocationMarker';
@@ -90,7 +90,7 @@ const MOCK_PLACES: Place[] = [
   {
     id: 6,
     name: 'National Museum in Warsaw',
-    distance: 2.5, // Example distance
+    distance: 2.5,
     address: 'Al. Jerozolimskie 3',
     postcode: '00-495',
     latitude: 52.2286,
@@ -99,7 +99,7 @@ const MOCK_PLACES: Place[] = [
   {
     id: 7,
     name: 'POLIN Museum of the History of Polish Jews And Holocaust',
-    distance: 3.1, // Example distance
+    distance: 3.1,
     address: 'Anielewicza 6',
     postcode: '00-157',
     latitude: 52.2483,
@@ -108,7 +108,7 @@ const MOCK_PLACES: Place[] = [
   {
     id: 8,
     name: 'Copernicus Science Centre',
-    distance: 1.5, // Example distance
+    distance: 1.5,
     address: 'Wybrzeże Kościuszkowskie 20',
     postcode: '00-390',
     latitude: 52.2413,
@@ -117,7 +117,7 @@ const MOCK_PLACES: Place[] = [
   {
     id: 9,
     name: 'PGE Narodowy',
-    distance: 4.2, // Example distance
+    distance: 4.2,
     address: 'al. Księcia Józefa Poniatowskiego 1',
     postcode: '03-901',
     latitude: 52.2412,
@@ -126,7 +126,7 @@ const MOCK_PLACES: Place[] = [
   {
     id: 10,
     name: 'Warsaw Uprising Museum',
-    distance: 3.8, // Example distance
+    distance: 3.8,
     address: 'Grzybowska 79',
     postcode: '00-844',
     latitude: 52.2365,
@@ -135,7 +135,7 @@ const MOCK_PLACES: Place[] = [
   {
     id: 11,
     name: 'Saxon Garden',
-    distance: 2.8, // Example distance
+    distance: 2.8,
     address: 'Marszałkowska',
     postcode: '00-078',
     latitude: 52.241,
@@ -144,7 +144,7 @@ const MOCK_PLACES: Place[] = [
   {
     id: 12,
     name: "St. John's Archcathedral",
-    distance: 2.3, // Example distance
+    distance: 2.3,
     address: 'Świętojańska 8',
     postcode: '00-278',
     latitude: 52.2512,
@@ -153,7 +153,7 @@ const MOCK_PLACES: Place[] = [
   {
     id: 13,
     name: 'Presidential Palace',
-    distance: 2.6, // Example distance
+    distance: 2.6,
     address: 'Krakowskie Przedmieście 46/48',
     postcode: '00-325',
     latitude: 52.242,
@@ -162,7 +162,7 @@ const MOCK_PLACES: Place[] = [
   {
     id: 14,
     name: 'New Town Market Place',
-    distance: 2.1, // Example distance
+    distance: 2.1,
     address: 'Rynek Nowego Miasta',
     postcode: '00-272',
     latitude: 52.2542,
@@ -171,55 +171,13 @@ const MOCK_PLACES: Place[] = [
   {
     id: 15,
     name: 'Tomb of the Unknown Soldier',
-    distance: 2.7, // Example distance
+    distance: 2.7,
     address: 'Plac marsz. Józefa Piłsudskiego',
     postcode: '00-078',
     latitude: 52.2414,
     longitude: 21.0075,
   },
 ];
-
-// const UserLocationMarkers = () => {
-//   const { token } = useAuth();
-//   const queryGroups = $api.useQuery('get', '/api/groups', {
-//     headers: {
-//       Authorization: `Bearer ${token}`,
-//     },
-//   });
-
-//   const group = queryGroups.data?.at(0);
-
-//   const queryMembers = $api.useQuery(
-//     'get',
-//     '/api/groups/{id}/members',
-//     {
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//       },
-//       params: {
-//         path: { id: group!.id },
-//       },
-//     },
-//     {
-//       enabled: !!group?.id,
-//     }
-//   );
-
-//   const members = queryMembers.data;
-
-//   return members?.map(
-//     (member) =>
-//       member.location && (
-//         <UserLocationMarker
-//           key={member.id}
-//           latitude={member.location.latitude}
-//           longitude={member.location.longitude}
-//           userName={member.username}
-//           isSelected={false}
-//         />
-//       )
-//   );
-// };
 
 export type Coordinate = {
   latitude: number;
@@ -268,10 +226,8 @@ export const SearchLocationView = ({
   const [isSearchViewOpen, setIsSearchViewOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
-  const [bottomSheetIndex, setBottomSheetIndex] = useState(-1); // -1 for closed
+  const [bottomSheetIndex, setBottomSheetIndex] = useState(-1);
 
-  // Handle map press events to place pins
-  // This is the primary method for pin placement
   const handleMapPress = useCallback((event: MapPressEvent) => {
     const { coordinate } = event.nativeEvent;
     setSelectedCoordinate(coordinate);
@@ -279,9 +235,6 @@ export const SearchLocationView = ({
     setSelectedPlace(null);
   }, []);
 
-  // Handle POI (Point of Interest) clicks to place pins
-  // This prevents POI markers from interfering with pin placement
-  // When users tap on restaurants, shops, etc., we still place a pin
   const handlePoiClick = useCallback((event: PoiClickEvent) => {
     const { coordinate } = event.nativeEvent;
     setSelectedCoordinate(coordinate);
@@ -289,8 +242,6 @@ export const SearchLocationView = ({
     setSelectedPlace(null);
   }, []);
 
-  // Handle long press events as a fallback for pin placement
-  // This provides an alternative method when single taps don't work
   const handleLongPress = useCallback((event: LongPressEvent) => {
     const { coordinate } = event.nativeEvent;
     setSelectedCoordinate(coordinate);
@@ -383,16 +334,14 @@ export const SearchLocationView = ({
         showsMyLocationButton={false}
         onRegionChangeComplete={handleMapChange}
         onPress={handleMapPress}
-        onLongPress={handleLongPress} // Fallback for when onPress doesn't work
-        onPoiClick={handlePoiClick} // Handle POI clicks the same as map presses
-        showsPointsOfInterest={false} // Disable POI markers to prevent interference
+        onLongPress={handleLongPress}
+        onPoiClick={handlePoiClick}
+        showsPointsOfInterest={false}
         showsCompass={false}
-        // Additional props to improve touch reliability
         scrollEnabled
         zoomEnabled
         rotateEnabled
         pitchEnabled
-        // Ensure map can receive touch events
         pointerEvents="auto">
         {selectedCoordinate && (
           <Marker
@@ -406,13 +355,22 @@ export const SearchLocationView = ({
         {mapComponents}
       </CustomMapView>
 
-      <LocationButton
-        isLocating={isLocating}
-        isMapCentered={isMapCentered}
-        errorMsg={errorMsg}
-        colorScheme={colorScheme}
-        onPress={handleCenterOnUser}
-      />
+      <View style={styles.bottomRightActions}>
+        <LocationButton
+          isLocating={isLocating}
+          isMapCentered={isMapCentered}
+          errorMsg={errorMsg}
+          colorScheme={colorScheme}
+          onPress={handleCenterOnUser}
+          style={styles.locationButton}
+        />
+        <TouchableOpacity style={styles.chatButton} onPress={() => console.log('Chat button pressed')}>
+          <Image
+            source={require('@/assets/icons/chat.png')}
+            style={styles.chatIcon}
+          />
+        </TouchableOpacity>
+      </View>
 
       <LocationBottomSheet
         selectedCoordinate={selectedCoordinate}
@@ -426,3 +384,46 @@ export const SearchLocationView = ({
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  bottomRightActions: {
+    position: 'absolute',
+    bottom: 20 + 20 + 70,
+    right: 20,
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    gap: 10,
+    zIndex: 10,
+  },
+  locationButton: {
+    backgroundColor: 'white',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  chatButton: {
+    backgroundColor: 'white',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  chatIcon: {
+    width: 24,
+    height: 24,
+    tintColor: 'gray',
+  },
+});

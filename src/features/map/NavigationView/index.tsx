@@ -2,7 +2,7 @@ import { useDebouncedState } from '@mantine/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { useColorScheme } from 'nativewind';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import MapView, { Details, Region } from 'react-native-maps';
 
 import { MapPath } from './MapPath';
@@ -61,7 +61,7 @@ const MemberMarkers = React.memo(({ groupId, selectedUserId }: MemberMarkersProp
     },
     {
       enabled: !!token,
-      refetchInterval: 5000, // Reduced from 1000ms to 5000ms to prevent flashing
+      refetchInterval: 5000,
     }
   );
 
@@ -140,12 +140,10 @@ export const NavigationView = ({ groupId }: NavigationViewProps) => {
 
   const isLoading = queryProposedPaths.isLoading || queryAcceptedPath.isLoading;
 
-  // Track if initial loading is complete to avoid showing loading on refetches
   const [isInitialLoadCycleOver, setIsInitialLoadCycleOver] = useState(false);
 
   useEffect(() => {
     if (!isInitialLoadCycleOver) {
-      // If we have data (cached or fresh) or finished fetching, mark initial load as complete
       const hasData = queryProposedPaths.data !== undefined || queryAcceptedPath.data !== undefined;
       const hasFetched = queryProposedPaths.isFetched || queryAcceptedPath.isFetched;
 
@@ -275,7 +273,11 @@ export const NavigationView = ({ groupId }: NavigationViewProps) => {
   );
 
   return (
-    <>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.fullScreenContainer}
+      keyboardVerticalOffset={0}
+    >
       <CustomMapView
         ref={mapRef}
         initialRegion={initialRegion}
@@ -288,7 +290,6 @@ export const NavigationView = ({ groupId }: NavigationViewProps) => {
         <MemberMarkers groupId={groupId} selectedUserId={selectedUserId} />
       </CustomMapView>
 
-      {/* Loading Indicator */}
       {isLoading &&
         !isInitialLoadCycleOver &&
         !queryProposedPaths.data &&
@@ -314,7 +315,6 @@ export const NavigationView = ({ groupId }: NavigationViewProps) => {
         )}
 
       <View className="absolute left-0 right-0 top-0 mx-8 mt-12 shadow-lg">
-        {/* Path Options - show when we have proposed paths and no accepted path */}
         {isInitialLoadCycleOver && !isPathAccepted && proposedPaths.length > 0 && (
           <PathOptions
             proposedPaths={proposedPaths}
@@ -323,7 +323,6 @@ export const NavigationView = ({ groupId }: NavigationViewProps) => {
           />
         )}
 
-        {/* User Path Options - show when we have users paths */}
         {isInitialLoadCycleOver && usersPaths && usersPaths.length > 0 && (
           <UserPathOptions
             usersPaths={usersPaths}
@@ -333,7 +332,6 @@ export const NavigationView = ({ groupId }: NavigationViewProps) => {
           />
         )}
 
-        {/* No Paths Found Alert - show when loading is done and no proposed paths */}
         {isInitialLoadCycleOver && proposedPaths.length === 0 && !isPathAccepted && (
           <View
             className={`mt-2 rounded-lg p-3 shadow-md ${
@@ -349,36 +347,73 @@ export const NavigationView = ({ groupId }: NavigationViewProps) => {
         )}
       </View>
 
-      <LocationButton
-        isLocating={isLocating}
-        isMapCentered={isMapCentered}
-        errorMsg={errorMsg}
-        colorScheme={colorScheme}
-        onPress={handleCenterOnUser}
-        className="absolute bottom-44 right-5"
-      />
+      <View style={styles.bottomFixedContainer}>
+        <LocationButton
+          isLocating={isLocating}
+          isMapCentered={isMapCentered}
+          errorMsg={errorMsg}
+          colorScheme={colorScheme}
+          onPress={handleCenterOnUser}
+          style={styles.locationButton}
+        />
 
-      {/* Accept Path Button - show when we have selected path and not accepted yet */}
-      {isInitialLoadCycleOver && selectedPathId && !isPathAccepted && amIACreator && (
-        <Pressable
-          className="absolute bottom-28 left-0 right-0 mx-8 flex-row items-center justify-center rounded-lg bg-primary py-2"
-          onPress={handleAcceptPath}
-          disabled={mutationAcceptPath.isPending}>
-          {mutationAcceptPath.isPending ? (
-            <View className="flex-row items-center justify-center">
-              <ActivityIndicator size="small" color="#ffffff" className="mr-2" />
-              <Text className="text-lg font-semibold text-white">{t('acceptingPath')}</Text>
-            </View>
-          ) : (
-            <Text className="text-lg font-semibold text-white">{t('acceptPath')}</Text>
-          )}
-        </Pressable>
-      )}
+        {isInitialLoadCycleOver && selectedPathId && !isPathAccepted && amIACreator && (
+          <Pressable
+            className="flex-row items-center justify-center rounded-lg bg-primary py-2 mt-4"
+            onPress={handleAcceptPath}
+            disabled={mutationAcceptPath.isPending}
+            style={styles.acceptPathButton}
+          >
+            {mutationAcceptPath.isPending ? (
+              <View className="flex-row items-center justify-center">
+                <ActivityIndicator size="small" color="#ffffff" className="mr-2" />
+                <Text className="text-lg font-semibold text-white">{t('acceptingPath')}</Text>
+              </View>
+            ) : (
+              <Text className="text-lg font-semibold text-white">{t('acceptPath')}</Text>
+            )}
+          </Pressable>
+        )}
+      </View>
 
-      {/* Navigation Bottom Sheet - show when we have selected user path */}
       {isInitialLoadCycleOver && selectedUserPath && (
         <NavigationBottomSheet path={selectedUserPath} />
       )}
-    </>
+    </KeyboardAvoidingView>
   );
 };
+
+const styles = StyleSheet.create({
+  fullScreenContainer: {
+    flex: 1,
+  },
+  bottomFixedContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 20,
+    paddingBottom: Platform.OS === 'ios' ? 30 : 20,
+    paddingTop: 10,
+    backgroundColor: 'transparent',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+  },
+  locationButton: {
+    backgroundColor: 'white',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    marginBottom: 10,
+  },
+  acceptPathButton: {
+    width: '100%',
+  },
+});
