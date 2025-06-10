@@ -1,5 +1,5 @@
 import * as Location from 'expo-location';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import MapView from 'react-native-maps';
 
 type UseLocationReturn = {
@@ -24,110 +24,130 @@ export const useLocation = ({ mapRef }: UseLocationProps): UseLocationReturn => 
   const [isLocating, setIsLocating] = useState(false);
   const [isMapCentered, setIsMapCentered] = useState(false);
 
+  // Function to request location permissions
   const requestLocationPermission = useCallback(async (): Promise<boolean> => {
     const { status } = await Location.requestForegroundPermissionsAsync();
+
     if (status !== 'granted') {
-      setErrorMsg('Permission to access location was denied');
+      setErrorMsg('Dostęp do lokalizacji został odrzucony.');
       return false;
     }
-
     setErrorMsg(null);
     return true;
   }, []);
 
+  // Function to get user's current location, now also responsible for permissions
   const getUserLocation = useCallback(
     async (retries = 3): Promise<Location.LocationObject | null> => {
+      // First, ensure permissions are granted
+      const permissionGranted = await requestLocationPermission();
+      if (!permissionGranted) {
+        return null;
+      }
+
       try {
         const currentLocation = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.High,
         });
 
-        // Validate location data before setting
         if (currentLocation && currentLocation.coords) {
           setLocation(currentLocation);
           return currentLocation;
         } else {
-          console.log('Invalid location data received');
+          // Retry with a delay if location data is invalid
+          if (retries > 0) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            return getUserLocation(retries - 1);
+          }
           return null;
         }
       } catch (error) {
-        console.log('Error getting location:', error);
-
-        // Retry with a delay if appropriate
+        // Retry with a delay on error
         if (retries > 0) {
           await new Promise((resolve) => setTimeout(resolve, 1000));
           return getUserLocation(retries - 1);
         }
 
+        setErrorMsg('Nie udało się pobrać Twojej lokalizacji.'); // Set error only after retries are exhausted
+
         return null;
       }
     },
-    []
+    [requestLocationPermission]
   );
 
+  // Function to center the map on the user's location
   const centerOnUserLocation = useCallback(
     async (mapRef: React.RefObject<MapView>): Promise<boolean> => {
       try {
-        // If we don't have permission yet, request it
-        if (errorMsg) {
-          const permissionGranted = await requestLocationPermission();
-          if (!permissionGranted) return false;
-        }
-
-        // Get a new location and use the returned value immediately
-        // instead of relying on the state update
+        // Get the latest location (getUserLocation handles permissions)
         const newLocation = await getUserLocation();
 
-        // Use the new location directly
+        // If location and map reference are available, animate the map
         if (newLocation && mapRef.current && newLocation.coords) {
           mapRef.current.animateToRegion({
             latitude: newLocation.coords.latitude,
             longitude: newLocation.coords.longitude,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
+            latitudeDelta: 0.01, // Standard values for closer zoom
+            longitudeDelta: 0.01,
           });
           return true;
+        } else {
+          return false;
         }
-        return false;
       } catch (error) {
-        console.error('Error centering on user location:', error);
         return false;
       }
     },
-    [errorMsg, getUserLocation, requestLocationPermission]
+    [getUserLocation]
   );
 
-  // Reset centered status when map is moved by user
   const handleMapChange = useCallback(() => {
     if (isMapCentered) {
       setIsMapCentered(false);
     }
   }, [isMapCentered]);
 
-  // Center map on user location and update centered status
+  // Main function called by the centering button
   const handleCenterOnUser = useCallback(async () => {
-    setIsLocating(true);
+    setIsLocating(true); // Start loading state
     try {
       const success = await centerOnUserLocation(mapRef);
       if (success) {
-        setIsMapCentered(true);
+        setIsMapCentered(true); // Set to true if centering was successful
       }
     } catch (error) {
-      console.error('Error in handleCenterOnUser:', error);
-      // Don't rethrow the error to prevent app crashes
+      // Error handled by centerOnUserLocation, no need to rethrow
     } finally {
-      setIsLocating(false);
+      setIsLocating(false); // End loading state
     }
   }, [centerOnUserLocation, mapRef]);
 
+  // Effect run once on component mount to get initial location
+  // and/or try to center the map on startup.
   useEffect(() => {
     (async () => {
-      const permissionGranted = await requestLocationPermission();
-      if (permissionGranted) {
-        getUserLocation();
+      setIsLocating(true); // Start loading state for initial centering
+      try {
+        // Attempt to get location and center the map on startup.
+        // getUserLocation already handles permission requests.
+        const initialLocation = await getUserLocation();
+        if (initialLocation && mapRef.current) {
+          mapRef.current.animateToRegion({
+            latitude: initialLocation.coords.latitude,
+            longitude: initialLocation.coords.longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          });
+          setIsMapCentered(true);
+        }
+      } catch (error) {
+        // Error handled by getUserLocation, no need to rethrow.
+      } finally {
+        setIsLocating(false); // End loading state
       }
     })();
-  }, []);
+  }, [mapRef, getUserLocation]);
 
   return {
     location,
