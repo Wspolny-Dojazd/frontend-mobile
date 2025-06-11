@@ -1,6 +1,7 @@
 import * as Location from 'expo-location';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import MapView from 'react-native-maps';
+import { useInlineTranslations } from '@/src/lib/useInlineTranslations';
 
 type UseLocationReturn = {
   location: Location.LocationObject | null;
@@ -18,23 +19,37 @@ export type UseLocationProps = {
   mapRef: React.RefObject<MapView>;
 };
 
+const NAMESPACE = 'src/features/map/useLocation';
+const TRANSLATIONS = {
+  en: {
+    locationAccessDenied: 'Location access was denied.',
+    locationFetchFailed: 'Failed to get your location.',
+  },
+  pl: {
+    locationAccessDenied: 'Dostęp do lokalizacji został odrzucony.',
+    locationFetchFailed: 'Nie udało się pobrać Twojej lokalizacji.',
+  },
+};
+
 export const useLocation = ({ mapRef }: UseLocationProps): UseLocationReturn => {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isLocating, setIsLocating] = useState(false);
   const [isMapCentered, setIsMapCentered] = useState(false);
 
+  const { t } = useInlineTranslations(NAMESPACE, TRANSLATIONS);
+
   // Function to request location permissions
   const requestLocationPermission = useCallback(async (): Promise<boolean> => {
     const { status } = await Location.requestForegroundPermissionsAsync();
 
     if (status !== 'granted') {
-      setErrorMsg('Dostęp do lokalizacji został odrzucony.');
+      setErrorMsg(t('locationAccessDenied'));
       return false;
     }
     setErrorMsg(null);
     return true;
-  }, []);
+  }, [t]);
 
   // Function to get user's current location, now also responsible for permissions
   const getUserLocation = useCallback(
@@ -68,12 +83,12 @@ export const useLocation = ({ mapRef }: UseLocationProps): UseLocationReturn => 
           return getUserLocation(retries - 1);
         }
 
-        setErrorMsg('Nie udało się pobrać Twojej lokalizacji.'); // Set error only after retries are exhausted
+        setErrorMsg(t('locationFetchFailed'));
 
         return null;
       }
     },
-    [requestLocationPermission]
+    [requestLocationPermission, t]
   );
 
   // Function to center the map on the user's location
