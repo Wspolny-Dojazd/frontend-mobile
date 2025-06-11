@@ -1,6 +1,6 @@
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import Clipboard from 'expo-clipboard';
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useState, useMemo } from 'react';
 import { Text, View, Pressable } from 'react-native';
 
 import { calculateDistance } from '@/src/lib/calculateDistance';
@@ -64,13 +64,18 @@ export const LocationBottomSheet = ({
 }: LocationBottomSheetProps) => {
   const { t } = useInlineTranslations(NAMESPACE, TRANSLATIONS);
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = ['20%'];
+  const [contentHeight, setContentHeight] = useState(1);
+
+const snapPoints = useMemo(() => {
+  return [contentHeight > 1 ? contentHeight : 10]; // fallback
+}, [contentHeight]);
   const theme = useTheme();
 
   const handleClose = useCallback(() => {
     bottomSheetRef.current?.close();
     onClose();
   }, [onClose]);
+  if (!selectedPlace && !selectedCoordinate) return null;
 
   return (
     <BottomSheet
@@ -91,6 +96,13 @@ export const LocationBottomSheet = ({
         borderColor: theme.border,
       }}>
       <BottomSheetView>
+            <View
+    className="relative flex w-full flex-col items-center justify-start gap-4 px-4 pt-4"
+    onLayout={(event) => {
+      const height = event.nativeEvent.layout.height;
+      setContentHeight(height+20);
+    }}
+  >
         <View className="relative flex w-full flex-col items-center justify-start gap-4 px-4 pt-4">
           <Pressable className="absolute right-0 top-0 p-6" onPress={handleClose}>
             <X size={20} color="gray" />
@@ -157,6 +169,7 @@ export const LocationBottomSheet = ({
               {acceptButtonText ?? t('newRide')}
             </Text>
           </Pressable>
+        </View>
         </View>
       </BottomSheetView>
     </BottomSheet>
