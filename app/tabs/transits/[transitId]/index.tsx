@@ -292,6 +292,22 @@ export default function TransitGroup() {
 
   const amIACreator = queryMembers.data?.find((member) => member.isCreator)?.id === user?.id;
 
+  useEffect(() => {
+    const paths = queryAcceptedPath.data?.paths;
+    if (
+      !destinationCoordinate &&
+      Array.isArray(paths) && paths.length > 0
+    ) {
+      const lastStop = paths[0]?.segments?.at(-1)?.stops?.at(-1);
+      if (lastStop?.latitude && lastStop?.longitude) {
+        setDestinationCoordinate({
+          latitude: lastStop.latitude,
+          longitude: lastStop.longitude,
+        });
+      }
+    }
+  }, [destinationCoordinate, queryAcceptedPath.data, setDestinationCoordinate]);
+
   if (queryGroup.isLoading || queryMembers.isLoading) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center">
