@@ -220,7 +220,7 @@ const distanceText = convertDistance(distance);
         <Divider />
 
         <Text className="text-foreground">
-          {t('walk')} {estimatedTime} min ({distance} {t('meters')})
+          {t('walk')} {estimatedTime} min ({distanceText})
         </Text>
 
         <Divider />
