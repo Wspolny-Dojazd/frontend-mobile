@@ -2,6 +2,7 @@ import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import Monicon from '@monicon/native';
 import React, { useMemo, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
+import { useDistanceConverter } from '@/src/hooks/useDistanceConverter';
 
 import { components } from '@/src/api/openapi';
 import {
@@ -197,6 +198,8 @@ type TransitPartWalkProps = {
 
 const TransitPartWalk = ({ estimatedTime, distance }: TransitPartWalkProps) => {
   const theme = useTheme();
+  const { convertDistance } = useDistanceConverter();
+const distanceText = convertDistance(distance);
   const { t } = useInlineTranslations(NAMESPACE, TRANSLATIONS);
 
   return (
