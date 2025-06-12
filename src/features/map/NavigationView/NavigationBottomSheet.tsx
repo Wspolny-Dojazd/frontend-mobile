@@ -2,7 +2,6 @@ import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import Monicon from '@monicon/native';
 import React, { useMemo, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
-import { useDistanceConverter } from '@/src/hooks/useDistanceConverter';
 
 import { components } from '@/src/api/openapi';
 import {
@@ -10,6 +9,7 @@ import {
   CollapsibleTrigger,
   CollapsibleContent,
 } from '@/src/components/ui/collapsible';
+import { useDistanceConverter } from '@/src/hooks/useDistanceConverter';
 import { ChevronDown } from '@/src/lib/icons/ChevronDown';
 import { ChevronRight } from '@/src/lib/icons/ChevronRight';
 import { useInlineTranslations } from '@/src/lib/useInlineTranslations';
@@ -199,7 +199,7 @@ type TransitPartWalkProps = {
 const TransitPartWalk = ({ estimatedTime, distance }: TransitPartWalkProps) => {
   const theme = useTheme();
   const { convertDistance } = useDistanceConverter();
-const distanceText = convertDistance(distance);
+  const distanceText = convertDistance(distance);
   const { t } = useInlineTranslations(NAMESPACE, TRANSLATIONS);
 
   return (

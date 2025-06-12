@@ -279,7 +279,96 @@ export interface paths {
             'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
           };
         };
-        /** @description Not Found */
+        /** @description The authenticated user was not found. */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/auth/change-nickname': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Changes the nickname of the currently authenticated user. */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      /** @description The request containing the new nickname. */
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['ChangeNicknameRequestDto'];
+          'text/json': components['schemas']['ChangeNicknameRequestDto'];
+          'application/*+json': components['schemas']['ChangeNicknameRequestDto'];
+        };
+      };
+      responses: {
+        /** @description The user nickname has been changed successfully. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['UserDto'];
+            'application/json': components['schemas']['UserDto'];
+            'text/json': components['schemas']['UserDto'];
+          };
+        };
+        /** @description The request payload is invalid. */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The authenticated user was not found. */
         404: {
           headers: {
             [name: string]: unknown;
@@ -833,6 +922,399 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/groups/invitations': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Sends a new group invitation from the authenticated user to another user. */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      /** @description The group invitation request data. */
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['GroupInvitationRequestDto'];
+          'text/json': components['schemas']['GroupInvitationRequestDto'];
+          'application/*+json': components['schemas']['GroupInvitationRequestDto'];
+        };
+      };
+      responses: {
+        /** @description Group invitation sent successfully. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupInvitationDto'];
+            'application/json': components['schemas']['GroupInvitationDto'];
+            'text/json': components['schemas']['GroupInvitationDto'];
+          };
+        };
+        /** @description Self-invitation, already sent, already in group, or reciprocal invitation exists. */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupInvitationErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupInvitationErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupInvitationErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The recipient user was not found. */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupInvitationErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupInvitationErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupInvitationErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/groups/{groupId}/invitations': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Retrieves all invitations that were sent from the specific group. */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          /** @description The unique identifier of the group. */
+          groupId: number;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description The sent invitations were retrieved successfully. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupInvitationDto'][];
+            'application/json': components['schemas']['GroupInvitationDto'][];
+            'text/json': components['schemas']['GroupInvitationDto'][];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/groups/invitations/received': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Retrieves all invitations received by the authenticated user. */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description The received invitations were retrieved successfully. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupInvitationDto'][];
+            'application/json': components['schemas']['GroupInvitationDto'][];
+            'text/json': components['schemas']['GroupInvitationDto'][];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/groups/invitations/{id}/accept': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Accepts a group invitation between the sender and receiver. */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          /** @description The unique identifier of the invitation to accept. */
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Group invitation accepted successfully. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupDto'];
+            'application/json': components['schemas']['GroupDto'];
+            'text/json': components['schemas']['GroupDto'];
+          };
+        };
+        /** @description The user is already in the group. */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupInvitationErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupInvitationErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupInvitationErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The user is not authorized to accept the invitation. */
+        403: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupInvitationErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupInvitationErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupInvitationErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The invitation was not found. */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupInvitationErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupInvitationErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupInvitationErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/groups/invitations/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Deletes a group invitation.
+     * @description This method executes a `cancel` operation if the user is the sender,
+     *     or a `decline` operation if the user is the receiver.
+     */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          /** @description The unique identifier of the invitation to delete. */
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Group invitation deleted successfully. */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['AuthErrorCodeErrorResponse'];
+            'application/json': components['schemas']['AuthErrorCodeErrorResponse'];
+            'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The user is not authorized to delete the invitation. */
+        403: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupInvitationErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupInvitationErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupInvitationErrorCodeErrorResponse'];
+          };
+        };
+        /** @description The invitation was not found. */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['GroupInvitationErrorCodeErrorResponse'];
+            'application/json': components['schemas']['GroupInvitationErrorCodeErrorResponse'];
+            'text/json': components['schemas']['GroupInvitationErrorCodeErrorResponse'];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/plain': components['schemas']['InternalErrorCodeErrorResponse'];
+            'application/json': components['schemas']['InternalErrorCodeErrorResponse'];
+            'text/json': components['schemas']['InternalErrorCodeErrorResponse'];
+          };
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/groups/{groupId}/paths': {
     parameters: {
       query?: never;
@@ -976,7 +1458,7 @@ export interface paths {
             'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
           };
         };
-        /** @description The user is not a member of the group. */
+        /** @description The user is not the owner of the group. */
         403: {
           headers: {
             [name: string]: unknown;
@@ -1159,7 +1641,7 @@ export interface paths {
             'text/json': components['schemas']['AuthErrorCodeErrorResponse'];
           };
         };
-        /** @description The user is not a member of the group. */
+        /** @description The user is not the owner of the group. */
         403: {
           headers: {
             [name: string]: unknown;
@@ -1170,7 +1652,7 @@ export interface paths {
             'text/json': components['schemas']['GroupPathErrorCodeErrorResponse'];
           };
         };
-        /** @description The group or the path was not found. */
+        /** @description The group was not found. */
         404: {
           headers: {
             [name: string]: unknown;
@@ -2282,7 +2764,8 @@ export interface components {
       | 'INVALID_REFRESH_TOKEN'
       | 'EXPIRED_TOKEN'
       | 'USER_NOT_FOUND'
-      | 'INVALID_CURRENT_PASSWORD';
+      | 'INVALID_CURRENT_PASSWORD'
+      | 'INVALID_NICKNAME';
     AuthErrorCodeErrorResponse: {
       code: components['schemas']['AuthErrorCode'];
       message?: string | null;
@@ -2295,6 +2778,9 @@ export interface components {
       email: string;
       token: string;
       refreshToken: string;
+    };
+    ChangeNicknameRequestDto: {
+      newNickname: string;
     };
     ChangePasswordRequestDto: {
       currentPassword: string;
@@ -2343,6 +2829,35 @@ export interface components {
     GroupErrorCodeErrorResponse: {
       code: components['schemas']['GroupErrorCode'];
       message?: string | null;
+    };
+    GroupInvitationDto: {
+      /** Format: uuid */
+      id: string;
+      /** Format: date-time */
+      createdAt: string;
+      sender: components['schemas']['UserDto'];
+      receiver: components['schemas']['UserDto'];
+      group: components['schemas']['GroupDto'];
+    };
+    /** @enum {string} */
+    GroupInvitationErrorCode:
+      | 'INVITATION_NOT_FOUND'
+      | 'GROUP_NOT_FOUND'
+      | 'RECIPIENT_NOT_FOUND'
+      | 'ALREADY_IN_GROUP'
+      | 'ALREADY_SENT'
+      | 'RECIPROCAL_EXISTS'
+      | 'SELF_INVITATION'
+      | 'ACCESS_DENIED';
+    GroupInvitationErrorCodeErrorResponse: {
+      code: components['schemas']['GroupInvitationErrorCode'];
+      message?: string | null;
+    };
+    GroupInvitationRequestDto: {
+      /** Format: uuid */
+      userId: string;
+      /** Format: int32 */
+      groupId: number;
     };
     GroupMemberDto: {
       /** Format: uuid */
@@ -2429,8 +2944,7 @@ export interface components {
       | 'USERNAME_VALIDATION_ERROR'
       | 'INVALID_EMAIL_FORMAT'
       | 'VALIDATION_ERROR'
-      | 'USERNAME_RESERVED'
-      | 'PASSWORD_TOO_SHORT';
+      | 'USERNAME_RESERVED';
     RegisterErrorCodeErrorResponse: {
       code: components['schemas']['RegisterErrorCode'];
       message?: string | null;
@@ -2545,6 +3059,8 @@ export interface components {
     UserPathDto: {
       /** Format: uuid */
       userId: string;
+      /** Format: date-time */
+      departureTime: string;
       segments: (
         | components['schemas']['RouteSegmentDto']
         | components['schemas']['WalkSegmentDto']
@@ -2561,6 +3077,10 @@ export interface components {
     WalkSegmentDto: {
       from: components['schemas']['WalkLocationDto'];
       to: components['schemas']['WalkLocationDto'];
+      /** Format: int32 */
+      duration: number;
+      /** Format: int32 */
+      distance: number;
       shapes: components['schemas']['ShapeSectionDto'][];
     } & components['schemas']['SegmentDtoBase'];
   };

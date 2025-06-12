@@ -1,6 +1,7 @@
 import * as Location from 'expo-location';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import MapView from 'react-native-maps';
+
 import { useInlineTranslations } from '@/src/lib/useInlineTranslations';
 
 type UseLocationReturn = {
