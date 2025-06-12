@@ -26,7 +26,7 @@ export const useDistanceConverter = () => {
 
     if (distanceUnit === 'Kilometers') {
       if (distance_in_meter < 1000) {
-        return `${distance_in_meter} m`;
+        return `${Number(distance_in_meter.toFixed(0))} m`;
       } else {
         const distance_in_km = distance_in_meter / 1000;
         return `${Number(distance_in_km.toFixed(1))} km`;

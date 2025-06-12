@@ -3,7 +3,10 @@ import { components } from '../../openapi'; // Adjust path
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 
 export const NAMESPACE = 'src/api/errors/auth/register';
-type ErrorCode = components['schemas']['RegisterErrorCode'] | 'INTERNAL_ERROR';
+type ErrorCode =
+  | components['schemas']['RegisterErrorCode']
+  | 'INTERNAL_ERROR'
+  | 'PASSWORD_TOO_SHORT';
 
 export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
   en: {

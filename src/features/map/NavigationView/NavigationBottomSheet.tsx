@@ -9,6 +9,7 @@ import {
   CollapsibleTrigger,
   CollapsibleContent,
 } from '@/src/components/ui/collapsible';
+import { useDistanceConverter } from '@/src/hooks/useDistanceConverter';
 import { ChevronDown } from '@/src/lib/icons/ChevronDown';
 import { ChevronRight } from '@/src/lib/icons/ChevronRight';
 import { useInlineTranslations } from '@/src/lib/useInlineTranslations';
@@ -197,6 +198,8 @@ type TransitPartWalkProps = {
 
 const TransitPartWalk = ({ estimatedTime, distance }: TransitPartWalkProps) => {
   const theme = useTheme();
+  const { convertDistance } = useDistanceConverter();
+  const distanceText = convertDistance(distance);
   const { t } = useInlineTranslations(NAMESPACE, TRANSLATIONS);
 
   return (
@@ -217,7 +220,7 @@ const TransitPartWalk = ({ estimatedTime, distance }: TransitPartWalkProps) => {
         <Divider />
 
         <Text className="text-foreground">
-          {t('walk')} {estimatedTime} min ({distance} {t('meters')})
+          {t('walk')} {estimatedTime} min ({distanceText})
         </Text>
 
         <Divider />
@@ -388,9 +391,7 @@ export const NavigationBottomSheet = React.memo(({ path }: NavigationBottomSheet
           return (
             <TransitPartWalk
               key={key}
-              // @ts-expect-error
               estimatedTime={segment.duration}
-              // @ts-expect-error
               distance={segment.distance}
             />
           );

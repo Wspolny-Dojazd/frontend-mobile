@@ -3,6 +3,7 @@ import Clipboard from 'expo-clipboard';
 import { useRef, useCallback, useState, useMemo } from 'react';
 import { Text, View, Pressable } from 'react-native';
 
+import { useDistanceConverter } from '@/src/hooks/useDistanceConverter';
 import { calculateDistance } from '@/src/lib/calculateDistance';
 import { MapPin } from '@/src/lib/icons/MapPin';
 import { X } from '@/src/lib/icons/X';
@@ -70,6 +71,7 @@ export const LocationBottomSheet = ({
     return [contentHeight > 1 ? contentHeight : 10]; // fallback
   }, [contentHeight]);
   const theme = useTheme();
+  const { convertDistance } = useDistanceConverter();
 
   const handleClose = useCallback(() => {
     bottomSheetRef.current?.close();
@@ -83,9 +85,7 @@ export const LocationBottomSheet = ({
       snapPoints={snapPoints}
       index={index}
       handleComponent={null}
-      backgroundStyle={{
-        backgroundColor: theme.background,
-      }}
+      backgroundStyle={{ backgroundColor: theme.background }}
       style={{
         borderWidth: 1,
         borderLeftWidth: 0,
@@ -98,44 +98,45 @@ export const LocationBottomSheet = ({
       <BottomSheetView>
         <View
           className="relative flex w-full flex-col items-center justify-start gap-4 px-4 pt-4"
-          onLayout={(event) => {
-            const height = event.nativeEvent.layout.height;
-            setContentHeight(height + 20);
-          }}>
+          onLayout={(event) => setContentHeight(event.nativeEvent.layout.height + 20)}>
+          {/* górny kontener */}
           <View className="relative flex w-full flex-col items-center justify-start gap-4 px-4 pt-4">
             <Pressable className="absolute right-0 top-0 p-6" onPress={handleClose}>
               <X size={20} color="gray" />
             </Pressable>
 
+            {/* wiersz z pinezką i opisem */}
             <View className="flex w-full flex-row items-center justify-start">
               <MapPin size={32} className="text-primary" />
 
-              <View className="ml-4 flex w-[80%] flex-col items-start justify-start ">
+              <View className="ml-4 flex w-[80%] flex-col items-start justify-start">
                 <View className="flex flex-row items-baseline">
                   <Text className="text-wrap pt-1 text-xl font-semibold text-gray-900 dark:text-white">
                     {selectedPlace ? selectedPlace.name : t('selectedPlace')}
-
-                    {location && (selectedCoordinate || selectedPlace) && (
-                      <Text className="text-sm font-normal text-gray-500 dark:text-gray-400">
-                        {' '}
-                        {(() => {
-                          const lat = selectedCoordinate?.latitude ?? selectedPlace?.latitude;
-                          const lng = selectedCoordinate?.longitude ?? selectedPlace?.longitude;
-                          if (lat !== undefined && lng !== undefined) {
-                            return `${calculateDistance(
-                              location.coords.latitude,
-                              location.coords.longitude,
-                              lat,
-                              lng
-                            ).toFixed(0)}${t('meters')}`;
-                          }
-                          return '';
-                        })()}
-                      </Text>
-                    )}
                   </Text>
+
+                  {location && (selectedCoordinate || selectedPlace) && (
+                    <Text className="text-sm font-normal text-gray-500 dark:text-gray-400">
+                      {(() => {
+                        const lat = selectedCoordinate?.latitude ?? selectedPlace?.latitude;
+                        const lng = selectedCoordinate?.longitude ?? selectedPlace?.longitude;
+
+                        if (lat !== undefined && lng !== undefined) {
+                          const rawDistance = calculateDistance(
+                            location.coords.latitude,
+                            location.coords.longitude,
+                            lat,
+                            lng
+                          );
+                          return ` ${convertDistance(rawDistance)}`;
+                        }
+                        return '';
+                      })()}
+                    </Text>
+                  )}
                 </View>
 
+                {/* adres lub koordynaty */}
                 {selectedPlace && (
                   <Pressable
                     onLongPress={() =>
@@ -163,6 +164,8 @@ export const LocationBottomSheet = ({
                 )}
               </View>
             </View>
+
+            {/* przycisk akceptacji */}
             <Pressable className="mt-4 w-full rounded-3xl bg-primary px-6 py-4" onPress={onAccept}>
               <Text className="text-center text-xl font-semibold text-white">
                 {acceptButtonText ?? t('newRide')}
