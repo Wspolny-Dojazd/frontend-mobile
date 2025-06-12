@@ -23,6 +23,7 @@ export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
     INVALID_CURRENT_PASSWORD: 'Invalid current password.',
     USER_NOT_FOUND: 'The specified user could not be found.',
     ACCESS_DENIED: 'You do not have permission to access this resource.',
+    INVALID_NICKNAME: 'An unexpected error occurred. Please try again.',
   },
   pl: {
     GROUP_NOT_FOUND: 'Grupa nie znaleziona. Sprawdź czy wpisałeś poprawny kod.',
@@ -37,6 +38,7 @@ export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
     INVALID_CURRENT_PASSWORD: 'Nieprawidłowe hasło.',
     USER_NOT_FOUND: 'Użytkownik nie znaleziony.',
     ACCESS_DENIED: 'Nie masz dostępu do tego zasobu.',
+    INVALID_NICKNAME: 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie.',
   },
 };
 

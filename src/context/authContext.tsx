@@ -492,27 +492,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     async (registrationData: RegisterData) => {
       setError(null);
       isRefreshing.current = false;
-      try {
-        const data = (await registerMutation.mutateAsync({
-          body: registrationData,
-        })) as AuthResponseDto;
-        await handleTokenUpdate(data);
-        router.replace('/tabs'); // redirect on success
-      } catch (err: unknown) {
-        console.error('Registration failed:', err);
-        const apiError = err as ApiError<RegisterErrorCode>;
-        const errorCode = (err as any).code; //apiError?.data?.code;
-        const backendMessage = apiError?.data?.message ?? (err as any)?.message;
 
-        // 🔧 NIE wykonuj handleLogout tutaj:
-        setToken(null);
-        setUser(null);
-        setError(
-          errorCode
-            ? tRegisterError(errorCode)
-            : backendMessage || 'Registration failed. Please try again.'
-        );
-      }
+      await registerMutation.mutateAsync(
+        {
+          body: registrationData,
+        },
+        {
+          onSuccess: async (data) => {
+            await handleTokenUpdate(data);
+            router.replace('/tabs');
+          },
+          onError: (error) => {
+            console.error('Registration failed:', error);
+            const errorCode = error.code;
+            const backendMessage = error.message;
+
+            // 🔧 NIE wykonuj handleLogout tutaj:
+            setToken(null);
+            setUser(null);
+            setError(
+              errorCode
+                ? tRegisterError(errorCode)
+                : backendMessage || 'Registration failed. Please try again.'
+            );
+          },
+        }
+      );
     },
     [registerMutation, handleTokenUpdate, router, tRegisterError]
   );

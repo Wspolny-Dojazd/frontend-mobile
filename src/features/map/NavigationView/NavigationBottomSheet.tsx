@@ -391,9 +391,7 @@ export const NavigationBottomSheet = React.memo(({ path }: NavigationBottomSheet
           return (
             <TransitPartWalk
               key={key}
-              // @ts-expect-error
               estimatedTime={segment.duration}
-              // @ts-expect-error
               distance={segment.distance}
             />
           );

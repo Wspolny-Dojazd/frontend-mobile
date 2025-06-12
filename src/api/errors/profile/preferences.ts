@@ -19,6 +19,7 @@ export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
     INVALID_REFRESH_TOKEN: 'Invalid refresh token.',
     INVALID_CURRENT_PASSWORD: 'Invalid current password.',
     USER_NOT_FOUND: 'The specified user could not be found.',
+    INVALID_NICKNAME: 'An unexpected error occurred. Please try again.',
   },
   pl: {
     USER_CONFIGURATION_NOT_FOUND: 'Konfiguracja użytkownika nie znaleziona.',
@@ -30,6 +31,7 @@ export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
     INVALID_REFRESH_TOKEN: 'Nieprawidłowy token odświeżania.',
     INVALID_CURRENT_PASSWORD: 'Nieprawidłowe hasło.',
     USER_NOT_FOUND: 'Użytkownik nie znaleziony.',
+    INVALID_NICKNAME: 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie.',
   },
 };
 

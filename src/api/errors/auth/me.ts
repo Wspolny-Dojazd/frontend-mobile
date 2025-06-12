@@ -16,6 +16,7 @@ export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
     USER_NOT_FOUND: 'User account not found.',
     INVALID_REFRESH_TOKEN: 'Invalid refresh token.',
     INVALID_CURRENT_PASSWORD: 'Invalid current password.',
+    INVALID_NICKNAME: 'Invalid nickname.',
   },
   pl: {
     // Auth Errors (401)
@@ -26,6 +27,7 @@ export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
     USER_NOT_FOUND: 'Nie znaleziono konta użytkownika.',
     INVALID_REFRESH_TOKEN: 'Nieprawidłowy token odświeżania.',
     INVALID_CURRENT_PASSWORD: 'Nieprawidłowe hasło.',
+    INVALID_NICKNAME: 'Nieprawidłowa nazwa użytkownika.',
   },
 };
 

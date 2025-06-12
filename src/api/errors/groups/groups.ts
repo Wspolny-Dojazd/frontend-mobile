@@ -22,6 +22,7 @@ export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
     ACCESS_DENIED: 'You do not have permission to access this resource.',
     INVALID_REFRESH_TOKEN: 'Invalid refresh token.',
     INVALID_CURRENT_PASSWORD: 'Invalid current password.',
+    INVALID_NICKNAME: 'An unexpected error occurred. Please try again.',
   },
   pl: {
     GROUP_NOT_FOUND: 'Grupa nie znaleziona. Sprawdź czy wpisałeś poprawny kod.',
@@ -35,6 +36,7 @@ export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
     ACCESS_DENIED: 'Nie masz dostępu do tego zasobu.',
     INVALID_REFRESH_TOKEN: 'Nieprawidłowy token odświeżania.',
     INVALID_CURRENT_PASSWORD: 'Nieprawidłowe hasło.',
+    INVALID_NICKNAME: 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie.',
   },
 };
 

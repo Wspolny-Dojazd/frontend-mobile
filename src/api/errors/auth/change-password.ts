@@ -15,6 +15,7 @@ const TRANSLATIONS = {
     USER_NOT_FOUND: 'User not found.',
     INVALID_CURRENT_PASSWORD: 'Current password is incorrect.',
     INTERNAL_ERROR: 'An internal error occurred. Please try again later.',
+    INVALID_NICKNAME: 'An unexpected error occurred. Please try again.',
   },
   pl: {
     MISSING_TOKEN: 'Brak tokenu uwierzytelniania.',
@@ -24,6 +25,7 @@ const TRANSLATIONS = {
     USER_NOT_FOUND: 'Nie znaleziono użytkownika.',
     INVALID_CURRENT_PASSWORD: 'Aktualne hasło jest nieprawidłowe.',
     INTERNAL_ERROR: 'Wystąpił błąd wewnętrzny. Spróbuj ponownie później.',
+    INVALID_NICKNAME: 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.',
   },
 };
 
