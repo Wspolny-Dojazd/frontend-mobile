@@ -66,9 +66,9 @@ export const LocationBottomSheet = ({
   const bottomSheetRef = useRef<BottomSheet>(null);
   const [contentHeight, setContentHeight] = useState(1);
 
-const snapPoints = useMemo(() => {
-  return [contentHeight > 1 ? contentHeight : 10]; // fallback
-}, [contentHeight]);
+  const snapPoints = useMemo(() => {
+    return [contentHeight > 1 ? contentHeight : 10]; // fallback
+  }, [contentHeight]);
   const theme = useTheme();
 
   const handleClose = useCallback(() => {
@@ -96,80 +96,79 @@ const snapPoints = useMemo(() => {
         borderColor: theme.border,
       }}>
       <BottomSheetView>
-            <View
-    className="relative flex w-full flex-col items-center justify-start gap-4 px-4 pt-4"
-    onLayout={(event) => {
-      const height = event.nativeEvent.layout.height;
-      setContentHeight(height+20);
-    }}
-  >
-        <View className="relative flex w-full flex-col items-center justify-start gap-4 px-4 pt-4">
-          <Pressable className="absolute right-0 top-0 p-6" onPress={handleClose}>
-            <X size={20} color="gray" />
-          </Pressable>
+        <View
+          className="relative flex w-full flex-col items-center justify-start gap-4 px-4 pt-4"
+          onLayout={(event) => {
+            const height = event.nativeEvent.layout.height;
+            setContentHeight(height + 20);
+          }}>
+          <View className="relative flex w-full flex-col items-center justify-start gap-4 px-4 pt-4">
+            <Pressable className="absolute right-0 top-0 p-6" onPress={handleClose}>
+              <X size={20} color="gray" />
+            </Pressable>
 
-          <View className="flex w-full flex-row items-center justify-start">
-            <MapPin size={32} className="text-primary" />
+            <View className="flex w-full flex-row items-center justify-start">
+              <MapPin size={32} className="text-primary" />
 
-            <View className="ml-4 flex w-[80%] flex-col items-start justify-start ">
-              <View className="flex flex-row items-baseline">
-                <Text className="text-wrap pt-1 text-xl font-semibold text-gray-900 dark:text-white">
-                  {selectedPlace ? selectedPlace.name : t('selectedPlace')}
+              <View className="ml-4 flex w-[80%] flex-col items-start justify-start ">
+                <View className="flex flex-row items-baseline">
+                  <Text className="text-wrap pt-1 text-xl font-semibold text-gray-900 dark:text-white">
+                    {selectedPlace ? selectedPlace.name : t('selectedPlace')}
 
-                  {location && (selectedCoordinate || selectedPlace) && (
-                    <Text className="text-sm font-normal text-gray-500 dark:text-gray-400">
-                      {' '}
-                      {(() => {
-                        const lat = selectedCoordinate?.latitude ?? selectedPlace?.latitude;
-                        const lng = selectedCoordinate?.longitude ?? selectedPlace?.longitude;
-                        if (lat !== undefined && lng !== undefined) {
-                          return `${calculateDistance(
-                            location.coords.latitude,
-                            location.coords.longitude,
-                            lat,
-                            lng
-                          ).toFixed(0)}${t('meters')}`;
-                        }
-                        return '';
-                      })()}
+                    {location && (selectedCoordinate || selectedPlace) && (
+                      <Text className="text-sm font-normal text-gray-500 dark:text-gray-400">
+                        {' '}
+                        {(() => {
+                          const lat = selectedCoordinate?.latitude ?? selectedPlace?.latitude;
+                          const lng = selectedCoordinate?.longitude ?? selectedPlace?.longitude;
+                          if (lat !== undefined && lng !== undefined) {
+                            return `${calculateDistance(
+                              location.coords.latitude,
+                              location.coords.longitude,
+                              lat,
+                              lng
+                            ).toFixed(0)}${t('meters')}`;
+                          }
+                          return '';
+                        })()}
+                      </Text>
+                    )}
+                  </Text>
+                </View>
+
+                {selectedPlace && (
+                  <Pressable
+                    onLongPress={() =>
+                      Clipboard.setStringAsync(
+                        `${selectedPlace.latitude}, ${selectedPlace.longitude}`
+                      )
+                    }>
+                    <Text className="mt-1 text-base text-gray-600 dark:text-gray-300">
+                      {selectedPlace.address}
                     </Text>
-                  )}
-                </Text>
+                  </Pressable>
+                )}
+
+                {selectedCoordinate && !selectedPlace && (
+                  <Pressable
+                    onLongPress={() =>
+                      Clipboard.setStringAsync(
+                        `${selectedCoordinate.latitude}, ${selectedCoordinate.longitude}`
+                      )
+                    }>
+                    <Text className="mt-1 text-base text-gray-600 dark:text-gray-300">
+                      {selectedCoordinate.latitude}, {selectedCoordinate.longitude}
+                    </Text>
+                  </Pressable>
+                )}
               </View>
-
-              {selectedPlace && (
-                <Pressable
-                  onLongPress={() =>
-                    Clipboard.setStringAsync(
-                      `${selectedPlace.latitude}, ${selectedPlace.longitude}`
-                    )
-                  }>
-                  <Text className="mt-1 text-base text-gray-600 dark:text-gray-300">
-                    {selectedPlace.address}
-                  </Text>
-                </Pressable>
-              )}
-
-              {selectedCoordinate && !selectedPlace && (
-                <Pressable
-                  onLongPress={() =>
-                    Clipboard.setStringAsync(
-                      `${selectedCoordinate.latitude}, ${selectedCoordinate.longitude}`
-                    )
-                  }>
-                  <Text className="mt-1 text-base text-gray-600 dark:text-gray-300">
-                    {selectedCoordinate.latitude}, {selectedCoordinate.longitude}
-                  </Text>
-                </Pressable>
-              )}
             </View>
+            <Pressable className="mt-4 w-full rounded-3xl bg-primary px-6 py-4" onPress={onAccept}>
+              <Text className="text-center text-xl font-semibold text-white">
+                {acceptButtonText ?? t('newRide')}
+              </Text>
+            </Pressable>
           </View>
-          <Pressable className="mt-4 w-full rounded-3xl bg-primary px-6 py-4" onPress={onAccept}>
-            <Text className="text-center text-xl font-semibold text-white">
-              {acceptButtonText ?? t('newRide')}
-            </Text>
-          </Pressable>
-        </View>
         </View>
       </BottomSheetView>
     </BottomSheet>

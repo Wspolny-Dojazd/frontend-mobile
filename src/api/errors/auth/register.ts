@@ -3,7 +3,7 @@ import { components } from '../../openapi'; // Adjust path
 import { useTypedTranslation } from '@/src/hooks/useTypedTranslations';
 
 export const NAMESPACE = 'src/api/errors/auth/register';
-type ErrorCode = components['schemas']['RegisterErrorCode'];
+type ErrorCode = components['schemas']['RegisterErrorCode'] | 'INTERNAL_ERROR';
 
 export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
   en: {
@@ -14,6 +14,7 @@ export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
     USERNAME_VALIDATION_ERROR: 'Username validation failed. Please check your input.',
     USERNAME_RESERVED: 'This username is reserved for internal use.',
     PASSWORD_TOO_SHORT: 'Password must be at least 8 characters long.',
+    INTERNAL_ERROR: 'An internal error occurred. Please try again.',
   },
   pl: {
     EMAIL_ALREADY_USED: 'Ten adres email jest już zarejestrowany.',
@@ -24,6 +25,7 @@ export const TRANSLATIONS: Record<string, Record<ErrorCode, string>> = {
       'Nazwa użytkownika jest nieprawidłowa. Proszę sprawdzić wprowadzone dane.',
     USERNAME_RESERVED: 'Ta nazwa użytkownika jest zarezerwowana dla wewnętrznego użycia.',
     PASSWORD_TOO_SHORT: 'Hasło musi mieć co najmniej 8 znaków.',
+    INTERNAL_ERROR: 'Wystąpił błąd wewnętrzny. Spróbuj ponownie.',
   },
 };
 

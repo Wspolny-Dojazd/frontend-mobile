@@ -492,21 +492,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     async (registrationData: RegisterData) => {
       setError(null);
       isRefreshing.current = false;
-  
+
       await registerMutation.mutateAsync(
         {
           body: registrationData,
         },
         {
-          onSuccess: async (data: AuthResponseDto) => {
+          onSuccess: async (data) => {
             await handleTokenUpdate(data);
             router.replace('/tabs');
           },
-          onError: (error: ApiError<RegisterErrorCode>) => {
+          onError: (error) => {
             console.error('Registration failed:', error);
             const errorCode = error.code;
-            const backendMessage = error.data?.message ?? error.message;
-  
+            const backendMessage = error.message;
+
             // 🔧 NIE wykonuj handleLogout tutaj:
             setToken(null);
             setUser(null);
@@ -521,7 +521,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     },
     [registerMutation, handleTokenUpdate, router, tRegisterError]
   );
-  
 
   // --- Manual Logout Function ---
   // Exposed via context, simply calls the central handler.

@@ -294,10 +294,7 @@ export default function TransitGroup() {
 
   useEffect(() => {
     const paths = queryAcceptedPath.data?.paths;
-    if (
-      !destinationCoordinate &&
-      Array.isArray(paths) && paths.length > 0
-    ) {
+    if (!destinationCoordinate && Array.isArray(paths) && paths.length > 0) {
       const lastStop = paths[0]?.segments?.at(-1)?.stops?.at(-1);
       if (lastStop?.latitude && lastStop?.longitude) {
         setDestinationCoordinate({
