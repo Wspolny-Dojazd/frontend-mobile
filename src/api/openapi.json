@@ -3324,7 +3324,7 @@
         },
         "additionalProperties": false
       },
-      "DistanceUnit": {
+      "": {
         "enum": ["Kilometers", "Miles"],
         "type": "string"
       },
@@ -3873,14 +3873,14 @@
         "type": "string"
       },
       "UserConfigurationDto": {
-        "required": ["distanceUnit", "language", "theme", "timeSystem"],
+        "required": ["", "language", "theme", "timeSystem"],
         "type": "object",
         "properties": {
           "timeSystem": {
             "$ref": "#/components/schemas/TimeSystem"
           },
-          "distanceUnit": {
-            "$ref": "#/components/schemas/DistanceUnit"
+          "": {
+            "$ref": "#/components/schemas/"
           },
           "language": {
             "$ref": "#/components/schemas/Language"

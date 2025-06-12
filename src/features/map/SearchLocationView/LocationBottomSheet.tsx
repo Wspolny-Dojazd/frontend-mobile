@@ -176,3 +176,4 @@ const snapPoints = useMemo(() => {
     </BottomSheetView>
   </BottomSheet>
 );
+}

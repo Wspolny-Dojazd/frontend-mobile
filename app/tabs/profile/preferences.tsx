@@ -87,7 +87,7 @@ const TRANSLATIONS = {
 type UserConfigurationDto = components['schemas']['UserConfigurationDto'];
 
 type PreferencesFormValues = {
-  distanceUnit: 'Kilometers' | 'Miles';
+  : 'Kilometers' | 'Miles';
   timeSystem: 'TwentyFourHour' | 'TwelveHour';
   theme: 'light' | 'dark';
   language: Language;
@@ -125,7 +125,7 @@ export default function Preferences() {
     formState: { isSubmitting },
   } = useForm<PreferencesFormValues>({
     defaultValues: {
-      distanceUnit: 'Kilometers',
+      : 'Kilometers',
       timeSystem: 'TwentyFourHour',
       theme: colorScheme,
       language: i18n.language as Language,
@@ -164,7 +164,7 @@ export default function Preferences() {
   useEffect(() => {
     if (userConfigQuery.data && !configLoadedRef.current) {
       const config = userConfigQuery.data as UserConfigurationDto;
-      setValue('distanceUnit', config.distanceUnit);
+      setValue('', config.);
       setValue('timeSystem', config.timeSystem);
 
       if (config.language === 'English') {
@@ -185,7 +185,7 @@ export default function Preferences() {
       const themeValue: 'Light' | 'Dark' = data.theme === 'light' ? 'Light' : 'Dark';
 
       const requestBody: UserConfigurationDto = {
-        distanceUnit: data.distanceUnit,
+        : data.,
         timeSystem: data.timeSystem,
         language: languageValue,
         theme: themeValue,
@@ -198,7 +198,7 @@ export default function Preferences() {
             Authorization: `Bearer ${token}`,
           },
         });
-
+        await userConfigQuery.refetch();
         setSaveMessage(t('saveSuccess'));
       } catch (err) {
         console.error(err);
@@ -331,7 +331,7 @@ export default function Preferences() {
       <PreferenceItem label={t('unit_metric')}>
         <Controller
           control={control}
-          name="distanceUnit"
+          name=""
           render={({ field: { onChange, value } }) => (
             <Select
               value={{
