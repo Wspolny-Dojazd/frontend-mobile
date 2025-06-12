@@ -489,6 +489,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // --- Register Function ---
   // Exposed via context for components to call.
   const register = useCallback(
+     async (registrationData: RegisterData) => {
+        setError(null);
+        isRefreshing.current = false;
+
+     await registerMutation.mutateAsync(
+      {
+      body: registrationData,
+     },
+      {
+      onSuccess: async (data) => {
+        await handleTokenUpdate(data);
+        router.replace('/tabs');
+      },
+        onError: (error: ApiError<RegisterErrorCode>) => {
+        const errorCode = error.code;
+        const backendMessage = error.data?.message ?? error.message;
+
+        setToken(null);
+        setUser(null);
+        setError(
+          errorCode
+            ? tRegisterError(errorCode)
+            : backendMessage || 'Registration failed. Please try again.'
+        );
+      },
+    }
+  );
+}
     async (registrationData: RegisterData) => {
       setError(null);
       isRefreshing.current = false;
