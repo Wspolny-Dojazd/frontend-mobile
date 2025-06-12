@@ -198,7 +198,7 @@ export default function Preferences() {
             Authorization: `Bearer ${token}`,
           },
         });
-
+        await userConfigQuery.refetch();
         setSaveMessage(t('saveSuccess'));
       } catch (err) {
         console.error(err);
