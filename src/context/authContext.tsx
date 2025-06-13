@@ -461,27 +461,38 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     [handleLogout] // handleLogout is the main dependency
   );
 
-  // --- Login Function ---
+    // --- Login Function ---
   // Exposed via context for components to call.
   const login = useCallback(
     async (credentials: LoginCredentials) => {
       setError(null);
       isRefreshing.current = false;
-      try {
-        const data = (await loginMutation.mutateAsync({ body: credentials })) as AuthResponseDto;
-        await handleTokenUpdate(data);
-        router.replace('/tabs'); // redirect on success
-      } catch (err: unknown) {
-        console.error('Login failed:', err);
-        const apiError = err as ApiError<LoginErrorCode>;
-        const errorCode = apiError.data?.code;
-        const errorMessage = errorCode ? tLoginError(errorCode) : 'Login failed. Please try again.';
 
-        // 🔧 NIE wykonuj handleLogout tutaj:
-        setToken(null);
-        setUser(null);
-        setError(errorMessage);
-      }
+      await loginMutation.mutateAsync(
+        {
+          body: credentials,
+        },
+        {
+          onSuccess: async (data) => {
+            await handleTokenUpdate(data);
+            router.replace("/tabs");
+          },
+          onError: (error) => {
+            console.error("Login failed:", error);
+
+            const errorCode = error.code;
+            const backendMessage = error.message;
+
+            setToken(null);
+            setUser(null);
+            setError(
+              errorCode
+                ? tLoginError(errorCode)
+                : backendMessage || "Login failed. Please try again."
+            );
+          },
+        }
+      );
     },
     [loginMutation, handleTokenUpdate, router, tLoginError]
   );
@@ -500,20 +511,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         {
           onSuccess: async (data) => {
             await handleTokenUpdate(data);
-            router.replace('/tabs');
+            router.replace("/tabs");
           },
           onError: (error) => {
-            console.error('Registration failed:', error);
+            console.error("Registration failed:", error);
+
             const errorCode = error.code;
             const backendMessage = error.message;
 
-            // 🔧 NIE wykonuj handleLogout tutaj:
             setToken(null);
             setUser(null);
             setError(
               errorCode
                 ? tRegisterError(errorCode)
-                : backendMessage || 'Registration failed. Please try again.'
+                : backendMessage || "Registration failed. Please try again."
             );
           },
         }
