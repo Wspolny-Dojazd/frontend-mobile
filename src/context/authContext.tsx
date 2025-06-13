@@ -461,7 +461,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     [handleLogout] // handleLogout is the main dependency
   );
 
-    // --- Login Function ---
+  // --- Login Function ---
   // Exposed via context for components to call.
   const login = useCallback(
     async (credentials: LoginCredentials) => {
@@ -475,10 +475,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         {
           onSuccess: async (data) => {
             await handleTokenUpdate(data);
-            router.replace("/tabs");
+            router.replace('/tabs');
           },
           onError: (error) => {
-            console.error("Login failed:", error);
+            console.error('Login failed:', error);
 
             const errorCode = error.code;
             const backendMessage = error.message;
@@ -488,7 +488,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             setError(
               errorCode
                 ? tLoginError(errorCode)
-                : backendMessage || "Login failed. Please try again."
+                : backendMessage || 'Login failed. Please try again.'
             );
           },
         }
@@ -511,10 +511,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         {
           onSuccess: async (data) => {
             await handleTokenUpdate(data);
-            router.replace("/tabs");
+            router.replace('/tabs');
           },
           onError: (error) => {
-            console.error("Registration failed:", error);
+            console.error('Registration failed:', error);
 
             const errorCode = error.code;
             const backendMessage = error.message;
@@ -524,7 +524,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             setError(
               errorCode
                 ? tRegisterError(errorCode)
-                : backendMessage || "Registration failed. Please try again."
+                : backendMessage || 'Registration failed. Please try again.'
             );
           },
         }
